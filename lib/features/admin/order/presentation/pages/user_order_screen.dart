@@ -74,6 +74,7 @@ class _UserOrderScreenState extends State<UserOrderScreen> {
                 ),
                 10.toSizedBoxHeight,
                 listOfOrderedProduct()
+
               ],
             ),
           ),
