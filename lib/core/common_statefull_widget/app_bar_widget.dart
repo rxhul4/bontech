@@ -1,0 +1,211 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:sales_app_redesign/core/storage/preference_helper.dart';
+
+import 'package:sales_app_redesign/core/utils/app_colors.dart';
+import 'package:sales_app_redesign/core/utils/app_constant.dart';
+import 'package:sales_app_redesign/core/utils/app_extension.dart';
+import 'package:sales_app_redesign/core/utils/app_utils.dart';
+import 'package:sales_app_redesign/features/genral/cart/presentation/cart_screen.dart';
+import 'package:sales_app_redesign/features/genral/product/provider/product_provider.dart';
+import 'package:sales_app_redesign/features/genral/search/presentation/search_delegate.dart';
+
+import '../../features/admin/dashboard_ad/dashboard_ad.dart';
+import '../../features/sales/dashboard/dashboard.dart';
+
+class AppBarWidget extends StatefulWidget {
+  const AppBarWidget({
+    super.key,
+    this.title,
+    this.onBackPressed,
+    this.onPressedSearch,
+    this.onPressedCart,
+    this.onPressedFav,
+    this.isFavColor,
+    this.isBackVisible = false,
+    this.isSearchVisible = false,
+    this.isCartVisible = true,
+    this.isFavVisible = false,
+    this.textAlign,
+    this.centerTitle = true
+
+  });
+
+  final String? title;
+  final Function? onBackPressed;
+  final Function? onPressedSearch;
+  final Function? onPressedCart;
+  final Function? onPressedFav;
+  final bool isBackVisible;
+  final bool isSearchVisible;
+  final bool isCartVisible;
+  final bool isFavVisible;
+  final Color? isFavColor;
+  final TextAlign? textAlign;
+  final bool centerTitle;
+
+  @override
+  State<AppBarWidget> createState() => _AppBarWidgetState();
+}
+
+class _AppBarWidgetState extends State<AppBarWidget> {
+
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      backgroundColor: AppColors.colorTransparent,
+      surfaceTintColor: AppColors.colorTransparent,
+      shadowColor: AppColors.colorTransparent,
+      automaticallyImplyLeading: false,
+      elevation: 10,
+      titleSpacing: widget.isBackVisible == false ? 16 : 0,
+
+      leadingWidth: 70,
+
+      leading: widget.isBackVisible ? _backArrow(context) : null,
+      centerTitle: widget.centerTitle ? true : false,
+      title: (widget.title ?? ''.toUpperCase()).textWidget(
+        color: AppColors.colorWhite,
+        fontWeight: FontWeight.w500,
+        fontFamily: AppConstants.fontFamilyPoppins,
+        latterSpacing: 0.3,
+        fontSize: 20,
+      ),
+      actions: [
+        // searchIcon(),
+        widget.isSearchVisible ? _searchIcon(context) :  SizedBox(),
+        10.toSizedBoxWidth,
+
+        widget.isCartVisible ? _cartIcon(context) : SizedBox(),
+        5.toSizedBoxWidth,
+      ],
+    );
+  }
+
+  Widget _backArrow(BuildContext context) {
+    return GestureDetector(
+
+      onTap: () {
+        if (widget.onBackPressed != null) {
+          widget.onBackPressed!();
+        }else{
+          Navigator.pop(context);
+        }
+
+      },
+      child: Container(
+        width: 44,
+        height: 44,
+        alignment: Alignment.center,
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+        decoration: AppUtils.commonGradientBoxDecoration(),
+        child: const Icon(
+          Icons.arrow_back_ios_new_rounded,
+          size: 18,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
+
+  Widget _cartIcon(BuildContext context) {
+    return Visibility(
+        visible: widget.isCartVisible,
+        child: InkWell(
+          onTap: () {
+            if (widget.onPressedCart != null) {
+              widget.onPressedCart!();
+            } else {
+              String?  userType = PreferenceHelper.getString(PreferenceHelper.USER_TYPE_ID);
+              if(userType == AppConstants.userTypeDistributor){
+                Navigator.push(context, MaterialPageRoute(builder: (context) => CartScreen(isAdmin: true,),));
+              }else{
+                Navigator.push(context, MaterialPageRoute(builder: (context) => CartScreen(isAdmin: false,),));
+              }
+
+            }
+          },
+          child: SizedBox(
+            height: 40,
+            child: Stack(
+              children: [
+                Container(
+                  padding: const EdgeInsets.only(right: 3.0, top: 3),
+                  child: const Icon(
+                    Icons.shopping_bag_outlined,
+                    color: AppColors.colorWhite,
+                    size: 30,
+                  ),
+                ),
+                Positioned(right: 0, top: 0, child: _countView()),
+              ],
+            ),
+          ),
+        ));
+  }
+
+  Widget _searchIcon(BuildContext context) {
+    return Visibility(
+        visible: widget.isSearchVisible,
+        child: InkWell(
+          onTap: () {
+           if(widget.onPressedSearch  != null){
+             widget.onPressedSearch!();
+           }
+          },
+          child: SizedBox(
+            height: 40,
+            child: Stack(
+              children: [
+                Container(
+                  padding: const EdgeInsets.only(right: 3.0, top: 5),
+                  child: const Icon(
+                    Icons.search_rounded,
+                    color: AppColors.colorWhite,
+                    size: 30,
+                  ),
+                ),
+                // Positioned(right: 0, top: 0, child: _countView()),
+              ],
+            ),
+          ),
+        ));
+  }
+
+
+  Widget _countView() {
+    return Consumer<ProductProvider>(
+
+      builder: (context, productProvider, child) {
+        // Call your function or logic here
+         // Example method
+        // int cartItemCount = productProvider.getCartItemCount();
+
+        // Then show the widget
+        return Visibility(
+          visible: (cartItemCount > 0),
+          child: Container(
+            height: 17,
+            width: 17,
+            decoration: BoxDecoration(
+              color: Colors.red,
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: '$cartItemCount'.textWidget(
+                color: AppColors.colorWhite,
+                fontWeight: FontWeight.bold,
+                fontSize: 9,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+}
