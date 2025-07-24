@@ -18,14 +18,14 @@ import 'package:sales_app_redesign/features/admin/order/presentation/order_list_
 import 'package:sales_app_redesign/features/admin/order/presentation/pages/user_order_screen.dart';
 import 'package:sales_app_redesign/features/admin/order/provider/order_provider_ad.dart';
 
-class OrderScreenAd extends StatefulWidget {
-  const OrderScreenAd({super.key});
+class StockScreenAd extends StatefulWidget {
+  const StockScreenAd({super.key});
 
   @override
-  State<OrderScreenAd> createState() => _OrderScreenAdState();
+  State<StockScreenAd> createState() => _StockScreenAdState();
 }
 
-class _OrderScreenAdState extends State<OrderScreenAd> {
+class _StockScreenAdState extends State<StockScreenAd> {
   // late OrderProviderAd _orderProviderAd;
 
   TextEditingController quantityController = TextEditingController();
@@ -50,9 +50,30 @@ class _OrderScreenAdState extends State<OrderScreenAd> {
               title: "ORDER",
               isBackVisible: false,
               isCartVisible: true,
+              isAdmin: true,
             ),
           ),
-          body: listOfOrderedProduct(),
+          body: SingleChildScrollView(
+            child: Stack(
+              children: [
+                listOfOrderedProduct(),
+                // Align(
+                //   alignment: Alignment.bottomCenter,
+                //   child: Container(
+                //     alignment: Alignment.bottomCenter,
+                //     width: double.infinity,
+                //     padding: EdgeInsets.symmetric(vertical: 12),
+                //     margin: EdgeInsets.symmetric(horizontal: 10),
+                //     decoration: AppUtils.commonGradientBoxDecoration(),
+                //     child: "Place Order".textWidget(
+                //       fontWeight: FontWeight.w500,
+                //       textAlign: TextAlign.center,
+                //     ),
+                //   ),
+                // ),
+              ],
+            ),
+          ),
         );
       },
     );
@@ -60,10 +81,25 @@ class _OrderScreenAdState extends State<OrderScreenAd> {
 
   listOfOrderedProduct() {
     return ListView.builder(
-      padding: EdgeInsets.only(left: 10, right: 10),
-      itemCount: orderedProductList.length,
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.only(left: 10, right: 10),
+      itemCount: orderedProductList.length + 1, // Add 1 for the button
       itemBuilder: (context, index) {
-        return _listItemSalesOrderItem(orderedProductList[index]);
+        if (index == orderedProductList.length) {
+          // Last item: Add Product button
+          return Container(
+            padding: EdgeInsets.symmetric(vertical: 12),
+            decoration: AppUtils.commonGradientBoxDecoration(),
+
+            child: "Add Product".textWidget(
+              fontWeight: FontWeight.w500,
+              textAlign: TextAlign.center,
+            ),
+          );
+        } else {
+          return _listItemSalesOrderItem(orderedProductList[index]);
+        }
       },
     );
   }
@@ -122,7 +158,13 @@ class _OrderScreenAdState extends State<OrderScreenAd> {
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => UserOrderScreen(productModel: productList,),));
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => UserOrderScreen(productModel: productList),
+              ),
+            );
             // if (_orderCubit.orderDetails?.state == OrderStatusType.draft) {
             // if (_orderCubit.isAllowUpdateOrder) {
             //   _orderCubit.qtyEditController.clear();
@@ -164,35 +206,38 @@ class _OrderScreenAdState extends State<OrderScreenAd> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          (productList.productName ?? "4.5mm bolt")
-                              .textWidget(
+                          (productList.productName ?? "4.5mm bolt").textWidget(
+                            fontWeight: FontWeight.bold,
+                            fontFamily: AppConstants.fontFamilyPoppins,
+                            fontSize: fontSizeMedium,
+                            color: AppColors.colorLightGrey,
+                          ),
+                          5.toSizedBoxHeight,
+                          Row(
+                            children: [
+                              ("${productList.productCode} | ").textWidget(
                                 fontWeight: FontWeight.bold,
                                 fontFamily: AppConstants.fontFamilyPoppins,
-                                fontSize: fontSizeMedium,
+                                fontSize: fontSizeNormal,
                                 color: AppColors.colorLightGrey,
                               ),
-                          5.toSizedBoxHeight,
-                          Row(children: [
-                            ("${productList.productCode} | ")
-                                .textWidget(
-                              fontWeight: FontWeight.bold,
-                              fontFamily: AppConstants.fontFamilyPoppins,
-                              fontSize: fontSizeNormal,
-                              color: AppColors.colorLightGrey,
-                            ),
-                            (productList.productCategory ?? "4.5mm bolt")
-                                .textWidget(
-                              fontWeight: FontWeight.bold,
-                              fontFamily: AppConstants.fontFamilyPoppins,
-                              fontSize: fontSizeNormal,
-                              color: AppColors.colorLightGrey,
-                            ),
-                          ]),
+                              (productList.productCategory ?? "4.5mm bolt")
+                                  .textWidget(
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: AppConstants.fontFamilyPoppins,
+                                    fontSize: fontSizeNormal,
+                                    color: AppColors.colorLightGrey,
+                                  ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
 
-                    Expanded(flex: 2,child: _productItemCountView(productList))
+                    Expanded(
+                      flex: 2,
+                      child: _productItemCountView(productList),
+                    ),
 
                     // (_orderProviderAd
                     //     .getDistributorOrderByIdModel
@@ -216,7 +261,7 @@ class _OrderScreenAdState extends State<OrderScreenAd> {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                        /*  2.toSizedBoxHeight,
+                          /*  2.toSizedBoxHeight,
                           'Qty :'.richTextView(
                             textSpanList: [
                               const WidgetSpan(child: SizedBox(width: 3)),
@@ -288,12 +333,11 @@ class _OrderScreenAdState extends State<OrderScreenAd> {
       ),
     );
   }
+
   updateProductQty(int qty, OrderedProductModel productList) async {
     setState(() {
       productList.quantity = qty;
     });
-
-
   }
 
   Widget _productItemCountView(OrderedProductModel productList) {
@@ -307,7 +351,10 @@ class _OrderScreenAdState extends State<OrderScreenAd> {
             InkWell(
               onTap: () {
                 if ((productList.quantity ?? 1) > 1) {
-                  updateProductQty((productList.quantity ?? 1) - 1,productList);
+                  updateProductQty(
+                    (productList.quantity ?? 1) - 1,
+                    productList,
+                  );
                 }
               },
               child: Container(
@@ -334,19 +381,16 @@ class _OrderScreenAdState extends State<OrderScreenAd> {
                     qtyTextEditingController: quantityController,
                     positiveCallBack: (val) {
                       setState(() {
-                      productList.quantity = int.parse(val);
-                    });},
+                        productList.quantity = int.parse(val);
+                      });
+                    },
                   ),
                 );
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical:8,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 margin: const EdgeInsets.symmetric(horizontal: 0),
-                child: ("${productList.quantity}")
-                    .textWidget(
+                child: ("${productList.quantity}").textWidget(
                   fontSize: fontSizeMedium,
                   fontWeight: FontWeight.bold,
                   textAlign: TextAlign.center,
@@ -356,8 +400,7 @@ class _OrderScreenAdState extends State<OrderScreenAd> {
             ),
             InkWell(
               onTap: () {
-
-                updateProductQty((productList.quantity ?? 1) + 1,productList);
+                updateProductQty((productList.quantity ?? 1) + 1, productList);
                 // _productProvider.updateProductQty(
                 //   (_productProvider.productInfoResponse?.qty ?? 1) + 1,
                 // );

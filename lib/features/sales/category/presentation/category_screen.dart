@@ -47,7 +47,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
         return AppScaffold(
           appBar: PreferredSize(
             preferredSize: Size(double.infinity, appBarSize),
-            child: AppBarWidget(title: "Category", centerTitle: false),
+            child: AppBarWidget(title: "Category", centerTitle: false,isAdmin: false,),
           ),
           // body: Column(
           //   children: [

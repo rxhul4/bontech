@@ -143,7 +143,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                         ?.data,
                                   )
                                   : _salesOrderList(
-                                    _orderProviderAd.salesOrderProductList,
+                                    orderDetails
+                                        .getAllSalesmanOrderByIdModel
+                                        ?.data,
+                                    // _orderProviderAd.salesOrderProductList,
                                   ),
 
                               widget.isAdmin == true
@@ -422,69 +425,80 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     );
   }
 
-  Widget _salesOrderList(List<SalesOrderProductList>? orderData) {
-    final List<SalesOrderProductList> items = orderData ?? [];
-
-    // Check if the list is empty
-    if (items.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.all(10.0),
-        child: NoDataWidget(),
-      );
-    }
-
-    return ListView.builder(
-      itemCount:items.length + 1, // +1 for the "Add Product" button
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemBuilder: (context, index) {
-        // Check if this is the last index for "Add Product" button
-        final isLast = index == items.length;
-        final isPending =
-            _orderProviderAd
-                .getAllSalesmanOrderByIdModel
-                ?.data
-                ?.totOrderStatus ==
-            "Pending";
-
-        if (isLast && isPending ) {
-
-          return GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder:
-                      (context) => ProductListingScreen(
-                        isBackButtonAvailable: true,
-                        isAdmin: true,
-                        isFromCategory: true,
-                        categoryName: "Product",
-                        isFromOrder: true,
-                      ),
-                ),
-              ).then((value) {
-                _orderProviderAd.refreshListFnc();
-              });
-            },
-            child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 10),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-              decoration: AppUtils.commonGradientBoxDecoration(),
-              child: Center(child: "Add Product".textWidget()),
-            ),
-          );
-        }
-
-        // Safety check to avoid RangeError
-        if (index < items.length) {
-          final item = items[index];
-          return _listItemSalesOrderItem(item);
-        }
-
-        return const SizedBox(height: 10); // fallback for safety
-      },
-    );
+  Widget _salesOrderList(slOd.Data? orderData) {
+    return (orderData?.salesOrderDetails ?? []).isEmpty
+        ? const Padding(padding: EdgeInsets.all(10.0), child: NoDataWidget())
+        : ListView.builder(
+          itemCount: (orderData?.salesOrderDetails ?? []).length,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemBuilder: (context, index) {
+            slOd.SalesOrderProductList? item =
+                orderData?.salesOrderDetails?[index];
+            return _listItemSalesOrderItem(item);
+          },
+        );
+    // // final List<SalesOrderProductList> items = orderData ?? [];
+    //
+    // // Check if the list is empty
+    // if (items.isEmpty) {
+    //   return const Padding(
+    //     padding: EdgeInsets.all(10.0),
+    //     child: NoDataWidget(),
+    //   );
+    // }
+    //
+    // return ListView.builder(
+    //   itemCount: items.length + 1, // +1 for the "Add Product" button
+    //   shrinkWrap: true,
+    //   physics: const NeverScrollableScrollPhysics(),
+    //   itemBuilder: (context, index) {
+    //     // Check if this is the last index for "Add Product" button
+    //     final isLast = index == items.length;
+    //     final isPending =
+    //         _orderProviderAd
+    //             .getAllSalesmanOrderByIdModel
+    //             ?.data
+    //             ?.totOrderStatus ==
+    //         "Pending";
+    //
+    //     if (isLast && isPending) {
+    //       return GestureDetector(
+    //         onTap: () {
+    //           Navigator.push(
+    //             context,
+    //             MaterialPageRoute(
+    //               builder:
+    //                   (context) => ProductListingScreen(
+    //                     isBackButtonAvailable: true,
+    //                     isAdmin: true,
+    //                     isFromCategory: true,
+    //                     categoryName: "Product",
+    //                     isFromOrder: true,
+    //                   ),
+    //             ),
+    //           ).then((value) {
+    //             _orderProviderAd.refreshListFnc();
+    //           });
+    //         },
+    //         child: Container(
+    //           margin: const EdgeInsets.symmetric(vertical: 10),
+    //           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+    //           decoration: AppUtils.commonGradientBoxDecoration(),
+    //           child: Center(child: "Add Product".textWidget()),
+    //         ),
+    //       );
+    //     }
+    //
+    //     // Safety check to avoid RangeError
+    //     if (index < items.length) {
+    //       final item = items[index];
+    //       return _listItemSalesOrderItem(item);
+    //     }
+    //
+    //     return const SizedBox(height: 10); // fallback for safety
+    //   },
+    // );
   }
 
   Widget _statusChangeBtn(slOd.Data? orderData) {
@@ -494,9 +508,155 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
         print("status$status");
         switch (status) {
           case 'Pending':
-            if (_orderProviderAd.salesOrderProductList.isEmpty) {
-              return GestureDetector(
-                onTap: () {
+            // if (_orderProviderAd.salesOrderProductList.isEmpty) {
+            //   return GestureDetector(
+            //     onTap: () {
+            //       AppUtils.showCustomTwoBtnDialog(
+            //         ctx: context,
+            //         dialogTitle: "Accept",
+            //         dialogMessage:
+            //             "Are you sure do you want to change Status 'Accept' ",
+            //         dialogBtnTextRight: "Accept",
+            //         dialogBtnTextLeft: "Cancel",
+            //         dialogBtnRightFnc: () {
+            //           String? id = _orderProviderAd.findStatusId("Accept");
+            //           _orderProviderAd.apiCallChangeOrderStatus(
+            //             isAcceptAndOrder: false,
+            //             orderId: orderData?.salesmanOrderId,
+            //             orderStatusId: id,
+            //             salesManId: orderData?.salesmanId,
+            //           );
+            //
+            //           //api Call
+            //         },
+            //       );
+            //     },
+            //     child: AppUtils.commonContainer(
+            //       margin: const EdgeInsets.only(top: 10, bottom: 0, right: 5),
+            //       padding: const EdgeInsets.symmetric(
+            //         horizontal: 10,
+            //         vertical: 12,
+            //       ),
+            //       decoration: AppUtils.commonGradientBoxDecoration(),
+            //       child: Center(
+            //         child: FittedBox(
+            //           fit: BoxFit.scaleDown,
+            //           child: "Accept".textWidget(
+            //             textAlign: TextAlign.center,
+            //             fontSize: 14,
+            //             fontWeight: FontWeight.w500,
+            //           ),
+            //         ),
+            //       ),
+            //     ),
+            //   );
+            // } else {
+            //   return Row(
+            //     children: [
+            //       Expanded(
+            //         child: GestureDetector(
+            //           onTap: () {
+            //             AppUtils.showCustomTwoBtnDialog(
+            //               ctx: context,
+            //               dialogTitle: "Accept",
+            //               dialogMessage:
+            //                   "Are you sure do you want to change Status 'Accept' ",
+            //               dialogBtnTextRight: "Accept",
+            //               dialogBtnTextLeft: "Cancel",
+            //               dialogBtnRightFnc: () {
+            //                 String? id = _orderProviderAd.findStatusId(
+            //                   "Accept",
+            //                 );
+            //                 _orderProviderAd.apiCallChangeOrderStatus(
+            //                   isAcceptAndOrder: false,
+            //                   orderId: orderData?.salesmanOrderId,
+            //                   orderStatusId: id,
+            //                   salesManId: orderData?.salesmanId,
+            //                 );
+            //
+            //                 //api Call
+            //               },
+            //             );
+            //           },
+            //           child: AppUtils.commonContainer(
+            //             margin: const EdgeInsets.only(
+            //               top: 10,
+            //               bottom: 0,
+            //               right: 5,
+            //             ),
+            //             padding: const EdgeInsets.symmetric(
+            //               horizontal: 10,
+            //               vertical: 12,
+            //             ),
+            //             decoration: AppUtils.commonGradientBoxDecoration(),
+            //             child: Center(
+            //               child: FittedBox(
+            //                 fit: BoxFit.scaleDown,
+            //                 child: "Accept".textWidget(
+            //                   textAlign: TextAlign.center,
+            //                   fontSize: 14,
+            //                   fontWeight: FontWeight.w500,
+            //                 ),
+            //               ),
+            //             ),
+            //           ),
+            //         ),
+            //       ),
+            //       Expanded(
+            //         child: GestureDetector(
+            //           onTap: () {
+            //             showAlertDialog(
+            //               title: "Distributor Note",
+            //               isTitleCenter: true,
+            //               widget: DeliveryNotesDialogWidget(
+            //                 notesController:
+            //                     _orderProviderAd.deliveryNotesController,
+            //                 positiveCallBack: (val) {
+            //                   String? id = _orderProviderAd.findStatusId(
+            //                     "Accept",
+            //                   );
+            //                   _orderProviderAd.apiCallChangeOrderStatus(
+            //                     isAcceptAndOrder: true,
+            //                     // orderStatus: "Pending",
+            //                     orderId: orderData?.salesmanOrderId,
+            //                     orderStatusId: id,
+            //                     salesManId: orderData?.salesmanId,
+            //                   );
+            //                 },
+            //               ),
+            //               context: context,
+            //             );
+            //           },
+            //           child: AppUtils.commonContainer(
+            //             margin: const EdgeInsets.only(
+            //               top: 10,
+            //               bottom: 0,
+            //               left: 5,
+            //             ),
+            //             padding: const EdgeInsets.symmetric(
+            //               horizontal: 10,
+            //               vertical: 12,
+            //             ),
+            //             decoration: AppUtils.commonGradientBoxDecoration(),
+            //             child: Center(
+            //               child: FittedBox(
+            //                 fit: BoxFit.scaleDown,
+            //                 child: "Accept & Place Order".textWidget(
+            //                   textAlign: TextAlign.center,
+            //                   fontSize: 14,
+            //                   fontWeight: FontWeight.w500,
+            //                 ),
+            //               ),
+            //             ),
+            //           ),
+            //         ),
+            //       ),
+            //     ],
+            //   );
+            // }
+
+          return ActionSlider.standard(
+                action: (controller) {
                   AppUtils.showCustomTwoBtnDialog(
                     ctx: context,
                     dialogTitle: "Accept",
@@ -507,7 +667,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                     dialogBtnRightFnc: () {
                       String? id = _orderProviderAd.findStatusId("Accept");
                       _orderProviderAd.apiCallChangeOrderStatus(
-                        isAcceptAndOrder: false,
+                        // isPending: true,
+                        // orderStatus: "Pending",
                         orderId: orderData?.salesmanOrderId,
                         orderStatusId: id,
                         salesManId: orderData?.salesmanId,
@@ -517,184 +678,37 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                     },
                   );
                 },
-                child: AppUtils.commonContainer(
-                  margin: const EdgeInsets.only(top: 10, bottom: 0, right: 5),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 12,
-                  ),
-                  decoration: AppUtils.commonGradientBoxDecoration(),
-                  child: Center(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: "Accept".textWidget(
-                        textAlign: TextAlign.center,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
+                sliderBehavior: SliderBehavior.move,
+                rolling: false,
+                backgroundColor: AppColors.colorLightGrey,
+                customForegroundBuilder: (p0, p1, p2) {
+                  return Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [AppColors.gradient1, AppColors.gradient2],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
                     ),
+                    child: Icon(
+                      Icons.done,
+                      color: AppColors.colorWhite,
+                      size: 30,
+                    ),
+                  );
+                },
+
+                child: Shimmer(
+                  child: "Accept Order".textWidget(
+                    color: AppColors.colorDarkGrey,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               );
-            } else {
-              return Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        AppUtils.showCustomTwoBtnDialog(
-                          ctx: context,
-                          dialogTitle: "Accept",
-                          dialogMessage:
-                              "Are you sure do you want to change Status 'Accept' ",
-                          dialogBtnTextRight: "Accept",
-                          dialogBtnTextLeft: "Cancel",
-                          dialogBtnRightFnc: () {
-                            String? id = _orderProviderAd.findStatusId(
-                              "Accept",
-                            );
-                            _orderProviderAd.apiCallChangeOrderStatus(
-                              isAcceptAndOrder: false,
-                              orderId: orderData?.salesmanOrderId,
-                              orderStatusId: id,
-                              salesManId: orderData?.salesmanId,
-                            );
-
-                            //api Call
-                          },
-                        );
-                      },
-                      child: AppUtils.commonContainer(
-                        margin: const EdgeInsets.only(
-                          top: 10,
-                          bottom: 0,
-                          right: 5,
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 12,
-                        ),
-                        decoration: AppUtils.commonGradientBoxDecoration(),
-                        child: Center(
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: "Accept".textWidget(
-                              textAlign: TextAlign.center,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        showAlertDialog(
-                          title: "Distributor Note",
-                          isTitleCenter: true,
-                          widget: DeliveryNotesDialogWidget(
-                            notesController:
-                                _orderProviderAd.deliveryNotesController,
-                            positiveCallBack: (val) {
-                              String? id = _orderProviderAd.findStatusId(
-                                "Accept",
-                              );
-                              _orderProviderAd.apiCallChangeOrderStatus(
-                                isAcceptAndOrder: true,
-                                // orderStatus: "Pending",
-                                orderId: orderData?.salesmanOrderId,
-                                orderStatusId: id,
-                                salesManId: orderData?.salesmanId,
-                              );
-                            },
-                          ),
-                          context: context,
-                        );
-                      },
-                      child: AppUtils.commonContainer(
-                        margin: const EdgeInsets.only(
-                          top: 10,
-                          bottom: 0,
-                          left: 5,
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 12,
-                        ),
-                        decoration: AppUtils.commonGradientBoxDecoration(),
-                        child: Center(
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: "Accept & Place Order".textWidget(
-                              textAlign: TextAlign.center,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            }
-
-          // return ActionSlider.standard(
-          //       action: (controller) {
-          //         AppUtils.showCustomTwoBtnDialog(
-          //           ctx: context,
-          //           dialogTitle: "Accept",
-          //           dialogMessage:
-          //               "Are you sure do you want to change Status 'Accept' ",
-          //           dialogBtnTextRight: "Accept",
-          //           dialogBtnTextLeft: "Cancel",
-          //           dialogBtnRightFnc: () {
-          //             String? id = _orderProviderAd.findStatusId("Accept");
-          //             _orderProviderAd.apiCallChangeOrderStatus(
-          //               isPending: true,
-          //               // orderStatus: "Pending",
-          //               orderId: orderData?.salesmanOrderId,
-          //               orderStatusId: id,
-          //               salesManId: orderData?.salesmanId,
-          //             );
-          //
-          //             //api Call
-          //           },
-          //         );
-          //       },
-          //       sliderBehavior: SliderBehavior.move,
-          //       rolling: false,
-          //       backgroundColor: AppColors.colorLightGrey,
-          //       customForegroundBuilder: (p0, p1, p2) {
-          //         return Container(
-          //           width: 80,
-          //           height: 80,
-          //           decoration: BoxDecoration(
-          //             shape: BoxShape.circle,
-          //             gradient: LinearGradient(
-          //               colors: [AppColors.gradient1, AppColors.gradient2],
-          //               begin: Alignment.topLeft,
-          //               end: Alignment.bottomRight,
-          //             ),
-          //           ),
-          //           child: Icon(
-          //             Icons.done,
-          //             color: AppColors.colorWhite,
-          //             size: 30,
-          //           ),
-          //         );
-          //       },
-          //
-          //       child: Shimmer(
-          //         child: "Accept Order".textWidget(
-          //           color: AppColors.colorDarkGrey,
-          //           fontSize: 18,
-          //           fontWeight: FontWeight.w500,
-          //         ),
-          //       ),
-          //     );
           case "Accept":
             return ActionSlider.standard(
               action: (controller) {
@@ -1009,6 +1023,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     );
   }
 
+
   Widget _listItemSalesOrderItem(slOd.SalesOrderProductList? item) {
     return Container(
       decoration: BoxDecoration(
@@ -1016,191 +1031,320 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
         color: AppColors.colorLightGrey,
       ),
       margin: EdgeInsets.symmetric(horizontal: 0, vertical: 8),
-      child: Slidable(
-        key: UniqueKey(),
-        endActionPane: ActionPane(
-          extentRatio: 0.5,
-          dragDismissible: false,
-          motion: const ScrollMotion(),
-          dismissible: DismissiblePane(
-            dismissalDuration: const Duration(milliseconds: 1000),
-            dismissThreshold: 0.1,
-            onDismissed: () {},
+      child: InkWell(
+        onTap: () {
+          // if (_orderCubit.orderDetails?.state == OrderStatusType.draft) {
+          // if (_orderCubit.isAllowUpdateOrder) {
+          //   _orderCubit.qtyEditController.clear();
+          //   _orderCubit.qtyEditController.text =
+          //       (item?.quantity ?? 1).toString();
+          //   _showAlertDialogUpdateQuantity(item?.id);
+          // }
+        },
+        child: Container(
+          // margin: EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: AppColors.colorPrimary,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.white.withOpacity(0.08)),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.colorSecondary.withOpacity(0.25),
+                blurRadius: 0,
+                spreadRadius: 0.0,
+                offset: const Offset(0, 2),
+              ),
+              // BoxShadow(
+              //   color: Colors.white.withOpacity(0.6),
+              //   blurRadius: 30,
+              //   offset: const Offset(0, 0),
+              // ),
+            ],
           ),
-          children: [
-            CustomSlidableAction(
-              padding: EdgeInsets.only(top: 0, bottom: 0),
-              onPressed: (context) {
-                _orderProviderAd.qtyController.clear();
-                _orderProviderAd.qtyController.text =
-                    (item?.quantity ?? 1).toString();
-                _showAlertDialogUpdateQuantity(item?.productSKUID);
-              },
-              borderRadius: BorderRadius.only(
-                topRight: Radius.circular(0),
-                bottomRight: Radius.circular(0),
-              ),
-              // backgroundColor: AppColors.colorLightGrey,
-              foregroundColor: AppColors.colorPrimary,
-              backgroundColor: AppColors.colorLightGrey,
-              child: Icon(Icons.edit, size: 26, color: Colors.orange),
-            ),
-            4.toSizedBoxWidth,
-            CustomSlidableAction(
-              padding: EdgeInsets.only(top: 0, bottom: 0),
-              onPressed: (context) {
-                AppUtils.showCustomTwoBtnDialog(
-                  ctx: context,
-                  dialogBtnTextRight: "Yes",
-                  dialogBtnTextLeft: "No",
-                  dialogMessage:
-                      "Are you sure you want to remove this product From Order?",
-                  dialogTitle: "Alert",
-                  dialogBtnRightFnc: () async {
-                    if (item?.productSKUID == null) {
-                      return;
-                    }
-                    _orderProviderAd.removeProductFromLocal(
-                      item?.productSKUID ?? "",
-                    );
-                  },
-                );
-              },
-              borderRadius: BorderRadius.only(
-                topRight: Radius.circular(12),
-                bottomRight: Radius.circular(12),
-              ),
-              // backgroundColor: AppColors.colorLightGrey,
-              foregroundColor: AppColors.colorPrimary,
-              backgroundColor: AppColors.colorLightGrey,
-
-              child: Icon(Icons.delete, size: 26, color: Colors.red),
-            ),
-          ],
-        ),
-        child: InkWell(
-          onTap: () {
-            // if (_orderCubit.orderDetails?.state == OrderStatusType.draft) {
-            // if (_orderCubit.isAllowUpdateOrder) {
-            //   _orderCubit.qtyEditController.clear();
-            //   _orderCubit.qtyEditController.text =
-            //       (item?.quantity ?? 1).toString();
-            //   _showAlertDialogUpdateQuantity(item?.id);
-            // }
-          },
-          child: Container(
-            // margin: EdgeInsets.symmetric(vertical: 8),
-            decoration: BoxDecoration(
-              color: AppColors.colorPrimary,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white.withOpacity(0.08)),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.colorSecondary.withOpacity(0.25),
-                  blurRadius: 0,
-                  spreadRadius: 0.0,
-                  offset: const Offset(0, 2),
-                ),
-                // BoxShadow(
-                //   color: Colors.white.withOpacity(0.6),
-                //   blurRadius: 30,
-                //   offset: const Offset(0, 0),
-                // ),
-              ],
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            width: double.infinity,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: '${item?.productName}'.textWidget(
-                        fontWeight: FontWeight.bold,
-                        fontFamily: AppConstants.fontFamilyPoppins,
-                        fontSize: fontSizeMedium,
-                        color: AppColors.colorLightGrey,
-                      ),
-                    ),
-                    (_orderProviderAd
-                                .getDistributorOrderByIdModel
-                                ?.data
-                                ?.totOrderStatus ??
-                            "")
-                        .textWidget(
-                          fontWeight: FontWeight.w400,
-                          fontFamily: AppConstants.fontFamilyPoppins,
-                          fontSize: 13,
-                          color: AppColors.colorWhite,
-                        ),
-                  ],
-                ),
-                5.toSizedBoxHeight,
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Expanded(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          2.toSizedBoxHeight,
-                          'Qty :'.richTextView(
-                            textSpanList: [
-                              const WidgetSpan(child: SizedBox(width: 3)),
-                              TextSpan(
-                                text: '${item?.quantity?.toInt()}',
-                                style: const TextStyle(
-                                  color: AppColors.colorWhite,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          2.toSizedBoxHeight,
-                          ' | Side :'.richTextView(
-                            textSpanList: [
-                              const WidgetSpan(child: SizedBox(width: 3)),
-                              TextSpan(
-                                text: item?.size ?? 'N/A',
-                                style: const TextStyle(
-                                  color: AppColors.colorWhite,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                5.toSizedBoxHeight,
-                Row(
-                  children: [
-                    Expanded(
-                      child: (item?.material ?? 'N/A').textWidget(
-                        fontWeight: FontWeight.w400,
-                        fontFamily: AppConstants.fontFamilyRoboto,
-                        fontSize: 13,
-                        color: AppColors.colorWhite,
-                      ),
-                    ),
-                    '${AppConstants.currencySymbol}${item?.price}'.textWidget(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          width: double.infinity,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: '${item?.productName}'.textWidget(
                       fontWeight: FontWeight.bold,
-                      fontFamily: AppConstants.fontFamilyRoboto,
-                      fontSize: fontSizeNormal,
+                      fontFamily: AppConstants.fontFamilyPoppins,
+                      fontSize: fontSizeMedium,
                       color: AppColors.colorLightGrey,
                     ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                  (_orderProviderAd
+                      .getDistributorOrderByIdModel
+                      ?.data
+                      ?.totOrderStatus ??
+                      "")
+                      .textWidget(
+                    fontWeight: FontWeight.w400,
+                    fontFamily: AppConstants.fontFamilyPoppins,
+                    fontSize: 13,
+                    color: AppColors.colorWhite,
+                  ),
+                ],
+              ),
+              5.toSizedBoxHeight,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        2.toSizedBoxHeight,
+                        'Qty :'.richTextView(
+                          textSpanList: [
+                            const WidgetSpan(child: SizedBox(width: 3)),
+                            TextSpan(
+                              text: '${item?.quantity?.toInt()}',
+                              style: const TextStyle(
+                                color: AppColors.colorWhite,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        2.toSizedBoxHeight,
+                        ' | Side :'.richTextView(
+                          textSpanList: [
+                            const WidgetSpan(child: SizedBox(width: 3)),
+                            TextSpan(
+                              text: item?.size ?? 'N/A',
+                              style: const TextStyle(
+                                color: AppColors.colorWhite,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              5.toSizedBoxHeight,
+              Row(
+                children: [
+                  Expanded(
+                    child: (item?.material ?? 'N/A').textWidget(
+                      fontWeight: FontWeight.w400,
+                      fontFamily: AppConstants.fontFamilyRoboto,
+                      fontSize: 13,
+                      color: AppColors.colorWhite,
+                    ),
+                  ),
+                  '${AppConstants.currencySymbol}${item?.price}'.textWidget(
+                    fontWeight: FontWeight.bold,
+                    fontFamily: AppConstants.fontFamilyRoboto,
+                    fontSize: fontSizeNormal,
+                    color: AppColors.colorLightGrey,
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
     );
   }
+  // Widget _listItemSalesOrderItem(slOd.SalesOrderProductList? item) {
+  //   return Container(
+  //     decoration: BoxDecoration(
+  //       borderRadius: BorderRadius.circular(12),
+  //       color: AppColors.colorLightGrey,
+  //     ),
+  //     margin: EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+  //     child: Slidable(
+  //       key: UniqueKey(),
+  //       endActionPane: ActionPane(
+  //         extentRatio: 0.5,
+  //         dragDismissible: false,
+  //         motion: const ScrollMotion(),
+  //         dismissible: DismissiblePane(
+  //           dismissalDuration: const Duration(milliseconds: 1000),
+  //           dismissThreshold: 0.1,
+  //           onDismissed: () {},
+  //         ),
+  //         children: [
+  //           CustomSlidableAction(
+  //             padding: EdgeInsets.only(top: 0, bottom: 0),
+  //             onPressed: (context) {
+  //               _orderProviderAd.qtyController.clear();
+  //               _orderProviderAd.qtyController.text =
+  //                   (item?.quantity ?? 1).toString();
+  //               _showAlertDialogUpdateQuantity(item?.productSKUID);
+  //             },
+  //             borderRadius: BorderRadius.only(
+  //               topRight: Radius.circular(0),
+  //               bottomRight: Radius.circular(0),
+  //             ),
+  //             // backgroundColor: AppColors.colorLightGrey,
+  //             foregroundColor: AppColors.colorPrimary,
+  //             backgroundColor: AppColors.colorLightGrey,
+  //             child: Icon(Icons.edit, size: 26, color: Colors.orange),
+  //           ),
+  //           4.toSizedBoxWidth,
+  //           CustomSlidableAction(
+  //             padding: EdgeInsets.only(top: 0, bottom: 0),
+  //             onPressed: (context) {
+  //               AppUtils.showCustomTwoBtnDialog(
+  //                 ctx: context,
+  //                 dialogBtnTextRight: "Yes",
+  //                 dialogBtnTextLeft: "No",
+  //                 dialogMessage:
+  //                     "Are you sure you want to remove this product From Order?",
+  //                 dialogTitle: "Alert",
+  //                 dialogBtnRightFnc: () async {
+  //                   if (item?.productSKUID == null) {
+  //                     return;
+  //                   }
+  //                   _orderProviderAd.removeProductFromLocal(
+  //                     item?.productSKUID ?? "",
+  //                   );
+  //                 },
+  //               );
+  //             },
+  //             borderRadius: BorderRadius.only(
+  //               topRight: Radius.circular(12),
+  //               bottomRight: Radius.circular(12),
+  //             ),
+  //             // backgroundColor: AppColors.colorLightGrey,
+  //             foregroundColor: AppColors.colorPrimary,
+  //             backgroundColor: AppColors.colorLightGrey,
+  //
+  //             child: Icon(Icons.delete, size: 26, color: Colors.red),
+  //           ),
+  //         ],
+  //       ),
+  //       child: InkWell(
+  //         onTap: () {
+  //           // if (_orderCubit.orderDetails?.state == OrderStatusType.draft) {
+  //           // if (_orderCubit.isAllowUpdateOrder) {
+  //           //   _orderCubit.qtyEditController.clear();
+  //           //   _orderCubit.qtyEditController.text =
+  //           //       (item?.quantity ?? 1).toString();
+  //           //   _showAlertDialogUpdateQuantity(item?.id);
+  //           // }
+  //         },
+  //         child: Container(
+  //           // margin: EdgeInsets.symmetric(vertical: 8),
+  //           decoration: BoxDecoration(
+  //             color: AppColors.colorPrimary,
+  //             borderRadius: BorderRadius.circular(12),
+  //             border: Border.all(color: Colors.white.withOpacity(0.08)),
+  //             boxShadow: [
+  //               BoxShadow(
+  //                 color: AppColors.colorSecondary.withOpacity(0.25),
+  //                 blurRadius: 0,
+  //                 spreadRadius: 0.0,
+  //                 offset: const Offset(0, 2),
+  //               ),
+  //               // BoxShadow(
+  //               //   color: Colors.white.withOpacity(0.6),
+  //               //   blurRadius: 30,
+  //               //   offset: const Offset(0, 0),
+  //               // ),
+  //             ],
+  //           ),
+  //           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+  //           width: double.infinity,
+  //           child: Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               Row(
+  //                 children: [
+  //                   Expanded(
+  //                     child: '${item?.productName}'.textWidget(
+  //                       fontWeight: FontWeight.bold,
+  //                       fontFamily: AppConstants.fontFamilyPoppins,
+  //                       fontSize: fontSizeMedium,
+  //                       color: AppColors.colorLightGrey,
+  //                     ),
+  //                   ),
+  //                   (_orderProviderAd
+  //                               .getDistributorOrderByIdModel
+  //                               ?.data
+  //                               ?.totOrderStatus ??
+  //                           "")
+  //                       .textWidget(
+  //                         fontWeight: FontWeight.w400,
+  //                         fontFamily: AppConstants.fontFamilyPoppins,
+  //                         fontSize: 13,
+  //                         color: AppColors.colorWhite,
+  //                       ),
+  //                 ],
+  //               ),
+  //               5.toSizedBoxHeight,
+  //               Row(
+  //                 crossAxisAlignment: CrossAxisAlignment.end,
+  //                 children: [
+  //                   Expanded(
+  //                     child: Row(
+  //                       crossAxisAlignment: CrossAxisAlignment.start,
+  //                       children: [
+  //                         2.toSizedBoxHeight,
+  //                         'Qty :'.richTextView(
+  //                           textSpanList: [
+  //                             const WidgetSpan(child: SizedBox(width: 3)),
+  //                             TextSpan(
+  //                               text: '${item?.quantity?.toInt()}',
+  //                               style: const TextStyle(
+  //                                 color: AppColors.colorWhite,
+  //                                 fontWeight: FontWeight.bold,
+  //                               ),
+  //                             ),
+  //                           ],
+  //                         ),
+  //                         2.toSizedBoxHeight,
+  //                         ' | Side :'.richTextView(
+  //                           textSpanList: [
+  //                             const WidgetSpan(child: SizedBox(width: 3)),
+  //                             TextSpan(
+  //                               text: item?.size ?? 'N/A',
+  //                               style: const TextStyle(
+  //                                 color: AppColors.colorWhite,
+  //                                 fontWeight: FontWeight.bold,
+  //                               ),
+  //                             ),
+  //                           ],
+  //                         ),
+  //                       ],
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //               5.toSizedBoxHeight,
+  //               Row(
+  //                 children: [
+  //                   Expanded(
+  //                     child: (item?.material ?? 'N/A').textWidget(
+  //                       fontWeight: FontWeight.w400,
+  //                       fontFamily: AppConstants.fontFamilyRoboto,
+  //                       fontSize: 13,
+  //                       color: AppColors.colorWhite,
+  //                     ),
+  //                   ),
+  //                   '${AppConstants.currencySymbol}${item?.price}'.textWidget(
+  //                     fontWeight: FontWeight.bold,
+  //                     fontFamily: AppConstants.fontFamilyRoboto,
+  //                     fontSize: fontSizeNormal,
+  //                     color: AppColors.colorLightGrey,
+  //                   ),
+  //                 ],
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   void _showAlertDialogUpdateQuantity(String? productSkuId) {
     showAlertDialog(

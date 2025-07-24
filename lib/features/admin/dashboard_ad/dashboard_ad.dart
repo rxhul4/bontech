@@ -30,8 +30,9 @@ class _DashboardScreenADState extends State<DashboardScreenAD> {
     const HomeScreenAd(),
     // ProductListingScreen(isAdmin: true,isFromOrder: true,categoryName: "Products",isFromCategory: true,isBackButtonAvailable: false,),
     const OrderScreenAd(),
+    const StockScreenAd(),
     SalesManScreenAd(),
-    const ProfileScreenAd(),
+    // const ProfileScreenAd(),
   ];
 
   // final _pageName = [
@@ -137,6 +138,14 @@ class _DashboardScreenADState extends State<DashboardScreenAD> {
           activeItem: Icon(Icons.note, color: AppColors.colorWhite),
         ),
         BottomBarItem(
+          itemLabel: "Stock",
+          inActiveItem: Icon(
+            Icons.category_outlined,
+            color: AppColors.colorPrimary,
+          ),
+          activeItem: Icon(Icons.category, color: AppColors.colorWhite),
+        ),
+        BottomBarItem(
           itemLabel: "User",
           inActiveItem: Icon(
             Icons.supervised_user_circle,
@@ -144,14 +153,14 @@ class _DashboardScreenADState extends State<DashboardScreenAD> {
           ),
           activeItem: Icon(Icons.supervised_user_circle, color: AppColors.colorWhite),
         ),
-        BottomBarItem(
-          itemLabel: "Profile",
-          inActiveItem: Icon(
-            Icons.person_outline,
-            color: AppColors.colorPrimary,
-          ),
-          activeItem: Icon(Icons.person, color: AppColors.colorWhite),
-        ),
+        // BottomBarItem(
+        //   itemLabel: "Profile",
+        //   inActiveItem: Icon(
+        //     Icons.person_outline,
+        //     color: AppColors.colorPrimary,
+        //   ),
+        //   activeItem: Icon(Icons.person, color: AppColors.colorWhite),
+        // ),
       ],
       onTap: (index) {
         _pageController.jumpToPage(index);

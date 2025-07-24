@@ -138,6 +138,7 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
           appBar: PreferredSize(
             preferredSize: const Size(double.infinity, appBarSize),
             child: AppBarWidget(
+              isAdmin: true,
               centerTitle: false,
               title: "HOME",
               isBackVisible: false,

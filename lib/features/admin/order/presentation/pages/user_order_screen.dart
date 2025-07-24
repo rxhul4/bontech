@@ -16,6 +16,7 @@ import 'package:sales_app_redesign/features/admin/order/model/get_distributor_or
 import 'package:sales_app_redesign/features/admin/order/model/local_model/order_by_user.dart';
 import 'package:sales_app_redesign/features/admin/order/model/local_model/order_product_model.dart';
 import 'package:sales_app_redesign/features/admin/order/presentation/order_list_screen.dart';
+import 'package:sales_app_redesign/features/admin/order/presentation/pages/user_order_details.dart';
 import 'package:sales_app_redesign/features/admin/order/provider/order_provider_ad.dart';
 
 class UserOrderScreen extends StatefulWidget {
@@ -127,15 +128,7 @@ class _UserOrderScreenState extends State<UserOrderScreen> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    // AppUtils.getDate(
-                    //   date: "${orderData?.orderDate}",
-                    //   format: "MMM dd,yyyy",
-                    // ).textWidget(
-                    //   color: AppColors.colorLightGrey,
-                    //   fontSize: 13,
-                    //   fontFamily: AppConstants.fontFamilyPoppins,
-                    //   fontWeight: FontWeight.w500,
-                    // ),
+
                   ],
                 ),
               ],
@@ -232,6 +225,7 @@ class _UserOrderScreenState extends State<UserOrderScreen> {
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => UserOrderDetails(orderByUserModel: userList,),));
             // if (_orderCubit.orderDetails?.state == OrderStatusType.draft) {
             // if (_orderCubit.isAllowUpdateOrder) {
             //   _orderCubit.qtyEditController.clear();

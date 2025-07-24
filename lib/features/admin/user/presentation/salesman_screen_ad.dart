@@ -49,6 +49,7 @@ class _SalesManScreenAdState extends State<SalesManScreenAd> {
               title: "Salesman",
               isBackVisible: false,
               isCartVisible: true,
+              isAdmin: true,
             ),
           ),
           body:

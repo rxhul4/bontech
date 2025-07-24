@@ -138,6 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
           appBar: PreferredSize(
             preferredSize: const Size(double.infinity, appBarSize),
             child: AppBarWidget(
+              isAdmin: false,
               centerTitle: false,
               title: "HOME",
               isBackVisible: false,

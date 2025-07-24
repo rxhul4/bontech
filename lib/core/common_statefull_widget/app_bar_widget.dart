@@ -1,11 +1,14 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sales_app_redesign/core/common/circle_loading_indicator_widget.dart';
 import 'package:sales_app_redesign/core/storage/preference_helper.dart';
 
 import 'package:sales_app_redesign/core/utils/app_colors.dart';
 import 'package:sales_app_redesign/core/utils/app_constant.dart';
 import 'package:sales_app_redesign/core/utils/app_extension.dart';
 import 'package:sales_app_redesign/core/utils/app_utils.dart';
+import 'package:sales_app_redesign/features/admin/profile/presentation/profile_screen_ad.dart';
 import 'package:sales_app_redesign/features/genral/cart/presentation/cart_screen.dart';
 import 'package:sales_app_redesign/features/genral/product/provider/product_provider.dart';
 import 'package:sales_app_redesign/features/genral/search/presentation/search_delegate.dart';
@@ -27,11 +30,13 @@ class AppBarWidget extends StatefulWidget {
     this.isCartVisible = true,
     this.isFavVisible = false,
     this.textAlign,
-    this.centerTitle = true
+    this.centerTitle = true,
+    this.isAdmin
 
   });
 
   final String? title;
+  final bool? isAdmin;
   final Function? onBackPressed;
   final Function? onPressedSearch;
   final Function? onPressedCart;
@@ -49,8 +54,6 @@ class AppBarWidget extends StatefulWidget {
 }
 
 class _AppBarWidgetState extends State<AppBarWidget> {
-
-
 
 
   @override
@@ -76,12 +79,60 @@ class _AppBarWidgetState extends State<AppBarWidget> {
       ),
       actions: [
         // searchIcon(),
-        widget.isSearchVisible ? _searchIcon(context) :  SizedBox(),
+        widget.isSearchVisible ? _searchIcon(context) : SizedBox(),
         10.toSizedBoxWidth,
 
         widget.isCartVisible ? _cartIcon(context) : SizedBox(),
-        5.toSizedBoxWidth,
+        widget.isAdmin == true ? 10.toSizedBoxWidth : 5.toSizedBoxWidth,
+        widget.isAdmin == true ?  _profileCircle(context) : SizedBox(),
+        widget.isAdmin == true ? 5.toSizedBoxWidth : 0.toSizedBoxWidth,
+
+
       ],
+    );
+  }
+
+  _profileCircle(BuildContext context) {
+    String? imgUrl = PreferenceHelper.getString(PreferenceHelper.USER_IMAGE);
+    return  GestureDetector(
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => ProfileScreenAd(),));
+      },
+      child: AppUtils.commonContainer(
+        margin: AppUtils.edgeInsetsOnly(right: 10),
+        height: 40,
+        width: 40,
+        decoration: AppUtils.commonBoxDecoration(
+            shape: BoxShape.circle,
+            border:
+            Border.all(color: AppColors.colorPrimary)),
+        child: ClipOval(
+          child: CachedNetworkImage(
+            height: 100,
+            width: 100,
+            imageUrl: imgUrl ?? "",
+            imageBuilder:
+                (context, imageProvider) =>
+                Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: imageProvider,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+            placeholder: (context, url) =>
+                CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                      AppColors.colorSecondary),
+                  strokeWidth: 2,
+                ),
+            errorWidget:
+                (context, url, error) =>
+                Icon(Icons.person, size: 40, color: AppColors.colorWhite),
+          ),
+        ),
+      ),
     );
   }
 
@@ -91,10 +142,9 @@ class _AppBarWidgetState extends State<AppBarWidget> {
       onTap: () {
         if (widget.onBackPressed != null) {
           widget.onBackPressed!();
-        }else{
+        } else {
           Navigator.pop(context);
         }
-
       },
       child: Container(
         width: 44,
@@ -120,13 +170,15 @@ class _AppBarWidgetState extends State<AppBarWidget> {
             if (widget.onPressedCart != null) {
               widget.onPressedCart!();
             } else {
-              String?  userType = PreferenceHelper.getString(PreferenceHelper.USER_TYPE_ID);
-              if(userType == AppConstants.userTypeDistributor){
-                Navigator.push(context, MaterialPageRoute(builder: (context) => CartScreen(isAdmin: true,),));
-              }else{
-                Navigator.push(context, MaterialPageRoute(builder: (context) => CartScreen(isAdmin: false,),));
+              String? userType = PreferenceHelper.getString(
+                  PreferenceHelper.USER_TYPE_ID);
+              if (userType == AppConstants.userTypeDistributor) {
+                Navigator.push(context, MaterialPageRoute(
+                  builder: (context) => CartScreen(isAdmin: true,),));
+              } else {
+                Navigator.push(context, MaterialPageRoute(
+                  builder: (context) => CartScreen(isAdmin: false,),));
               }
-
             }
           },
           child: SizedBox(
@@ -153,9 +205,9 @@ class _AppBarWidgetState extends State<AppBarWidget> {
         visible: widget.isSearchVisible,
         child: InkWell(
           onTap: () {
-           if(widget.onPressedSearch  != null){
-             widget.onPressedSearch!();
-           }
+            if (widget.onPressedSearch != null) {
+              widget.onPressedSearch!();
+            }
           },
           child: SizedBox(
             height: 40,
@@ -182,7 +234,7 @@ class _AppBarWidgetState extends State<AppBarWidget> {
 
       builder: (context, productProvider, child) {
         // Call your function or logic here
-         // Example method
+        // Example method
         // int cartItemCount = productProvider.getCartItemCount();
 
         // Then show the widget

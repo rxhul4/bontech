@@ -50,7 +50,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return AppScaffold(
           appBar: PreferredSize(
             preferredSize: Size(double.infinity, appBarSize),
-            child: AppBarWidget(title: "Profile", centerTitle: false),
+            child: AppBarWidget(title: "Profile", centerTitle: false,isAdmin: false,),
+
           ),
           body: ListView(
             shrinkWrap: true,
