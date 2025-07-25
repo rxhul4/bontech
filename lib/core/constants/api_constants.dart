@@ -63,5 +63,11 @@ class ApiConstants{
   static String getOrderHistory = "$baseUrl/Salesman/GetOrderHistory";
 
 
+  //distributorStock
+
+  static String getDistributorStock = "$baseUrl/General/DistributorStock/GetById";
+
+
+
 
 }

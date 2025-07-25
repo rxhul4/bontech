@@ -6,6 +6,7 @@ import 'package:sales_app_redesign/core/storage/preference_helper.dart';
 import 'package:sales_app_redesign/core/utils/app_colors.dart';
 import 'package:sales_app_redesign/features/admin/home/provider/home_providerAD.dart';
 import 'package:sales_app_redesign/features/admin/order/provider/order_provider_ad.dart';
+import 'package:sales_app_redesign/features/admin/stock/provider/stock_provider.dart';
 import 'package:sales_app_redesign/features/admin/user/provider/user_provider.dart';
 import 'package:sales_app_redesign/features/auth/presentation/spash_screen.dart';
 import 'package:sales_app_redesign/features/auth/provider/auth_provider.dart';
@@ -31,6 +32,7 @@ List<SingleChildWidget> providers = [
   ChangeNotifierProvider<CategoryProvider>(create: (_) => CategoryProvider()),
   ChangeNotifierProvider<SalesOrderProvider>(create: (_) => SalesOrderProvider()),
   ChangeNotifierProvider<SearchProvider>(create: (_) => SearchProvider()),
+  ChangeNotifierProvider<StockProvider>(create: (_) => StockProvider()),
 
 ];
 

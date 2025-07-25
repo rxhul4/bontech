@@ -11,6 +11,7 @@ import 'package:sales_app_redesign/core/utils/app_colors.dart';
 import 'package:sales_app_redesign/core/utils/app_constant.dart';
 import 'package:sales_app_redesign/core/utils/app_extension.dart';
 import 'package:sales_app_redesign/core/utils/app_utils.dart';
+import 'package:sales_app_redesign/features/admin/stock/presentation/pages/product_list_screen.dart' show ProductListScreen;
 import 'package:sales_app_redesign/features/auth/presentation/login_screen.dart';
 import 'package:sales_app_redesign/features/genral/change_password/presentation/chnage_password_screen.dart';
 import 'package:sales_app_redesign/features/genral/product/presentation/product_listing_page.dart';
@@ -102,7 +103,7 @@ class _CategoryListingScreenState extends State<CategoryListingScreen> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ProductListingScreen(
+                          builder: (context) => ProductListScreen(
                               isBackButtonAvailable: true,
                               isFromCategory: true,
                               isAdmin: false,

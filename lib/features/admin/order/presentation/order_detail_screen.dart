@@ -7,6 +7,7 @@ import 'package:sales_app_redesign/core/common/circle_loading_indicator_widget.d
 import 'package:sales_app_redesign/core/common/no_data_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_bar_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_scaffold.dart';
+import 'package:sales_app_redesign/core/common_statefull_widget/bulk_product_quantity_update_dialog_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/notes_dialog_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/update_quantity_dialog_widget.dart';
 import 'package:sales_app_redesign/core/constants/app_size_constants.dart';
@@ -433,72 +434,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemBuilder: (context, index) {
-            slOd.SalesOrderProductList? item =
-                orderData?.salesOrderDetails?[index];
+            slOd.SalesOrderProductList? item = orderData?.salesOrderDetails?[index];
             return _listItemSalesOrderItem(item);
           },
         );
-    // // final List<SalesOrderProductList> items = orderData ?? [];
-    //
-    // // Check if the list is empty
-    // if (items.isEmpty) {
-    //   return const Padding(
-    //     padding: EdgeInsets.all(10.0),
-    //     child: NoDataWidget(),
-    //   );
-    // }
-    //
-    // return ListView.builder(
-    //   itemCount: items.length + 1, // +1 for the "Add Product" button
-    //   shrinkWrap: true,
-    //   physics: const NeverScrollableScrollPhysics(),
-    //   itemBuilder: (context, index) {
-    //     // Check if this is the last index for "Add Product" button
-    //     final isLast = index == items.length;
-    //     final isPending =
-    //         _orderProviderAd
-    //             .getAllSalesmanOrderByIdModel
-    //             ?.data
-    //             ?.totOrderStatus ==
-    //         "Pending";
-    //
-    //     if (isLast && isPending) {
-    //       return GestureDetector(
-    //         onTap: () {
-    //           Navigator.push(
-    //             context,
-    //             MaterialPageRoute(
-    //               builder:
-    //                   (context) => ProductListingScreen(
-    //                     isBackButtonAvailable: true,
-    //                     isAdmin: true,
-    //                     isFromCategory: true,
-    //                     categoryName: "Product",
-    //                     isFromOrder: true,
-    //                   ),
-    //             ),
-    //           ).then((value) {
-    //             _orderProviderAd.refreshListFnc();
-    //           });
-    //         },
-    //         child: Container(
-    //           margin: const EdgeInsets.symmetric(vertical: 10),
-    //           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-    //           decoration: AppUtils.commonGradientBoxDecoration(),
-    //           child: Center(child: "Add Product".textWidget()),
-    //         ),
-    //       );
-    //     }
-    //
-    //     // Safety check to avoid RangeError
-    //     if (index < items.length) {
-    //       final item = items[index];
-    //       return _listItemSalesOrderItem(item);
-    //     }
-    //
-    //     return const SizedBox(height: 10); // fallback for safety
-    //   },
-    // );
   }
 
   Widget _statusChangeBtn(slOd.Data? orderData) {
@@ -508,153 +447,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
         print("status$status");
         switch (status) {
           case 'Pending':
-            // if (_orderProviderAd.salesOrderProductList.isEmpty) {
-            //   return GestureDetector(
-            //     onTap: () {
-            //       AppUtils.showCustomTwoBtnDialog(
-            //         ctx: context,
-            //         dialogTitle: "Accept",
-            //         dialogMessage:
-            //             "Are you sure do you want to change Status 'Accept' ",
-            //         dialogBtnTextRight: "Accept",
-            //         dialogBtnTextLeft: "Cancel",
-            //         dialogBtnRightFnc: () {
-            //           String? id = _orderProviderAd.findStatusId("Accept");
-            //           _orderProviderAd.apiCallChangeOrderStatus(
-            //             isAcceptAndOrder: false,
-            //             orderId: orderData?.salesmanOrderId,
-            //             orderStatusId: id,
-            //             salesManId: orderData?.salesmanId,
-            //           );
-            //
-            //           //api Call
-            //         },
-            //       );
-            //     },
-            //     child: AppUtils.commonContainer(
-            //       margin: const EdgeInsets.only(top: 10, bottom: 0, right: 5),
-            //       padding: const EdgeInsets.symmetric(
-            //         horizontal: 10,
-            //         vertical: 12,
-            //       ),
-            //       decoration: AppUtils.commonGradientBoxDecoration(),
-            //       child: Center(
-            //         child: FittedBox(
-            //           fit: BoxFit.scaleDown,
-            //           child: "Accept".textWidget(
-            //             textAlign: TextAlign.center,
-            //             fontSize: 14,
-            //             fontWeight: FontWeight.w500,
-            //           ),
-            //         ),
-            //       ),
-            //     ),
-            //   );
-            // } else {
-            //   return Row(
-            //     children: [
-            //       Expanded(
-            //         child: GestureDetector(
-            //           onTap: () {
-            //             AppUtils.showCustomTwoBtnDialog(
-            //               ctx: context,
-            //               dialogTitle: "Accept",
-            //               dialogMessage:
-            //                   "Are you sure do you want to change Status 'Accept' ",
-            //               dialogBtnTextRight: "Accept",
-            //               dialogBtnTextLeft: "Cancel",
-            //               dialogBtnRightFnc: () {
-            //                 String? id = _orderProviderAd.findStatusId(
-            //                   "Accept",
-            //                 );
-            //                 _orderProviderAd.apiCallChangeOrderStatus(
-            //                   isAcceptAndOrder: false,
-            //                   orderId: orderData?.salesmanOrderId,
-            //                   orderStatusId: id,
-            //                   salesManId: orderData?.salesmanId,
-            //                 );
-            //
-            //                 //api Call
-            //               },
-            //             );
-            //           },
-            //           child: AppUtils.commonContainer(
-            //             margin: const EdgeInsets.only(
-            //               top: 10,
-            //               bottom: 0,
-            //               right: 5,
-            //             ),
-            //             padding: const EdgeInsets.symmetric(
-            //               horizontal: 10,
-            //               vertical: 12,
-            //             ),
-            //             decoration: AppUtils.commonGradientBoxDecoration(),
-            //             child: Center(
-            //               child: FittedBox(
-            //                 fit: BoxFit.scaleDown,
-            //                 child: "Accept".textWidget(
-            //                   textAlign: TextAlign.center,
-            //                   fontSize: 14,
-            //                   fontWeight: FontWeight.w500,
-            //                 ),
-            //               ),
-            //             ),
-            //           ),
-            //         ),
-            //       ),
-            //       Expanded(
-            //         child: GestureDetector(
-            //           onTap: () {
-            //             showAlertDialog(
-            //               title: "Distributor Note",
-            //               isTitleCenter: true,
-            //               widget: DeliveryNotesDialogWidget(
-            //                 notesController:
-            //                     _orderProviderAd.deliveryNotesController,
-            //                 positiveCallBack: (val) {
-            //                   String? id = _orderProviderAd.findStatusId(
-            //                     "Accept",
-            //                   );
-            //                   _orderProviderAd.apiCallChangeOrderStatus(
-            //                     isAcceptAndOrder: true,
-            //                     // orderStatus: "Pending",
-            //                     orderId: orderData?.salesmanOrderId,
-            //                     orderStatusId: id,
-            //                     salesManId: orderData?.salesmanId,
-            //                   );
-            //                 },
-            //               ),
-            //               context: context,
-            //             );
-            //           },
-            //           child: AppUtils.commonContainer(
-            //             margin: const EdgeInsets.only(
-            //               top: 10,
-            //               bottom: 0,
-            //               left: 5,
-            //             ),
-            //             padding: const EdgeInsets.symmetric(
-            //               horizontal: 10,
-            //               vertical: 12,
-            //             ),
-            //             decoration: AppUtils.commonGradientBoxDecoration(),
-            //             child: Center(
-            //               child: FittedBox(
-            //                 fit: BoxFit.scaleDown,
-            //                 child: "Accept & Place Order".textWidget(
-            //                   textAlign: TextAlign.center,
-            //                   fontSize: 14,
-            //                   fontWeight: FontWeight.w500,
-            //                 ),
-            //               ),
-            //             ),
-            //           ),
-            //         ),
-            //       ),
-            //     ],
-            //   );
-            // }
-
           return ActionSlider.standard(
                 action: (controller) {
                   AppUtils.showCustomTwoBtnDialog(
@@ -665,10 +457,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                     dialogBtnTextRight: "Accept",
                     dialogBtnTextLeft: "Cancel",
                     dialogBtnRightFnc: () {
-                      String? id = _orderProviderAd.findStatusId("Accept");
+                      String? id = _orderProviderAd.findStatusId("Accepted");
                       _orderProviderAd.apiCallChangeOrderStatus(
-                        // isPending: true,
-                        // orderStatus: "Pending",
                         orderId: orderData?.salesmanOrderId,
                         orderStatusId: id,
                         salesManId: orderData?.salesmanId,
@@ -709,7 +499,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                   ),
                 ),
               );
-          case "Accept":
+          case "Accepted":
             return ActionSlider.standard(
               action: (controller) {
                 AppUtils.showCustomTwoBtnDialog(
@@ -764,23 +554,27 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
           case "In Progress":
             return ActionSlider.standard(
               action: (controller) {
-                AppUtils.showCustomTwoBtnDialog(
-                  ctx: context,
-                  dialogTitle: "Deliver Order",
-                  dialogMessage:
-                      "Are you sure do you want to change Status 'Deliver' ",
-                  dialogBtnTextRight: "Deliver",
-                  dialogBtnTextLeft: "Cancel",
-                  dialogBtnRightFnc: () {
-                    //api Call
-                    String? id = _orderProviderAd.findStatusId("Deliver");
-                    _orderProviderAd.apiCallChangeOrderStatus(
-                      orderId: orderData?.salesmanOrderId,
-                      orderStatusId: id,
-                      salesManId: orderData?.salesmanId,
-                    );
-                  },
-                );
+
+                _showAlertDialogOrderDeliverUpdateQuantity();
+                // AppUtils.showCustomTwoBtnDialog(
+                //   ctx: context,
+                //   dialogTitle: "Deliver Order",
+                //   dialogMessage:
+                //       "Are you sure do you want to change Status 'Deliver' ",
+                //   dialogBtnTextRight: "Deliver",
+                //   dialogBtnTextLeft: "Cancel",
+                //   dialogBtnRightFnc: () {
+                //     //api Call
+                //     String? id = _orderProviderAd.findStatusId("Deliver");
+                //
+                //
+                //     // _orderProviderAd.apiCallChangeOrderStatus(
+                //     //   orderId: orderData?.salesmanOrderId,
+                //     //   orderStatusId: id,
+                //     //   salesManId: orderData?.salesmanId,
+                //     // );
+                //   },
+                // );
               },
               sliderBehavior: SliderBehavior.move,
               rolling: false,
@@ -817,6 +611,20 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             return SizedBox();
         }
       },
+    );
+  }
+
+
+  void _showAlertDialogOrderDeliverUpdateQuantity() {
+    showAlertDialog(
+      context: context,
+      title: "Deliver Quantity",
+      isTitleCenter: true,
+      widget: BulkProductQtyUpdateDialogWidget(
+        productList: _orderProviderAd.getAllSalesmanOrderByIdModel?.data?.salesOrderDetails,
+        positiveCallBack: () {
+        },
+      ),
     );
   }
 
@@ -1076,16 +884,18 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                       color: AppColors.colorLightGrey,
                     ),
                   ),
-                  (_orderProviderAd
-                      .getDistributorOrderByIdModel
-                      ?.data
-                      ?.totOrderStatus ??
-                      "")
-                      .textWidget(
-                    fontWeight: FontWeight.w400,
-                    fontFamily: AppConstants.fontFamilyPoppins,
-                    fontSize: 13,
-                    color: AppColors.colorWhite,
+
+                  'Delivered Qty :'.richTextView(
+                    textSpanList: [
+                      const WidgetSpan(child: SizedBox(width: 3)),
+                      TextSpan(
+                        text: '${item?.quantity?.toInt()}',
+                        style: const TextStyle(
+                          color: AppColors.colorWhite,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

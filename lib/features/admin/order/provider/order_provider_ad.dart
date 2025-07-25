@@ -401,7 +401,6 @@ class OrderProviderAd extends ChangeNotifier {
     }
     _isFetching = false;
     notifyListeners();
-    // return getAllSalesmanOrderByIdModel;
   }
 
   //get all status
