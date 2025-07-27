@@ -889,7 +889,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                     textSpanList: [
                       const WidgetSpan(child: SizedBox(width: 3)),
                       TextSpan(
-                        text: '${item?.quantity?.toInt()}',
+                        text: '${item?.deliveredQuantity?.toInt()}',
                         style: const TextStyle(
                           color: AppColors.colorWhite,
                           fontWeight: FontWeight.bold,

@@ -26,7 +26,7 @@ class BulkProductQtyUpdateDialogWidget extends StatefulWidget {
 class _BulkProductQtyUpdateDialogWidgetState
     extends State<BulkProductQtyUpdateDialogWidget> {
   late List<TextEditingController> _controllers;
-
+  late List<String?> _errorMessages;
   @override
   void initState() {
     super.initState();
@@ -36,7 +36,10 @@ class _BulkProductQtyUpdateDialogWidgetState
         text: widget.productList?[index].quantity?.toInt().toString() ?? '',
       ),
     );
+
+    _errorMessages = List.filled(widget.productList?.length ?? 0, null);
   }
+
 
   @override
   void dispose() {
@@ -59,7 +62,7 @@ class _BulkProductQtyUpdateDialogWidgetState
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (context, index) {
-              return _listItem1(widget.productList?[index], _controllers[index]);
+              return _listItem1(widget.productList?[index], _controllers[index],index);
             },
           ),
           16.toSizedBoxHeight,
@@ -106,94 +109,118 @@ class _BulkProductQtyUpdateDialogWidgetState
     );
   }
 
-  Widget _listItem1(SalesOrderProductList? item, TextEditingController controller) {
+  Widget _listItem1(SalesOrderProductList? item, TextEditingController controller, int index) {
+    final errorText = _errorMessages[index];
+    final hasError = errorText != null;
+
+    final deliveredQty = item?.deliveredQuantity ?? 0;
+    final initialQty = item?.quantity ?? 0;
+    final remainingQty = initialQty - deliveredQty;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 6),
-      child: Container(
+      child: Tooltip(
+        message: errorText ?? '',
+        textStyle: const TextStyle(color: Colors.white),
         decoration: BoxDecoration(
-          color: AppColors.colorPrimary,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white.withOpacity(0.08)),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.colorPrimary.withOpacity(0.25),
-              blurRadius: 0,
-              spreadRadius: 0.0,
-              offset: const Offset(0, 1.5),
-            ),
-            BoxShadow(
-              color: Colors.black.withOpacity(0.6),
-              blurRadius: 30,
-
-              offset: const Offset(0, 12),
-            ),
-          ],
+          color: Colors.red[700],
+          borderRadius: BorderRadius.circular(4),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
-        width: double.infinity,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: '${item?.productName}'.textWidget(
-                fontWeight: FontWeight.bold,
-                fontSize: fontSizeNormal + 1,
+        showDuration: const Duration(seconds: 2),
+        preferBelow: false,
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.colorPrimary,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: hasError ? Colors.red : Colors.white.withOpacity(0.08)),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.colorPrimary.withOpacity(0.25),
+                blurRadius: 0,
+                spreadRadius: 0.0,
+                offset: const Offset(0, 1.5),
               ),
-            ),
-            const SizedBox(width: 12),
-            SizedBox(
-              width: 80,
-              child: TextField(
-                controller: controller,
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(4),
-                ],
-                decoration: InputDecoration(
-                  hintText: 'Qty',
-                  hintStyle: TextStyle(
+              BoxShadow(
+                color: Colors.black.withOpacity(0.6),
+                blurRadius: 30,
+                offset: const Offset(0, 12),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: '${item?.productName}'.textWidget(
+                  fontWeight: FontWeight.bold,
+                  fontSize: fontSizeNormal + 1,
+                ),
+              ),
+              const SizedBox(width: 12),
+              SizedBox(
+                width: 80,
+                child: TextField(
+                  textInputAction: TextInputAction.done,
+                  controller: controller,
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    final newQty = int.tryParse(value);
+                    setState(() {
+                      if (newQty != null && newQty > remainingQty) {
+                        _errorMessages[index] =
+                        'Cannot exceed remaining qty ($remainingQty)';
+                      } else {
+                        _errorMessages[index] = null;
+                      }
+                    });
+                  },
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(4),
+                  ],
+                  decoration: InputDecoration(
+                    hintText: 'Qty',
+                    hintStyle: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontFamily: AppConstants.fontFamilyPoppins,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(
+                        color: hasError ? Colors.red : AppColors.colorDarkGrey,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(
+                        color: hasError ? Colors.red : AppColors.colorSecondary,
+                        width: 2,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(
+                        color: hasError ? Colors.red : AppColors.colorDarkGrey,
+                        width: 1,
+                      ),
+                    ),
+                  ),
+                  style: TextStyle(
                     color: Colors.white,
                     fontSize: 14,
-
-                    fontFamily: AppConstants.fontFamilyPoppins
-                    // Hint text color always white
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(
-                      color: AppColors.colorDarkGrey,
-                    ),
-                  ),
-
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(
-                      color: AppColors.colorSecondary, // Use your desired secondary color
-                      width: 2,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide(
-                      color: AppColors.colorDarkGrey,
-                      width: 1,
-                    ),
+                    fontFamily: AppConstants.fontFamilyPoppins,
                   ),
                 ),
-                style:  TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-
-                    fontFamily: AppConstants.fontFamilyPoppins
-                ),
-              )
-              ,
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
+
+
 }

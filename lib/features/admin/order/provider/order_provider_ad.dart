@@ -415,7 +415,7 @@ class OrderProviderAd extends ChangeNotifier {
         json.decode(response),
       );
     } catch (e) {
-      print('catch at GeneralProvider ${e}');
+      print('catch at GeneralProvider $e');
     }
     // _isFetching = false;
     // notifyListeners();/
@@ -446,11 +446,7 @@ class OrderProviderAd extends ChangeNotifier {
         if(isAcceptAndOrder == true ){
           await apiCallAddOrderAD();
         }
-
-
         await apiCallAllSalesManOrderDetailById(orderId);
-
-
 
       }
       print("reponse : $response");

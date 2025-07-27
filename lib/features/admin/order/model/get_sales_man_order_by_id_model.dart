@@ -45,15 +45,7 @@ class Data {
   String? totOrderStatus;
   int? totalAmount;
   String? trackingNo;
-  Null? createdOn;
-  String? productId;
-  String? productName;
-  String? productImage;
-  String? categoryId;
-  String? categoryName;
-  String? productSkuId;
-  int? quantity;
-  Null? amount;
+  String? createdOn;
   List<SalesOrderProductList>? salesOrderDetails;
 
   Data(
@@ -69,14 +61,6 @@ class Data {
         this.totalAmount,
         this.trackingNo,
         this.createdOn,
-        this.productId,
-        this.productName,
-        this.productImage,
-        this.categoryId,
-        this.categoryName,
-        this.productSkuId,
-        this.quantity,
-        this.amount,
         this.salesOrderDetails});
 
   Data.fromJson(Map<String, dynamic> json) {
@@ -92,14 +76,6 @@ class Data {
     totalAmount = json['total_amount'];
     trackingNo = json['tracking_no'];
     createdOn = json['created_on'];
-    productId = json['product_id'];
-    productName = json['product_name'];
-    productImage = json['product_image'];
-    categoryId = json['category_id'];
-    categoryName = json['category_name'];
-    productSkuId = json['product_sku_id'];
-    quantity = json['quantity'];
-    amount = json['amount'];
     if (json['salesOrderDetails'] != null) {
       salesOrderDetails = <SalesOrderProductList>[];
       json['salesOrderDetails'].forEach((v) {
@@ -122,14 +98,6 @@ class Data {
     data['total_amount'] = this.totalAmount;
     data['tracking_no'] = this.trackingNo;
     data['created_on'] = this.createdOn;
-    data['product_id'] = this.productId;
-    data['product_name'] = this.productName;
-    data['product_image'] = this.productImage;
-    data['category_id'] = this.categoryId;
-    data['category_name'] = this.categoryName;
-    data['product_sku_id'] = this.productSkuId;
-    data['quantity'] = this.quantity;
-    data['amount'] = this.amount;
     if (this.salesOrderDetails != null) {
       data['salesOrderDetails'] =
           this.salesOrderDetails!.map((v) => v.toJson()).toList();
@@ -153,6 +121,7 @@ class SalesOrderProductList {
   String? totOrderStatusId;
   String? totOrderStatus;
   int? subAmount;
+  int? deliveredQuantity;
 
   SalesOrderProductList(
       {this.productId,
@@ -168,7 +137,8 @@ class SalesOrderProductList {
         this.quantity,
         this.totOrderStatusId,
         this.totOrderStatus,
-        this.subAmount});
+        this.subAmount,
+        this.deliveredQuantity});
 
   SalesOrderProductList.fromJson(Map<String, dynamic> json) {
     productId = json['productId'];
@@ -185,6 +155,7 @@ class SalesOrderProductList {
     totOrderStatusId = json['tot_order_status_id'];
     totOrderStatus = json['tot_order_status'];
     subAmount = json['subAmount'];
+    deliveredQuantity = json['deliveredQuantity'];
   }
 
   Map<String, dynamic> toJson() {
@@ -203,6 +174,7 @@ class SalesOrderProductList {
     data['tot_order_status_id'] = this.totOrderStatusId;
     data['tot_order_status'] = this.totOrderStatus;
     data['subAmount'] = this.subAmount;
+    data['deliveredQuantity'] = this.deliveredQuantity;
     return data;
   }
 }
