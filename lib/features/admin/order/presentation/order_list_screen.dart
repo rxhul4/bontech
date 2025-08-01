@@ -73,7 +73,7 @@ class _OrderListScreenState extends State<OrderListScreen>
               centerTitle: true,
               title: widget.title,
               isBackVisible: true,
-              isCartVisible: widget.isCartVisible ?? true,
+              isCartVisible: widget.isCartVisible ?? false,
             ),
           ),
           body: SafeArea(

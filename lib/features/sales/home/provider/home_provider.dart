@@ -25,9 +25,9 @@ class HomeProvider extends ChangeNotifier {
 
   //variable List
   List<Categories>? categoryItemList = [];
-  List<BestSellerProducts>? bestSellerProductList = [];
-  List<TrandingProducts>? trendingProductList = [];
-  List<NewArrivalProducts>? newArrivalProductList = [];
+  // List<BestSellerProducts>? bestSellerProductList = [];
+  // List<TrandingProducts>? trendingProductList = [];
+  // List<NewArrivalProducts>? newArrivalProductList = [];
   List<Banners>? bannerList = [];
 
   int currentIndex = 0;
@@ -48,12 +48,12 @@ class HomeProvider extends ChangeNotifier {
       getHomeModel = GetHomeModel.fromJson(json.decode(response));
       if (getHomeModel?.isError == false &&
           getHomeModel?.isValidationFailed == false) {
-        newArrivalProductList =
-            getHomeModel?.data?.products?.newArrivalProducts?.toList();
-        bestSellerProductList =
-            getHomeModel?.data?.products?.bestSellerProducts?.toList();
-        trendingProductList =
-            getHomeModel?.data?.products?.trandingProducts?.toList();
+        // newArrivalProductList =
+        //     getHomeModel?.data?.products?.newArrivalProducts?.toList();
+        // bestSellerProductList =
+        //     getHomeModel?.data?.products?.bestSellerProducts?.toList();
+        // trendingProductList =
+        //     getHomeModel?.data?.products?.trandingProducts?.toList();
         categoryItemList = getHomeModel?.data?.categories?.toList();
         bannerList = getHomeModel?.data?.banners?.toList();
       }

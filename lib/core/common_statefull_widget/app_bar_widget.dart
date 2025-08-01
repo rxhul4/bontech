@@ -24,11 +24,13 @@ class AppBarWidget extends StatefulWidget {
     this.onPressedSearch,
     this.onPressedCart,
     this.onPressedFav,
+    this.onBulkUpdate,
     this.isFavColor,
     this.isBackVisible = false,
     this.isSearchVisible = false,
     this.isCartVisible = true,
     this.isFavVisible = false,
+    this.isBulUpdateQty = false,
     this.textAlign,
     this.centerTitle = true,
     this.isAdmin
@@ -39,12 +41,14 @@ class AppBarWidget extends StatefulWidget {
   final bool? isAdmin;
   final Function? onBackPressed;
   final Function? onPressedSearch;
+  final Function? onBulkUpdate;
   final Function? onPressedCart;
   final Function? onPressedFav;
   final bool isBackVisible;
   final bool isSearchVisible;
   final bool isCartVisible;
   final bool isFavVisible;
+  final bool isBulUpdateQty;
   final Color? isFavColor;
   final TextAlign? textAlign;
   final bool centerTitle;
@@ -65,9 +69,7 @@ class _AppBarWidgetState extends State<AppBarWidget> {
       automaticallyImplyLeading: false,
       elevation: 10,
       titleSpacing: widget.isBackVisible == false ? 16 : 0,
-
       leadingWidth: 70,
-
       leading: widget.isBackVisible ? _backArrow(context) : null,
       centerTitle: widget.centerTitle ? true : false,
       title: (widget.title ?? ''.toUpperCase()).textWidget(
@@ -85,11 +87,42 @@ class _AppBarWidgetState extends State<AppBarWidget> {
         widget.isCartVisible ? _cartIcon(context) : SizedBox(),
         widget.isAdmin == true ? 10.toSizedBoxWidth : 5.toSizedBoxWidth,
         widget.isAdmin == true ?  _profileCircle(context) : SizedBox(),
+        widget.isBulUpdateQty == true ? _bulkUpdate(context): SizedBox(),
+        widget.isBulUpdateQty == true ? 10.toSizedBoxWidth : 0.toSizedBoxWidth,
         widget.isAdmin == true ? 5.toSizedBoxWidth : 0.toSizedBoxWidth,
 
 
       ],
     );
+  }
+
+
+  _bulkUpdate(BuildContext context){
+    return Visibility(
+        visible: widget.isBulUpdateQty,
+        child: InkWell(
+          onTap: () {
+            if (widget.onBulkUpdate != null) {
+              widget.onBulkUpdate!();
+            }
+          },
+          child: SizedBox(
+            height: 40,
+            child: Stack(
+              children: [
+                Container(
+                  padding: const EdgeInsets.only(right: 3.0, top: 5),
+                  child: const Icon(
+                    Icons.add_box,
+                    color: AppColors.colorWhite,
+                    size: 30,
+                  ),
+                ),
+                // Positioned(right: 0, top: 0, child: _countView()),
+              ],
+            ),
+          ),
+        ));
   }
 
   _profileCircle(BuildContext context) {

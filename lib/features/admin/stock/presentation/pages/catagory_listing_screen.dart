@@ -104,9 +104,6 @@ class _CategoryListingScreenState extends State<CategoryListingScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => ProductListScreen(
-                              isBackButtonAvailable: true,
-                              isFromCategory: true,
-                              isAdmin: false,
                               categoryId: postMdl
                                   .allCategoryModel?.data?[index].categoryId,
                               categoryName: postMdl.allCategoryModel

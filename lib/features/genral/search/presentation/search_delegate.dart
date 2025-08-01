@@ -141,7 +141,7 @@ class ProductSearchDelegate extends SearchDelegate {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ProductDetailScreen(productId: item.productId,isFromOrder: false,),
+                  builder: (context) => ProductDetailScreen(productId: item.productId),
                 ),
               );
             },

@@ -9,10 +9,12 @@ class UpdateQuantityDialogWidget extends StatelessWidget {
     super.key,
     required this.qtyTextEditingController,
     required this.positiveCallBack,
+    this.hintText
   });
 
   final TextEditingController qtyTextEditingController;
   final Function(String val) positiveCallBack;
+  final String? hintText;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +26,7 @@ class UpdateQuantityDialogWidget extends StatelessWidget {
             10.toSizedBoxHeight,
             CustomTextFormField(
               controller: qtyTextEditingController,
-              hintText: "Qty",
+              hintText: hintText ?? "Qty",
               autofocus: true,
               inputFormatterRegex: '[0-9]',
               inputType: TextInputType.number,

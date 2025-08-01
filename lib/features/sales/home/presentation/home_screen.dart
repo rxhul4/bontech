@@ -334,7 +334,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _trendingProductList(HomeProvider homeProvider) {
-    return (homeProvider.trendingProductList?.length ?? 0) <= 0
+    return (homeProvider.getHomeModel?.data?.trendingProducts?.length ?? 0) <= 0
         ? AppUtils.commonSizedBox()
         : Column(
       children: [
@@ -377,18 +377,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   MaterialPageRoute(
                     builder:
                         (context) => ProductListingScreen(
-                          isBackButtonAvailable: true,
-                          isFromCategory: false,
+                      isBackButtonAvailable: true,
+                      totViewTypeId: AppConstants.viewTypeTrending,
 
-                          totViewTypeId:
-                              _homeProviderAd
-                                  .getHomeModel
-                                  ?.data
-                                  ?.products
-                                  ?.trandingId,
-
-                          categoryName: "Trending",
-                        ),
+                      categoryName: "Trending",
+                      isFromCategory: false,
+                    ),
                   ),
                 );
               },
@@ -396,142 +390,147 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         AppUtils.commonContainer(
-              height: 200,
-              // color: AppColors.colorWhite,
-              margin: AppUtils.edgeInsetsOnly(left: 10, top: 10),
-              width: double.infinity,
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                itemCount: homeProvider.trendingProductList?.length,
-                // physics: NeverScrollableScrollPhysics(),
-                scrollDirection: Axis.horizontal,
-                // shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: AppUtils.edgeInsetsOnly(right: 20),
-                    child: SizedBox(
-                      // color: Colors.red,
-                      height: 140,
-                      width: 140,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          AppUtils.commonInkWell(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => ProductDetailScreen(
-                                        isFromOrder: false,
-                                        productId:
-                                            _homeProviderAd
-                                                .trendingProductList?[index]
-                                                .productId
-                                                .toString(),
-                                      ),
-                                ),
-                              );
-                            },
-                            child: AppUtils.commonGlassmorphicContainer(
-                              height: 140,
-                              width: 140,
-
-                              // padding: AppUtils.edgeInsetsAll(allPadding: 20),
-                              // decoration:
-                              // AppUtils.commonBoxDecoration(
-                              //     shape: BoxShape.rectangle,
-                              //     boxShadow: [
-                              //       BoxShadow(
-                              //         color: AppColors
-                              //             .colorSecondary
-                              //             .withOpacity(0.1),
-                              //         spreadRadius: 1,
-                              //         blurRadius: 5,
-                              //         offset: Offset(0,
-                              //             4), // This is the bottom shadow offset
-                              //       ),
-                              //     ],
-                              //     // border: Border.all(
-                              //     //     color: AppColors.colorSecondary, width: 0.5),
-                              //     borderRadius:
-                              //     AppUtils.borderRadiusAll(
-                              //         raduis: 12),
-                              //     color: AppColors.colorWhite),
-                              child: ClipRRect(
-                                borderRadius: AppUtils.borderRadiusAll(
-                                  raduis: 12,
-                                ),
-                                child: Stack(
-                                  children: [
-                                    CachedNetworkImage(
-                                      imageUrl:
-                                          homeProvider
-                                              .trendingProductList?[index]
-                                              .imagePath ??
-                                          '',
-                                      imageBuilder:
-                                          (context, imageProvider) => Container(
-                                            decoration: BoxDecoration(
-                                              image: DecorationImage(
-                                                image: imageProvider,
-                                                fit: BoxFit.fill,
-                                              ),
-                                            ),
-                                          ),
-                                      placeholder:
-                                          (context, url) => Center(
-                                            child: CircularProgressIndicator(
-                                              color: AppColors.colorPrimary,
-                                              strokeWidth: 1.5,
-                                            ),
-                                          ),
-                                      errorWidget:
-                                          (context, url, error) => const Center(
-                                            child: Icon(
-                                              Icons.image_rounded,
-                                              size: 40,
-                                              color: AppColors.colorPrimary,
-                                            ),
-                                          ),
-                                    ),
-                                  ],
-                                ),
+          height: 200,
+          // color: AppColors.colorWhite,
+          margin: AppUtils.edgeInsetsOnly(left: 10, top: 10),
+          width: double.infinity,
+          child: ListView.builder(
+            padding: EdgeInsets.zero,
+            itemCount:
+            homeProvider.getHomeModel?.data?.trendingProducts?.length,
+            // physics: NeverScrollableScrollPhysics(),
+            scrollDirection: Axis.horizontal,
+            // shrinkWrap: true,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: AppUtils.edgeInsetsOnly(right: 20),
+                child: SizedBox(
+                  // color: Colors.red,
+                  height: 140,
+                  width: 140,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppUtils.commonInkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => ProductDetailScreen(
+                                productId:
+                                homeProvider
+                                    .getHomeModel
+                                    ?.data
+                                    ?.trendingProducts?[index]
+                                    .productId,
                               ),
                             ),
-                          ),
-                          AppUtils.commonContainer(
-                            margin: AppUtils.edgeInsetsOnly(left: 5, right: 5),
-                            child: AppUtils.commonTextWidget(
-                              margin: AppUtils.edgeInsetsOnly(top: 10),
-                              textAlign: TextAlign.left,
-                              text:
+                          );
+                        },
+                        child: AppUtils.commonGlassmorphicContainer(
+                          height: 140,
+                          width: 140,
+
+                          // padding: AppUtils.edgeInsetsAll(allPadding: 20),
+                          // decoration:
+                          // AppUtils.commonBoxDecoration(
+                          //     shape: BoxShape.rectangle,
+                          //     boxShadow: [
+                          //       BoxShadow(
+                          //         color: AppColors
+                          //             .colorSecondary
+                          //             .withOpacity(0.1),
+                          //         spreadRadius: 1,
+                          //         blurRadius: 5,
+                          //         offset: Offset(0,
+                          //             4), // This is the bottom shadow offset
+                          //       ),
+                          //     ],
+                          //     // border: Border.all(
+                          //     //     color: AppColors.colorSecondary, width: 0.5),
+                          //     borderRadius:
+                          //     AppUtils.borderRadiusAll(
+                          //         raduis: 12),
+                          //     color: AppColors.colorWhite),
+                          child: ClipRRect(
+                            borderRadius: AppUtils.borderRadiusAll(
+                              raduis: 12,
+                            ),
+                            child: Stack(
+                              children: [
+                                CachedNetworkImage(
+                                  imageUrl:
                                   homeProvider
-                                      .trendingProductList?[index]
-                                      .productName ??
-                                  '',
-                              textColor: AppColors.colorText,
-                              letterSpacing: 0.5,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 10,
+                                      .getHomeModel
+                                      ?.data
+                                      ?.trendingProducts?[index]
+                                      .image ??
+                                      "",
+                                  imageBuilder:
+                                      (context, imageProvider) => Container(
+                                    decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                        image: imageProvider,
+                                        fit: BoxFit.fill,
+                                      ),
+                                    ),
+                                  ),
+                                  placeholder:
+                                      (context, url) => Center(
+                                    child: CircularProgressIndicator(
+                                      color: AppColors.colorPrimary,
+                                      strokeWidth: 1.5,
+                                    ),
+                                  ),
+                                  errorWidget:
+                                      (context, url, error) => const Center(
+                                    child: Icon(
+                                      Icons.image_rounded,
+                                      size: 40,
+                                      color: AppColors.colorPrimary,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                  );
-                },
-              ),
-            ),
+                      AppUtils.commonContainer(
+                        margin: AppUtils.edgeInsetsOnly(left: 5, right: 5),
+                        child: AppUtils.commonTextWidget(
+                          margin: AppUtils.edgeInsetsOnly(top: 10),
+                          textAlign: TextAlign.left,
+                          text:
+                          homeProvider
+                              .getHomeModel
+                              ?.data
+                              ?.trendingProducts?[index]
+                              .productName ??
+                              "",
+                          textColor: AppColors.colorText,
+                          letterSpacing: 0.5,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
       ],
     );
   }
 
   Widget _bestsellerProductList(HomeProvider homeProvider) {
-    return (homeProvider.bestSellerProductList?.length ?? 0) <= 0
+    return (homeProvider.getHomeModel?.data?.bestSellers?.length ?? 0) <= 0
         ? AppUtils.commonSizedBox()
-        :  Column(
+        : Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -572,17 +571,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   MaterialPageRoute(
                     builder:
                         (context) => ProductListingScreen(
-                          isBackButtonAvailable: true,
-                          isFromCategory: false,
-
-                          totViewTypeId:
-                              _homeProviderAd
-                                  .getHomeModel
-                                  ?.data
-                                  ?.products
-                                  ?.bestSellerId,
-                          categoryName: "Bestseller",
-                        ),
+                      isBackButtonAvailable: true,
+                      totViewTypeId: AppConstants.viewTypeBestSeller,
+                      categoryName: "Bestseller",
+                      isFromCategory: false,
+                    ),
                   ),
                 );
               },
@@ -590,139 +583,145 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         AppUtils.commonContainer(
-              height: 200,
-              // color: AppColors.colorWhite,
-              margin: AppUtils.edgeInsetsOnly(left: 10, top: 10),
-              width: double.infinity,
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                itemCount: homeProvider.bestSellerProductList?.length,
-                // physics: NeverScrollableScrollPhysics(),
-                scrollDirection: Axis.horizontal,
-                // shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: AppUtils.edgeInsetsOnly(right: 20),
-                    child: SizedBox(
-                      // color: Colors.red,
-                      height: 140,
-                      width: 140,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          AppUtils.commonInkWell(
-                            onTap: () {
-                              // Navigator.push(
-                              //     context,
-                              //     MaterialPageRoute(
-                              //         builder: (context) =>
-                              //             ProductDetailScreen(
-                              //               productId:
-                              //               trendingProductList?[
-                              //               index]
-                              //                   .productId
-                              //                   .toString(),
-                              //               // imageUrl:
-                              //               //     featuredProductList?[index].imagePath,imageName: featuredProductList?[index].productName,
-                              //             )));
-                            },
-                            child: AppUtils.commonGlassmorphicContainer(
-                              height: 140,
-                              width: 140,
-
-                              // padding: AppUtils.edgeInsetsAll(allPadding: 20),
-                              // decoration:
-                              // AppUtils.commonBoxDecoration(
-                              //     shape: BoxShape.rectangle,
-                              //     boxShadow: [
-                              //       BoxShadow(
-                              //         color: AppColors
-                              //             .colorSecondary
-                              //             .withOpacity(0.1),
-                              //         spreadRadius: 1,
-                              //         blurRadius: 5,
-                              //         offset: Offset(0,
-                              //             4), // This is the bottom shadow offset
-                              //       ),
-                              //     ],
-                              //     // border: Border.all(
-                              //     //     color: AppColors.colorSecondary, width: 0.5),
-                              //     borderRadius:
-                              //     AppUtils.borderRadiusAll(
-                              //         raduis: 12),
-                              //     color: AppColors.colorWhite),
-                              child: ClipRRect(
-                                borderRadius: AppUtils.borderRadiusAll(
-                                  raduis: 12,
-                                ),
-                                child: Stack(
-                                  children: [
-                                    CachedNetworkImage(
-                                      imageUrl:
-                                          homeProvider
-                                              .bestSellerProductList?[index]
-                                              .imagePath ??
-                                          '',
-                                      imageBuilder:
-                                          (context, imageProvider) => Container(
-                                            decoration: BoxDecoration(
-                                              image: DecorationImage(
-                                                image: imageProvider,
-                                                fit: BoxFit.fill,
-                                              ),
-                                            ),
-                                          ),
-                                      placeholder:
-                                          (context, url) => Center(
-                                            child: CircularProgressIndicator(
-                                              color: AppColors.colorPrimary,
-                                              strokeWidth: 1.5,
-                                            ),
-                                          ),
-                                      errorWidget:
-                                          (context, url, error) => const Center(
-                                            child: Icon(
-                                              Icons.image_rounded,
-                                              size: 40,
-                                              color: AppColors.colorPrimary,
-                                            ),
-                                          ),
-                                    ),
-                                  ],
-                                ),
+          height: 200,
+          // color: AppColors.colorWhite,
+          margin: AppUtils.edgeInsetsOnly(left: 10, top: 10),
+          width: double.infinity,
+          child: ListView.builder(
+            padding: EdgeInsets.zero,
+            itemCount: homeProvider.getHomeModel?.data?.bestSellers?.length,
+            // physics: NeverScrollableScrollPhysics(),
+            scrollDirection: Axis.horizontal,
+            // shrinkWrap: true,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: AppUtils.edgeInsetsOnly(right: 20),
+                child: SizedBox(
+                  // color: Colors.red,
+                  height: 140,
+                  width: 140,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppUtils.commonInkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => ProductDetailScreen(
+                                productId:
+                                homeProvider
+                                    .getHomeModel
+                                    ?.data
+                                    ?.bestSellers?[index]
+                                    .productId,
                               ),
                             ),
-                          ),
-                          AppUtils.commonContainer(
-                            margin: AppUtils.edgeInsetsOnly(left: 5, right: 5),
-                            child: AppUtils.commonTextWidget(
-                              margin: AppUtils.edgeInsetsOnly(top: 10),
-                              textAlign: TextAlign.left,
-                              text:
+                          );
+                        },
+                        child: AppUtils.commonGlassmorphicContainer(
+                          height: 140,
+                          width: 140,
+
+                          // padding: AppUtils.edgeInsetsAll(allPadding: 20),
+                          // decoration:
+                          // AppUtils.commonBoxDecoration(
+                          //     shape: BoxShape.rectangle,
+                          //     boxShadow: [
+                          //       BoxShadow(
+                          //         color: AppColors
+                          //             .colorSecondary
+                          //             .withOpacity(0.1),
+                          //         spreadRadius: 1,
+                          //         blurRadius: 5,
+                          //         offset: Offset(0,
+                          //             4), // This is the bottom shadow offset
+                          //       ),
+                          //     ],
+                          //     // border: Border.all(
+                          //     //     color: AppColors.colorSecondary, width: 0.5),
+                          //     borderRadius:
+                          //     AppUtils.borderRadiusAll(
+                          //         raduis: 12),
+                          //     color: AppColors.colorWhite),
+                          child: ClipRRect(
+                            borderRadius: AppUtils.borderRadiusAll(
+                              raduis: 12,
+                            ),
+                            child: Stack(
+                              children: [
+                                CachedNetworkImage(
+                                  imageUrl:
                                   homeProvider
-                                      .bestSellerProductList?[index]
-                                      .productName ??
-                                  '',
-                              textColor: AppColors.colorText,
-                              letterSpacing: 0.5,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 10,
+                                      .getHomeModel
+                                      ?.data
+                                      ?.bestSellers?[index]
+                                      .image ??
+                                      "",
+
+                                  imageBuilder:
+                                      (context, imageProvider) => Container(
+                                    decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                        image: imageProvider,
+                                        fit: BoxFit.fill,
+                                      ),
+                                    ),
+                                  ),
+                                  placeholder:
+                                      (context, url) => Center(
+                                    child: CircularProgressIndicator(
+                                      color: AppColors.colorPrimary,
+                                      strokeWidth: 1.5,
+                                    ),
+                                  ),
+                                  errorWidget:
+                                      (context, url, error) => const Center(
+                                    child: Icon(
+                                      Icons.image_rounded,
+                                      size: 40,
+                                      color: AppColors.colorPrimary,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                  );
-                },
-              ),
-            ),
+                      AppUtils.commonContainer(
+                        margin: AppUtils.edgeInsetsOnly(left: 5, right: 5),
+                        child: AppUtils.commonTextWidget(
+                          margin: AppUtils.edgeInsetsOnly(top: 10),
+                          textAlign: TextAlign.left,
+                          text:
+                          homeProvider
+                              .getHomeModel
+                              ?.data
+                              ?.bestSellers?[index]
+                              .productName ??
+                              "",
+                          textColor: AppColors.colorText,
+                          letterSpacing: 0.5,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
       ],
     );
   }
 
   Widget _newArrivalProductList(HomeProvider homeProvider) {
-    return (homeProvider.newArrivalProductList?.length ?? 0) <= 0
+    return (homeProvider.getHomeModel?.data?.newArrivals?.length ?? 0) <= 0
         ? AppUtils.commonSizedBox()
         : Column(
       children: [
@@ -765,149 +764,150 @@ class _HomeScreenState extends State<HomeScreen> {
                   MaterialPageRoute(
                     builder:
                         (context) => ProductListingScreen(
-                          isBackButtonAvailable: true,
-                          isFromCategory: false,
-                          totViewTypeId:
-                              _homeProviderAd
-                                  .getHomeModel
-                                  ?.data
-                                  ?.products
-                                  ?.newArrivalId,
-                          categoryName: "New Arrival",
-                        ),
+                      isBackButtonAvailable: true,
+                      totViewTypeId: AppConstants.viewTypeNewArrival,
+                      categoryName: "New Arrival",
+                      isFromCategory: false,
+                    ),
                   ),
                 );
               },
             ),
           ],
-        ), GridView.builder(
-              padding: EdgeInsets.zero,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: homeProvider.newArrivalProductList?.length,
-              shrinkWrap: true,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 15,
-                mainAxisSpacing: 20,
-                mainAxisExtent: 230,
+        ),
+        GridView.builder(
+          padding: EdgeInsets.zero,
+          physics: NeverScrollableScrollPhysics(),
+          itemCount: homeProvider.getHomeModel?.data?.newArrivals?.length,
+          shrinkWrap: true,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 15,
+            mainAxisSpacing: 20,
+            mainAxisExtent: 230,
 
-                // childAspectRatio: 0.75
-              ),
-              itemBuilder: (context, index) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AppUtils.commonInkWell(
-                      onTap: () {
-                        // Navigator.push(
-                        //     context,
-                        //     // MaterialPageRoute(
-                        //     //     builder: (context) =>
-                        //     //         ProductDetailScreen(
-                        //     //           productId:
-                        //     //           newArrivalProductList?[
-                        //     //           index]
-                        //     //               .productId
-                        //     //               .toString(),
-                        //     //           // imageUrl:
-                        //     //           //     newArrivalProductList?[index].imagePath,
-                        //     //         )));
-                      },
-                      child: AppUtils.commonContainer(
-                        constraints: BoxConstraints(
-                          maxHeight: 180,
-                          minHeight: 150,
-                        ),
-                        decoration: AppUtils.commonBoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.colorSecondary.withOpacity(0.1),
-                              spreadRadius: 1,
-                              blurRadius: 5,
-                              offset: Offset(
-                                0,
-                                4,
-                              ), // This is the bottom shadow offset
-                            ),
-                          ],
-                          // border: Border.all(
-                          //     color: AppColors.colorDarkGrey, width: 0.5),
-                          borderRadius: AppUtils.borderRadiusAll(raduis: 12),
-                          color: AppColors.colorWhite,
-                        ),
-                        child: ClipRRect(
-                          borderRadius: AppUtils.borderRadiusAll(raduis: 12),
-                          child: Stack(
-                            children: [
-                              CachedNetworkImage(
-                                fit: BoxFit.cover,
-                                imageUrl:
-                                    homeProvider
-                                        .newArrivalProductList?[index]
-                                        .imagePath ??
-                                    '',
-                                imageBuilder:
-                                    (context, imageProvider) => Container(
-                                      decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                          image: imageProvider,
-                                          fit: BoxFit.contain,
-                                        ),
-                                      ),
-                                    ),
-                                placeholder:
-                                    (context, url) => const Center(
-                                      child: CircularProgressIndicator(
-                                        color: AppColors.colorPrimary,
-                                        strokeWidth: 1.5,
-                                      ),
-                                    ),
-                                errorWidget:
-                                    (context, url, error) => const Center(
-                                      child: Icon(
-                                        Icons.image_rounded,
-                                        size: 40,
-                                        color: AppColors.colorPrimary,
-                                      ),
-                                    ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    AppUtils.commonTextWidget(
-                      margin: AppUtils.edgeInsetsOnly(
-                        right: 5,
-                        left: 5,
-                        top: 10,
-                      ),
-                      text:
+            // childAspectRatio: 0.75
+          ),
+          itemBuilder: (context, index) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AppUtils.commonInkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => ProductDetailScreen(
+                          productId:
                           homeProvider
-                              .newArrivalProductList?[index]
-                              .productName ??
-                          '',
-                      fontSize: 12,
-                      letterSpacing: 0.5,
-                      textColor: AppColors.colorText,
-                      fontWeight: FontWeight.w700,
+                              .getHomeModel
+                              ?.data
+                              ?.newArrivals?[index]
+                              .productId,
+                        ),
+                      ),
+                    );
+                  },
+                  child: AppUtils.commonContainer(
+                    constraints: BoxConstraints(
+                      maxHeight: 180,
+                      minHeight: 150,
                     ),
-                    // Padding(
-                    //   padding: AppUtils.edgeInsetsOnly(right: 5, left: 5, top: 2),
-                    //   child: RatingBarIndicator(
-                    //       rating: 2.5,
-                    //       itemCount: 5,
-                    //       itemSize: 12,
-                    //       unratedColor: AppColors.colorLightGrey,
-                    //       itemBuilder: (context, _) => const Icon(
-                    //             Icons.star,
-                    //             color: AppColors.colorPrimary,
-                    //           )),
-                    // ),
-                  ],
-                );
-              },
-            ),
+                    decoration: AppUtils.commonBoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.colorSecondary.withOpacity(0.1),
+                          spreadRadius: 1,
+                          blurRadius: 5,
+                          offset: Offset(
+                            0,
+                            4,
+                          ), // This is the bottom shadow offset
+                        ),
+                      ],
+                      // border: Border.all(
+                      //     color: AppColors.colorDarkGrey, width: 0.5),
+                      borderRadius: AppUtils.borderRadiusAll(raduis: 12),
+                      color: AppColors.colorWhite,
+                    ),
+                    child: ClipRRect(
+                      borderRadius: AppUtils.borderRadiusAll(raduis: 12),
+                      child: Stack(
+                        children: [
+                          CachedNetworkImage(
+                            fit: BoxFit.cover,
+                            imageUrl:
+                            homeProvider
+                                .getHomeModel
+                                ?.data
+                                ?.newArrivals?[index]
+                                .image ??
+                                "",
+                            imageBuilder:
+                                (context, imageProvider) => Container(
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: imageProvider,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                            placeholder:
+                                (context, url) => const Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.colorPrimary,
+                                strokeWidth: 1.5,
+                              ),
+                            ),
+                            errorWidget:
+                                (context, url, error) => const Center(
+                              child: Icon(
+                                Icons.image_rounded,
+                                size: 40,
+                                color: AppColors.colorPrimary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                AppUtils.commonTextWidget(
+                  margin: AppUtils.edgeInsetsOnly(
+                    right: 5,
+                    left: 5,
+                    top: 10,
+                  ),
+                  text:
+                  homeProvider
+                      .getHomeModel
+                      ?.data
+                      ?.newArrivals?[index]
+                      .productName ??
+                      "",
+                  fontSize: 12,
+                  letterSpacing: 0.5,
+                  textColor: AppColors.colorText,
+                  fontWeight: FontWeight.w700,
+                ),
+                // Padding(
+                //   padding: AppUtils.edgeInsetsOnly(right: 5, left: 5, top: 2),
+                //   child: RatingBarIndicator(
+                //       rating: 2.5,
+                //       itemCount: 5,
+                //       itemSize: 12,
+                //       unratedColor: AppColors.colorLightGrey,
+                //       itemBuilder: (context, _) => const Icon(
+                //             Icons.star,
+                //             color: AppColors.colorPrimary,
+                //           )),
+                // ),
+              ],
+            );
+          },
+        ),
       ],
     );
   }

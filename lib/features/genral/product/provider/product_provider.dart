@@ -12,14 +12,18 @@ import 'package:sales_app_redesign/core/utils/common_function.dart';
 import 'package:sales_app_redesign/features/admin/dashboard_ad/dashboard_ad.dart';
 import 'package:sales_app_redesign/features/admin/order/model/get_sales_man_order_by_id_model.dart';
 import 'package:sales_app_redesign/features/genral/cart/model/cart_model.dart';
+import 'package:sales_app_redesign/features/genral/product/model/get_product_by_productId_model.dart';
 import 'package:sales_app_redesign/features/genral/product/model/get_product_by_productid.dart'
     as detail_res;
 import 'package:sales_app_redesign/features/genral/product/model/get_product_by_productid.dart';
 import 'package:sales_app_redesign/features/genral/product/model/product_by_category.dart';
 import 'package:sales_app_redesign/features/genral/product/model/product_by_viewtype.dart';
 import 'package:sales_app_redesign/features/genral/product/model/product_sku_by_product_varient_id.dart';
+import 'package:sales_app_redesign/features/genral/product/model/product_sku_by_product_varient_id.dart'
+    as response;
 
 import '../../../sales/dashboard/dashboard.dart';
+import '../model/get_product_by_productId_model.dart' as response;
 
 class ProductProvider with ChangeNotifier {
   bool _isFetching = false;
@@ -55,33 +59,22 @@ class ProductProvider with ChangeNotifier {
   ValueNotifier<int?> selectedMaterialIndex = ValueNotifier<int?>(null);
   ValueNotifier<int?> selectedSideIndex = ValueNotifier<int?>(null);
 
-  List<detail_res.ColorData> colorVariantList = [];
-  List<detail_res.Steps> stepVariantList = [];
-  List<detail_res.MaterialData> materialVariantList = [];
-  List<detail_res.Side> sideVariantList = [];
-
-  List<detail_res.ProductInfo?> prefCartProductList = [];
-
-  detail_res.ColorData? selectedColorVariant;
-  detail_res.Side? selectedSideVariant;
-  detail_res.Steps? selectedSizeVariant;
-  detail_res.MaterialData? selectedMaterialVariant;
-
   TextEditingController qtyEditController = TextEditingController();
 
-  // List<>
-
   GetProductByCategoryModel? getProductByCategoryModel;
-  GetProductByProductId? getProductByProductId;
   HomViewTypeByIdModel? homViewTypeByIdModel;
-  detail_res.ProductInfo? productInfoResponse;
   ProductSkuByProductVariantId? productSkuByProductVariantId;
   SalesOrderProductList? salesOrderProductList;
   CartModel? cartModel;
   int cartTotal = 0;
   int totalQty = 0;
 
+  ProductResponse? productResponse;
+  response.Product? product;
+
   FlutterCarouselController carouselController = FlutterCarouselController();
+
+  // List<AllVariants>? allVariantsList = [];
 
   // AllCategoryModel? allCategoryModel;
   // SalesProductsViewModel? salesProductsViewModel;
@@ -90,7 +83,6 @@ class ProductProvider with ChangeNotifier {
   // CommonResponseModel? commonResponseModel;.
 
   void resetProductData() {
-    sideVariantList.clear();
     _categoryProduct.clear();
     _totProduct.clear();
     _hasMore = true;
@@ -185,24 +177,23 @@ class ProductProvider with ChangeNotifier {
         );
       }
 
-      if (productInfoResponse == null) {
+      if (product == null) {
         print("Product data not found.");
         return;
       }
 
-      print("skuId: ${productInfoResponse?.productVariantId}");
+      print("skuId: ${product?.productVariantId}");
 
       // Prepare the product variant to be added
-      final ProductInfo productVariant = ProductInfo(
-        productVariantId: productInfoResponse?.productVariantId,
-        productId: productInfoResponse?.productId,
-        productName: productInfoResponse?.productName,
-        productCategoryName: productInfoResponse?.productCategoryName,
-        qty: productInfoResponse?.qty,
-        selectedSize: selectedSizeVariant,
-        selectedMaterial: selectedMaterialVariant,
-        price: productInfoResponse?.price,
-        image: productInfoResponse?.image,
+      final Product productVariant = Product(
+        productVariantId: product?.productVariantId,
+        productId: product?.productId,
+        productName: product?.productName,
+        productCategoryName: product?.productCategoryName,
+        productQty: product?.productQty ?? 0,
+        productVariant: selectedVariants,
+        price: product?.price,
+        image: product?.image,
       );
 
       // Add or update product in cart
@@ -215,9 +206,9 @@ class ProductProvider with ChangeNotifier {
 
       if (existingIndex >= 0) {
         final existingItem = cartModel?.productInfo?[existingIndex];
-        final int currentQty = existingItem?.qty ?? 1;
-        final int addedQty = productVariant.qty ?? 1;
-        existingItem?.qty = (currentQty + addedQty);
+        final int currentQty = existingItem?.productQty ?? 1;
+        final int addedQty = productVariant.productQty ?? 1;
+        existingItem?.productQty = (currentQty + addedQty);
       } else {
         cartModel?.productInfo?.add(productVariant);
       }
@@ -246,50 +237,7 @@ class ProductProvider with ChangeNotifier {
     }
   }
 
-  void addProductToOrder({ProductInfo? product,required BuildContext context}){
-
-    print("productData${product?.productName}");
-    print("productSize${selectedSideVariant?.name}");
-    print("productMaterial${product?.selectedMaterial?.name}");
-   String?  productListJson =  PreferenceHelper.getString("ProductList");
-   List<SalesOrderProductList> orderProductList = [];
-
-
-   if (productListJson != null && productListJson.isNotEmpty) {
-     List<dynamic> jsonList = jsonDecode(productListJson);
-     orderProductList = jsonList.map((item) => SalesOrderProductList.fromJson(item)).toList();
-   }
-
-   SalesOrderProductList salesOrderProductList = SalesOrderProductList(
-     productSKUID: product?.productVariantId,
-     productName: product?.productName,
-     quantity: product?.qty,
-     size: selectedSizeVariant?.name,
-     material: selectedMaterialVariant?.name,
-     price: product?.price,
-     subAmount: ((product?.price ?? 0) * (product?.qty ?? 0)),
-
-   );
-
-   orderProductList.add(salesOrderProductList);
-
-
-   String updatedJson = jsonEncode(orderProductList);
-
-   print("UpdatedJson$updatedJson");
-    AppUtils.showSnackBarWithColor(
-      context: context,
-      message: "Your Product has Added to Order",
-    );
-
-   PreferenceHelper.setString("ProductList", updatedJson);
-
-
-
-
-  }
-
-  List<ProductInfo> getCartList(String cartKey) {
+  List<Product> getCartList(String cartKey) {
     try {
       final String cartString = PreferenceHelper.getString(cartKey) ?? '';
 
@@ -343,7 +291,7 @@ class ProductProvider with ChangeNotifier {
   }
 
   updateProductQty(int qty) async {
-    productInfoResponse?.qty = qty;
+    product?.productQty = qty;
     notifyListeners();
   }
 
@@ -352,15 +300,16 @@ class ProductProvider with ChangeNotifier {
     int qty,
     String cartkey,
   ) async {
-    cartModel?.productInfo?[index].qty = qty;
+    cartModel?.productInfo?[index].productQty = qty;
     /* calculated price for cart screen */
     cartModel?.productInfo?[index].calculatedPrice =
-        qty * (cartModel?.productInfo?[index].price ?? 0);
+        (product?.productQty ?? 0) *
+        (cartModel?.productInfo?[index].price?.toInt() ?? 0);
     final encodedCart = cartModel?.toJson();
     final cartStringUpdated = convertJsonToString(encodedCart);
     PreferenceHelper.setString(cartkey, cartStringUpdated);
     // emit(ProductState().init());
-    // calculateSubtotal();
+    calculateSubtotal();
     getCartItemCount();
     calculateSubtotal();
     notifyListeners();
@@ -372,88 +321,13 @@ class ProductProvider with ChangeNotifier {
 
     cartModel?.productInfo?.forEach((product) {
       final price = product.price;
-      final qty = product.qty;
+      final qty = product.productQty;
 
       if (price != null && qty != null) {
-        cartTotal += price * qty;
+        cartTotal += price.toInt() * qty;
         totalQty += qty;
       }
     });
-  }
-
-  refreshScreenOnSizeChange(
-    String? productId,
-    detail_res.Steps newItem,
-    int? index,
-  ) {
-    selectedSizeIndex.value = index;
-    selectedSizeVariant = newItem;
-    apiCallGetProductSkuIdByProductVariants(
-      productId: productId,
-      index: index,
-      isSize: true,
-      selectedSideId: selectedSideVariant?.id,
-      selectedMaterialID: selectedMaterialVariant?.id,
-      selectedSizeId: selectedSizeVariant?.id,
-    );
-    notifyListeners();
-
-    // apiCallGetProductDetails(productId);
-  }
-
-  // refreshScreenOnColorChange(
-  //     String? productId,
-  //     detail_res.ColorData newItem,
-  //     int? index,
-  //     ) {
-  //   selectedColorIndex.value = index;
-  //   selectedColorVariant = newItem;
-  //   apiCallGetProductSkuIdByProductVariants(
-  //     productId: productId,
-  //     index: index,
-  //     isColor: true,
-  //     selectedColorId: selectedColorVariant?.id,
-  //     selectedMaterialID: selectedMaterialVariant?.id,
-  //     selectedSizeId: selectedSizeVariant?.id,
-  //   );
-  //   notifyListeners();
-  //
-  // }
-
-  refreshScreenOnSideChange(
-    String? productId,
-    detail_res.Side newItem,
-    int? index,
-  ) {
-    selectedSideIndex.value = index;
-    selectedSideVariant = newItem;
-    apiCallGetProductSkuIdByProductVariants(
-      productId: productId,
-      index: index,
-      isColor: true,
-      selectedMaterialID: selectedMaterialVariant?.id,
-      selectedSizeId: selectedSizeVariant?.id,
-      selectedSideId: selectedSideVariant?.id,
-    );
-    notifyListeners();
-  }
-
-  refreshScreenOnMaterialChange(
-    String? productId,
-    detail_res.MaterialData newItem,
-    int? index,
-  ) {
-    selectedMaterialIndex.value = index;
-    selectedMaterialVariant = newItem;
-    apiCallGetProductSkuIdByProductVariants(
-      productId: productId,
-      index: index,
-      isMaterial: true,
-      selectedMaterialID: selectedMaterialVariant?.id,
-      selectedSizeId: selectedSizeVariant?.id,
-      selectedSideId: selectedSideVariant?.id,
-    );
-    notifyListeners();
   }
 
   Future<List<ListItem>> apiCallGetProductByCategory({
@@ -483,11 +357,13 @@ class ProductProvider with ChangeNotifier {
     return getProductByCategoryModel?.data?.listItem ?? [];
   }
 
-  Future<List<ProductList>> apiCallGetHomeView({String? viewTypeId, int? page}) async {
-    String? userId = PreferenceHelper.getString(PreferenceHelper.USER_ID);
-    _isFetching = true;
-    // notifyListeners();
+  Future<List<ProductList>> apiCallGetHomeView({
+    String? viewTypeId,
+    int? page,
+  }) async {
     try {
+      String? userId = PreferenceHelper.getString(PreferenceHelper.USER_ID);
+      _isFetching = true;
       Map<String, dynamic> body = {
         "user_id": userId,
         "view_type_id": viewTypeId,
@@ -509,107 +385,123 @@ class ProductProvider with ChangeNotifier {
     return homViewTypeByIdModel?.data?.listItem ?? [];
   }
 
-  Future<GetProductByProductId?> apiCallGetProductById(
-    String? productId,
-  ) async {
+  response.ProductVariant? selectedVariant;
+
+  List<Map<String, dynamic>> selectedVariantList = [];
+
+  Map<String, VariantOption> selectedVariants = {};
+
+  Future<ProductResponse?> apiCallGetProductById(String? productId) async {
     print("kkkkkkkkkk1");
 
     _isFetching = true;
-    // notifyListeners();
+    selectedVariantList.clear();
     try {
       Map<String, dynamic> body = {"product_id": productId};
       String endPoint = ApiConstants.getProductSkuByProductId;
-      var response = await callPostMethod(endPoint, body);
-      getProductByProductId = GetProductByProductId.fromJson(
-        json.decode(response),
-      );
-      if (getProductByProductId?.isError == false &&
-          getProductByProductId?.isValidationFailed == false) {
-        if ((getProductByProductId?.data?.productInfo ?? []).isNotEmpty) {
-          productInfoResponse = getProductByProductId?.data?.productInfo?[0];
-          productInfoResponse?.qty = 1;
+      var response1 = await callPostMethod(endPoint, body);
+      productResponse = ProductResponse.fromJson(json.decode(response1));
+      if (productResponse?.isError == false &&
+          productResponse?.isValidationFailed == false) {
+        product = productResponse?.data?.productInfo;
+        product?.productQty = 1;
+        final allVariants = product?.allVariants;
+        final productVariantMap = product?.productVariant;
 
-          selectedColorVariant = productInfoResponse?.productVariant?.color;
-          selectedMaterialVariant =
-              productInfoResponse?.productVariant?.material;
-          selectedSizeVariant = productInfoResponse?.productVariant?.steps;
-          selectedSideVariant = productInfoResponse?.productVariant?.side;
-          print("SelectedSideVar${selectedSideVariant?.name}");
+        if (allVariants != null && productVariantMap != null) {
+          for (final variantAttr in allVariants) {
+            final key = variantAttr.key;
+            final options = variantAttr.value;
 
-          productInfoResponse?.allVariants?.forEach((action) async {
-            if ((action.color ?? []).isNotEmpty) {
-              colorVariantList = action.color ?? [];
-            }
-            if ((action.steps ?? []).isNotEmpty) {
-              stepVariantList = action.steps ?? [];
-            }
-            if ((action.material ?? []).isNotEmpty) {
-              materialVariantList = action.material ?? [];
-            }
+            if (key != null && productVariantMap.containsKey(key)) {
+              final selectedVariant = productVariantMap[key];
+              final matched = options?.firstWhere(
+                (opt) => opt.id == selectedVariant?.id,
+                orElse: () => VariantOption(),
+              );
 
-            if ((action.side ?? []).isNotEmpty) {
-              sideVariantList = action.side ?? [];
+              if (matched?.id != null) {
+                // Save the selected variant
+                selectedVariants[key] = response.VariantOption(
+                  id: matched?.id ?? "",
+                  name: matched?.name,
+                  attributeId: matched?.attributeId,
+                );
+              }
             }
-          });
-          selectedColorIndex.value = colorVariantList.indexWhere(
-            (element) => element.id == selectedColorVariant?.id,
-          );
-          selectedMaterialIndex.value = materialVariantList.indexWhere(
-            (element) => element.id == selectedMaterialVariant?.id,
-          );
-          selectedSizeIndex.value = stepVariantList.indexWhere(
-            (element) => element.id == selectedSizeVariant?.id,
-          );
-          selectedSideIndex.value = sideVariantList.indexWhere(
-            (element) => element.id == selectedSideVariant?.id,
-          );
-          productVariantsId.value = [
-            selectedSideVariant?.id,
-            // selectedColorVariant?.id,
-            selectedMaterialVariant?.id,
-            selectedSizeVariant?.id,
-          ];
-          // getProductFromCartPreference();
+          }
         }
 
+        selectedVariantList = createListOfVariants(selectedVariants);
+
+        print("ProductPrice${product?.price}");
+
         Future.delayed(Duration(milliseconds: 100), () {
-          if ((productInfoResponse?.productImages ?? []).isNotEmpty) {
+          if ((productResponse?.data?.productInfo?.productImages ?? [])
+              .isNotEmpty) {
             carouselController.jumpToPage(0);
           }
           notifyListeners();
-          // emit(SuccessState());
         });
       }
-      print('yooooooooooo $response');
+
+      print('yooooooooooo $response1');
     } catch (e) {
       print('catch at get Product By Category ${e}');
     }
     _isFetching = false;
     notifyListeners();
-    return getProductByProductId;
+    return productResponse;
   }
 
-  apiCallGetProductSkuIdByProductVariants({
-    String? productId,
-    String? selectedSideId,
-    String? selectedSizeId,
-    String? selectedMaterialID,
-    int? index,
-    bool isColor = false,
-    bool isMaterial = false,
-    bool isSize = false,
-    bool isSide = false,
-  }) async {
+  List<Map<String, dynamic>> createListOfVariants(
+    Map<String, VariantOption> selectedVariants,
+  ) {
+    List<Map<String, dynamic>> variantList =
+        selectedVariants.entries.map((entry) {
+          return {
+            entry.key: {
+              "id": entry.value.id,
+              "name": entry.value.name,
+              "attributeId": entry.value.attributeId,
+            },
+          };
+        }).toList();
+    print("ListOfObject${variantList.length}");
+    return variantList;
+  }
+
+  void updateSelectedVariant(String key, VariantOption selectedOption) {
+    selectedVariants[key] = selectedOption;
+
+    selectedVariantList = createListOfVariants(selectedVariants);
+    print("ListOfObject: ${jsonEncode(selectedVariantList)}");
+
+    //apiCallToChangeSku
+    apiCallGetProductSkuIdByProductVariants();
+
+    notifyListeners(); // Or call setState if it's in a stateful widget
+  }
+
+  List<String> extractVariantIds(
+    List<Map<String, dynamic>> selectedVariantList,
+  ) {
+    return selectedVariantList.map((variantMap) {
+      final variantData = variantMap.values.first;
+      return variantData["id"] as String;
+    }).toList();
+  }
+
+  apiCallGetProductSkuIdByProductVariants() async {
     _isLoading = true;
     try {
       // Dynamically add only non-null and non-empty IDs
       List<String> productAttributesIds = [];
-      if (selectedSideId?.isNotEmpty == true) productAttributesIds.add(selectedSideId ?? "");
-      if (selectedSizeId?.isNotEmpty == true) productAttributesIds.add(selectedSizeId?? "");
-      if (selectedMaterialID?.isNotEmpty == true) productAttributesIds.add(selectedMaterialID ?? "");
+
+      productAttributesIds = extractVariantIds(selectedVariantList);
 
       Map<String, dynamic> body = {
-        "product_id": productId,
+        "product_id": productResponse?.data?.productInfo?.productId,
         "product_attributes_ids": productAttributesIds,
       };
 
@@ -622,10 +514,15 @@ class ProductProvider with ChangeNotifier {
 
       if (productSkuByProductVariantId?.isError == false &&
           productSkuByProductVariantId?.isValidationFailed == false) {
-        productInfoResponse?.qty = 1;
-        productInfoResponse?.productVariantId = productSkuByProductVariantId?.data?.productSkuId;
-        productInfoResponse?.price = productSkuByProductVariantId?.data?.price;
-        productInfoResponse?.productImages = productSkuByProductVariantId?.data?.productSkuImage;
+        final product = productResponse?.data?.productInfo;
+        product?.productQty = 1;
+        product?.productVariantId =
+            productSkuByProductVariantId?.data?.productSkuId;
+        product?.price = double.parse(
+          productSkuByProductVariantId?.data?.price.toString() ?? "",
+        );
+        product?.productImages =
+            productSkuByProductVariantId?.data?.productSkuImage;
       }
 
       print('yooooooooooo $response');
@@ -635,5 +532,4 @@ class ProductProvider with ChangeNotifier {
     _isLoading = false;
     notifyListeners();
   }
-
 }

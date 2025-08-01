@@ -64,7 +64,7 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
             preferredSize: Size(double.infinity, appBarSize),
             child: AppBarWidget(
               onBackPressed: (){
-                widget.isFromOrder == true ?  Navigator.pop(context,true) :  null;
+                widget.isFromOrder == true ?  Navigator.pop(context,true) :  Navigator.pop(context,false);
               },
               onPressedSearch: () {
                 widget.isFromCategory == true
@@ -184,7 +184,7 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
           context,
           MaterialPageRoute(
             builder:
-                (context) => ProductDetailScreen(productId: item?.productId,isFromOrder: widget.isFromOrder ?? false,),
+                (context) => ProductDetailScreen(productId: item?.productId),
           ),
         );
       },
@@ -261,7 +261,7 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
           context,
           MaterialPageRoute(
             builder:
-                (context) => ProductDetailScreen(productId: item?.productId,isFromOrder: widget.isFromOrder ?? false,),
+                (context) => ProductDetailScreen(productId: item?.productId),
           ),
         );
       },

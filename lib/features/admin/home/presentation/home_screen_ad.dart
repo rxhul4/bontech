@@ -339,7 +339,7 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
   }
 
   Widget _trendingProductList(HomeProviderAd homeProvider) {
-    return (homeProvider.trendingProductList?.length ?? 0) <= 0
+    return (homeProvider.getHomeModel?.data?.trendingProducts?.length ?? 0) <= 0
         ? AppUtils.commonSizedBox()
         : Column(
           children: [
@@ -383,12 +383,7 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
                         builder:
                             (context) => ProductListingScreen(
                               isBackButtonAvailable: true,
-                              totViewTypeId:
-                                  _homeProviderAd
-                                      .getHomeModel
-                                      ?.data
-                                      ?.products
-                                      ?.trandingId,
+                              totViewTypeId: AppConstants.viewTypeTrending,
 
                               categoryName: "Trending",
                               isFromCategory: false,
@@ -406,7 +401,8 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
               width: double.infinity,
               child: ListView.builder(
                 padding: EdgeInsets.zero,
-                itemCount: homeProvider.trendingProductList?.length,
+                itemCount:
+                    homeProvider.getHomeModel?.data?.trendingProducts?.length,
                 // physics: NeverScrollableScrollPhysics(),
                 scrollDirection: Axis.horizontal,
                 // shrinkWrap: true,
@@ -428,12 +424,12 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
                                 MaterialPageRoute(
                                   builder:
                                       (context) => ProductDetailScreen(
-                                        isFromOrder: false,
                                         productId:
-                                            _homeProviderAd
-                                                .trendingProductList?[index]
-                                                .productId
-                                                .toString(),
+                                            homeProvider
+                                                .getHomeModel
+                                                ?.data
+                                                ?.trendingProducts?[index]
+                                                .productId,
                                       ),
                                 ),
                               );
@@ -472,9 +468,11 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
                                     CachedNetworkImage(
                                       imageUrl:
                                           homeProvider
-                                              .trendingProductList?[index]
-                                              .imagePath ??
-                                          '',
+                                              .getHomeModel
+                                              ?.data
+                                              ?.trendingProducts?[index]
+                                              .image ??
+                                          "",
                                       imageBuilder:
                                           (context, imageProvider) => Container(
                                             decoration: BoxDecoration(
@@ -512,9 +510,11 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
                               textAlign: TextAlign.left,
                               text:
                                   homeProvider
-                                      .trendingProductList?[index]
+                                      .getHomeModel
+                                      ?.data
+                                      ?.trendingProducts?[index]
                                       .productName ??
-                                  '',
+                                  "",
                               textColor: AppColors.colorText,
                               letterSpacing: 0.5,
                               fontWeight: FontWeight.w700,
@@ -533,7 +533,7 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
   }
 
   Widget _bestsellerProductList(HomeProviderAd homeProvider) {
-    return (homeProvider.bestSellerProductList?.length ?? 0) <= 0
+    return (homeProvider.getHomeModel?.data?.bestSellers?.length ?? 0) <= 0
         ? AppUtils.commonSizedBox()
         : Column(
           children: [
@@ -577,12 +577,7 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
                         builder:
                             (context) => ProductListingScreen(
                               isBackButtonAvailable: true,
-                              totViewTypeId:
-                                  _homeProviderAd
-                                      .getHomeModel
-                                      ?.data
-                                      ?.products
-                                      ?.bestSellerId,
+                              totViewTypeId: AppConstants.viewTypeBestSeller,
                               categoryName: "Bestseller",
                               isFromCategory: false,
                             ),
@@ -599,7 +594,7 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
               width: double.infinity,
               child: ListView.builder(
                 padding: EdgeInsets.zero,
-                itemCount: homeProvider.bestSellerProductList?.length,
+                itemCount: homeProvider.getHomeModel?.data?.bestSellers?.length,
                 // physics: NeverScrollableScrollPhysics(),
                 scrollDirection: Axis.horizontal,
                 // shrinkWrap: true,
@@ -616,19 +611,20 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
                         children: [
                           AppUtils.commonInkWell(
                             onTap: () {
-                              // Navigator.push(
-                              //     context,
-                              //     MaterialPageRoute(
-                              //         builder: (context) =>
-                              //             ProductDetailScreen(
-                              //               productId:
-                              //               trendingProductList?[
-                              //               index]
-                              //                   .productId
-                              //                   .toString(),
-                              //               // imageUrl:
-                              //               //     featuredProductList?[index].imagePath,imageName: featuredProductList?[index].productName,
-                              //             )));
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => ProductDetailScreen(
+                                        productId:
+                                            homeProvider
+                                                .getHomeModel
+                                                ?.data
+                                                ?.bestSellers?[index]
+                                                .productId,
+                                      ),
+                                ),
+                              );
                             },
                             child: AppUtils.commonGlassmorphicContainer(
                               height: 140,
@@ -664,9 +660,12 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
                                     CachedNetworkImage(
                                       imageUrl:
                                           homeProvider
-                                              .bestSellerProductList?[index]
-                                              .imagePath ??
-                                          '',
+                                              .getHomeModel
+                                              ?.data
+                                              ?.bestSellers?[index]
+                                              .image ??
+                                          "",
+
                                       imageBuilder:
                                           (context, imageProvider) => Container(
                                             decoration: BoxDecoration(
@@ -704,9 +703,11 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
                               textAlign: TextAlign.left,
                               text:
                                   homeProvider
-                                      .bestSellerProductList?[index]
+                                      .getHomeModel
+                                      ?.data
+                                      ?.bestSellers?[index]
                                       .productName ??
-                                  '',
+                                  "",
                               textColor: AppColors.colorText,
                               letterSpacing: 0.5,
                               fontWeight: FontWeight.w700,
@@ -725,7 +726,7 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
   }
 
   Widget _newArrivalProductList(HomeProviderAd homeProvider) {
-    return (homeProvider.newArrivalProductList?.length ?? 0) <= 0
+    return (homeProvider.getHomeModel?.data?.newArrivals?.length ?? 0) <= 0
         ? AppUtils.commonSizedBox()
         : Column(
           children: [
@@ -769,12 +770,7 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
                         builder:
                             (context) => ProductListingScreen(
                               isBackButtonAvailable: true,
-                              totViewTypeId:
-                                  _homeProviderAd
-                                      .getHomeModel
-                                      ?.data
-                                      ?.products
-                                      ?.newArrivalId,
+                              totViewTypeId: AppConstants.viewTypeNewArrival,
                               categoryName: "New Arrival",
                               isFromCategory: false,
                             ),
@@ -787,7 +783,7 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
             GridView.builder(
               padding: EdgeInsets.zero,
               physics: NeverScrollableScrollPhysics(),
-              itemCount: homeProvider.newArrivalProductList?.length,
+              itemCount: homeProvider.getHomeModel?.data?.newArrivals?.length,
               shrinkWrap: true,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
@@ -808,10 +804,11 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
                           MaterialPageRoute(
                             builder:
                                 (context) => ProductDetailScreen(
-                                  isFromOrder: false,
                                   productId:
                                       homeProvider
-                                          .newArrivalProductList?[index]
+                                          .getHomeModel
+                                          ?.data
+                                          ?.newArrivals?[index]
                                           .productId,
                                 ),
                           ),
@@ -847,9 +844,11 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
                                 fit: BoxFit.cover,
                                 imageUrl:
                                     homeProvider
-                                        .newArrivalProductList?[index]
-                                        .imagePath ??
-                                    '',
+                                        .getHomeModel
+                                        ?.data
+                                        ?.newArrivals?[index]
+                                        .image ??
+                                    "",
                                 imageBuilder:
                                     (context, imageProvider) => Container(
                                       decoration: BoxDecoration(
@@ -887,10 +886,12 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
                         top: 10,
                       ),
                       text:
-                          homeProvider
-                              .newArrivalProductList?[index]
-                              .productName ??
-                          '',
+                      homeProvider
+                          .getHomeModel
+                          ?.data
+                          ?.newArrivals?[index]
+                          .productName ??
+                          "",
                       fontSize: 12,
                       letterSpacing: 0.5,
                       textColor: AppColors.colorText,

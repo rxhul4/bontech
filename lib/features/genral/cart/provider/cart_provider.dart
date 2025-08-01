@@ -7,6 +7,7 @@ import 'package:sales_app_redesign/core/network/network_repository.dart';
 import 'package:sales_app_redesign/core/storage/preference_helper.dart';
 import 'package:sales_app_redesign/features/genral/cart/model/dealer_order_model.dart';
 import 'package:sales_app_redesign/features/genral/cart/model/sales_order_model.dart';
+import 'package:sales_app_redesign/features/genral/product/model/get_product_by_productId_model.dart';
 import 'package:sales_app_redesign/features/genral/product/model/get_product_by_productid.dart';
 
 class CartProvider extends ChangeNotifier {
@@ -34,7 +35,7 @@ class CartProvider extends ChangeNotifier {
   SalesOrderModel? salesOrderModel;
 
   //prepareCheckOutReq
-  List<Map<String, dynamic>> prepareCheckOutReq(List<ProductInfo> productList) {
+  List<Map<String, dynamic>> prepareCheckOutReq(List<Product> productList) {
     orderDatas.clear();
     if (productList.isEmpty) {
       return [];
@@ -42,14 +43,14 @@ class CartProvider extends ChangeNotifier {
     for (var product in productList) {
       orderDatas.add({
         "productId": product.productVariantId,
-        "quantity": product.qty,
+        "quantity": product.productQty,
       });
     }
     return orderDatas;
   }
 
   //apiCallCheckOut
-  apiCallAddOrderAD(List<ProductInfo>? productList,Function()? callback) async {
+  apiCallAddOrderAD(List<Product>? productList,Function()? callback) async {
     var userid = PreferenceHelper.getString(PreferenceHelper.USER_ID);
     _isLoading = true;
     // notifyListeners();
@@ -87,7 +88,7 @@ class CartProvider extends ChangeNotifier {
   }
 
   apiCallAddOrder(
-      {String? userId,List<ProductInfo>? productList,String? hospitalId,Function()? callback}) async {
+      {String? userId,List<Product>? productList,String? hospitalId,Function()? callback}) async {
     var userid = PreferenceHelper.getString(PreferenceHelper.USER_ID);
     _isLoading = true;
     try {

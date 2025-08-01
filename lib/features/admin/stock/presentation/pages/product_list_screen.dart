@@ -5,11 +5,14 @@ import 'package:provider/provider.dart';
 import 'package:sales_app_redesign/core/common/circle_loading_indicator_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_bar_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_scaffold.dart';
+import 'package:sales_app_redesign/core/common_statefull_widget/bulk_qty_update_dialog_widget.dart';
+import 'package:sales_app_redesign/core/common_statefull_widget/update_quantity_dialog_widget.dart';
 import 'package:sales_app_redesign/core/constants/app_size_constants.dart';
 import 'package:sales_app_redesign/core/utils/app_colors.dart';
 import 'package:sales_app_redesign/core/utils/app_constant.dart';
 import 'package:sales_app_redesign/core/utils/app_extension.dart';
 import 'package:sales_app_redesign/core/utils/app_utils.dart';
+import 'package:sales_app_redesign/core/utils/common_function.dart';
 import 'package:sales_app_redesign/core/utils/glow_arch_class.dart';
 import 'package:sales_app_redesign/features/admin/stock/model/get_distributor_stock.dart';
 import 'package:sales_app_redesign/features/admin/stock/provider/stock_provider.dart';
@@ -22,18 +25,8 @@ import 'package:sales_app_redesign/features/genral/search/presentation/search_de
 class ProductListScreen extends StatefulWidget {
   String? categoryName;
   String? categoryId;
-  bool? isAdmin;
-  bool? isFromCategory;
-  bool isBackButtonAvailable;
 
-  ProductListScreen({
-    super.key,
-    this.categoryName,
-    this.categoryId,
-    this.isAdmin,
-    this.isFromCategory,
-    required this.isBackButtonAvailable
-  });
+  ProductListScreen({super.key, this.categoryName, this.categoryId});
 
   @override
   State<ProductListScreen> createState() => _ProductListScreenState();
@@ -60,62 +53,67 @@ class _ProductListScreenState extends State<ProductListScreen> {
           appBar: PreferredSize(
             preferredSize: Size(double.infinity, appBarSize),
             child: AppBarWidget(
+              onBulkUpdate: (){
+                showBulkQtyUpdateDialog();
+              },
+              isBulUpdateQty:  true,
               onBackPressed: () {
                 Navigator.pop(context);
               },
               onPressedSearch: () {
-                widget.isFromCategory == true
-                    ? showSearch(
+                showSearch(
                   context: context,
                   delegate: ProductSearchDelegate(
                     categoryId: widget.categoryId,
                   ),
-                )
-                    : showSearch(
-                  context: context,
-                  delegate: ProductSearchDelegate(),
                 );
               },
               isSearchVisible: true,
               isCartVisible: false,
-              isBackVisible: widget.isBackButtonAvailable,
+              isBackVisible: true,
               title: widget.categoryName,
             ),
           ),
-          body: Column(
+          body: Stack(
             children: [
-              10.toSizedBoxHeight,
-              Expanded(
-                child:
-                NotificationListener(
-                  onNotification: (ScrollNotification scrollInfo) {
-                    if (scrollInfo.metrics.pixels ==
-                        scrollInfo.metrics.maxScrollExtent &&
-                        !stockProvider.isLoading) {
-                      stockProvider.fetchProductListForCategory(
-                          widget.categoryId);
-                    }
-                    return false;
-                  },
-                  child: stockProvider.isLoading
-                      ? CircleLoadingIndicatorWidget()
-                      : stockProvider.stockProductList == [] ||
-                      stockProvider.stockProductList.isEmpty
-                      ? AppUtils.noDataWidget()
-                      : ListView.builder(
-                    physics: BouncingScrollPhysics(),
 
-                    itemCount: stockProvider.stockProductList.length,
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      return _listItemForCategory(
-                        index: index,
-                        item: stockProvider.stockProductList[index],
-                      );
-                    },
+              Column(
+                children: [
+                  10.toSizedBoxHeight,
+                  Expanded(
+                    child: NotificationListener<ScrollNotification>(
+                      onNotification: (scrollInfo) {
+                        if (scrollInfo.metrics.pixels ==
+                            scrollInfo.metrics.maxScrollExtent &&
+                            !stockProvider.isLoading &&
+                            stockProvider.hasMore) {
+                          stockProvider.fetchProductListForCategory(
+                            widget.categoryId,
+                          );
+                        }
+                        return false;
+                      },
+                      child: stockProvider.isLoading == true ? CircleLoadingIndicatorWidget() : stockProvider.stockProductList.isEmpty
+                          ? AppUtils.noDataWidget()
+                          : ListView.builder(
+                        physics: BouncingScrollPhysics(),
+                        itemCount: stockProvider.stockProductList.length,
+                        itemBuilder: (context, index) {
+                          return _listItemForCategory(
+                            index: index,
+                            item: stockProvider.stockProductList[index],
+                          );
+                        },
+                      ),
+                    ),
                   ),
-                ),
-              )
+                ],
+              ),
+
+              /// This handles the "updating stock" loading (e.g. after editing product)
+              stockProvider.isAdding
+                  ? CircleLoadingIndicatorWidget()
+                  : SizedBox(),
             ],
           ),
         );
@@ -123,10 +121,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
     );
   }
 
-  Widget _listItemForCategory({
-    int? index,
-    StockList? item,
-  }) {
+  Widget _listItemForCategory({int? index, StockList? item}) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
@@ -150,6 +145,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
               padding: EdgeInsets.only(top: 0, bottom: 0),
               onPressed: (context) {
                 //
+                _stockProvider.thresholdQtyTextEditingController = TextEditingController(text: item?.thresholdQuantity.toString());
+                _stockProvider.physicalQtyTextEditingController = TextEditingController(text: item?.currentQuantity.toString());
+                showQtyUpdateDialog(item);
               },
               borderRadius: BorderRadius.only(
                 topRight: Radius.circular(12),
@@ -157,11 +155,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
               ),
               // backgroundColor: AppColors.colorLightGrey,
               foregroundColor: AppColors.colorPrimary,
-              child: Icon(
-                Icons.edit,
-                size: 26,
-                color: AppColors.colorPrimary,
-              ),
+              child: Icon(Icons.edit, size: 26, color: AppColors.colorPrimary),
             ),
           ],
         ),
@@ -208,8 +202,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                               ),
                             ),
                             5.toSizedBoxWidth,
-                            '${item?.productSkuCode}'
-                                .textWidget(
+                            '${item?.productSkuCode}'.textWidget(
                               color: AppColors.colorWhite,
                               fontSize: fontSizeNormal,
                               fontWeight: FontWeight.bold,
@@ -218,13 +211,25 @@ class _ProductListScreenState extends State<ProductListScreen> {
                           ],
                         ),
                         5.toSizedBoxHeight,
-                        qtyRow(title:"Current Quantity",value: item?.currentQuantity.toString()),
+                        qtyRow(
+                          title: "Current Quantity",
+                          value: item?.currentQuantity.toString(),
+                        ),
                         5.toSizedBoxHeight,
-                        qtyRow(title:"InComing Quantity",value: item?.incomingQuantity.toString()),
+                        qtyRow(
+                          title: "InComing Quantity",
+                          value: item?.incomingQuantity.toString(),
+                        ),
                         5.toSizedBoxHeight,
-                        qtyRow(title:"On Hold Quantity",value: item?.onHoldQuantity.toString()),
+                        qtyRow(
+                          title: "On Hold Quantity",
+                          value: item?.onHoldQuantity.toString(),
+                        ),
                         5.toSizedBoxHeight,
-                        qtyRow(title:"Threshold Quantity",value: item?.thresholdQuantity.toString()),
+                        qtyRow(
+                          title: "Threshold Quantity",
+                          value: item?.thresholdQuantity.toString(),
+                        ),
                       ],
                     ),
                   ),
@@ -238,29 +243,61 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 
 
- Widget qtyRow({String? title, String? value}){
+  showQtyUpdateDialog(StockList? item) {
+    showAlertDialog(
+      context: context,
+      title: "Update Quantity",
+      isTitleCenter: true,
+      widget: BulkQuantityDialogWidget(
+        thresholdQtyTextEditingController: _stockProvider.thresholdQtyTextEditingController,
+        physicalQtyTextEditingController: _stockProvider.physicalQtyTextEditingController,
+        positiveCallBack: (val) async{
+          //apiCallUpdateQtyAndRefreshList
+          await _stockProvider.apiCallUpdateDistributorStock(categoryId: widget.categoryId,distributorProductId: item?.distributorStockId);
+
+
+        },
+      ),
+    );
+  }
+
+  showBulkQtyUpdateDialog() {
+    showAlertDialog(
+      context: context,
+      title: "Update Quantity",
+      isTitleCenter: true,
+      widget: UpdateQuantityDialogWidget(
+        hintText: "Enter Bulk Qty",
+        qtyTextEditingController: _stockProvider.bulkThresholdQtyTextEditingController,
+        positiveCallBack: (val) async{
+          //apiCallUpdateQtyAndRefreshList
+          await _stockProvider.apiCallUpdateBulkQtyByCategoryId(categoryId: widget.categoryId);
+
+
+        },
+      ),
+    );
+  }
+
+  Widget qtyRow({String? title, String? value}) {
     return '$title: '.richTextView(
       fontFamily: AppConstants.fontFamilyPoppins,
       fontSize: fontSizeNormal,
       color: AppColors.colorLightGrey,
       textSpanList: [
-        const WidgetSpan(
-          child: SizedBox(width: 2),
-        ),
+        const WidgetSpan(child: SizedBox(width: 2)),
         TextSpan(
           text: value ?? '0',
           style: TextStyle(
             color: AppColors.colorWhite,
             fontSize: fontSizeSmall,
-            fontFamily:
-            AppConstants.fontFamilyPoppins,
+            fontFamily: AppConstants.fontFamilyPoppins,
             fontWeight: FontWeight.bold,
           ),
         ),
       ],
     );
   }
-
 
   // Widget _listItemForCategory({
   //   required int index,

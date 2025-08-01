@@ -45,11 +45,11 @@ class _SalesManScreenAdState extends State<SalesManScreenAd> {
           appBar: PreferredSize(
             preferredSize: const Size(double.infinity, appBarSize),
             child: AppBarWidget(
-              centerTitle: false,
+              centerTitle: true,
               title: "Salesman",
-              isBackVisible: false,
-              isCartVisible: true,
-              isAdmin: true,
+              isBackVisible: true,
+              isCartVisible: false,
+              isAdmin: false,
             ),
           ),
           body:

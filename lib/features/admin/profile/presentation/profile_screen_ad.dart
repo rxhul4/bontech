@@ -11,6 +11,7 @@ import 'package:sales_app_redesign/core/utils/app_colors.dart';
 import 'package:sales_app_redesign/core/utils/app_extension.dart';
 import 'package:sales_app_redesign/core/utils/app_utils.dart';
 import 'package:sales_app_redesign/features/admin/stock/presentation/pages/catagory_listing_screen.dart';
+import 'package:sales_app_redesign/features/admin/user/presentation/salesman_screen_ad.dart';
 import 'package:sales_app_redesign/features/auth/presentation/login_screen.dart';
 import 'package:sales_app_redesign/features/genral/change_password/presentation/chnage_password_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -96,6 +97,16 @@ class _ProfileScreenAdState extends State<ProfileScreenAd> {
                             ));
                       }),
 
+                  commonRow(
+                      preIcon: Icons.supervised_user_circle,
+                      text: "Salesmen",
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SalesManScreenAd(),
+                            ));
+                      }),
 
                   commonRow(
                       preIcon: Icons.logout,

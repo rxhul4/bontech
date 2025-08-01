@@ -20,6 +20,7 @@ import 'package:sales_app_redesign/core/utils/common_function.dart';
 import 'package:sales_app_redesign/features/admin/dashboard_ad/dashboard_ad.dart';
 import 'package:sales_app_redesign/features/genral/cart/model/cart_model.dart';
 import 'package:sales_app_redesign/features/genral/cart/provider/cart_provider.dart';
+import 'package:sales_app_redesign/features/genral/product/model/get_product_by_productId_model.dart';
 import 'package:sales_app_redesign/features/genral/product/model/get_product_by_productid.dart';
 import 'package:sales_app_redesign/features/genral/product/provider/product_provider.dart';
 import 'package:sales_app_redesign/features/sales/dashboard/dashboard.dart';
@@ -60,48 +61,59 @@ class _CartScreenState extends State<CartScreen> {
   Widget build(BuildContext context) {
     return Consumer<ProductProvider>(
       builder: (context, productProvider, child) {
-        return AppScaffold(
-          bgColor: AppColors.colorPrimary,
-          appBar: PreferredSize(
-            preferredSize: const Size.fromHeight(kToolbarHeight),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 500),
-              child: AppBarWidget(
-                isBackVisible: true,
-                title: "CART",
-                isCartVisible: false,
+        return Stack(
+          children: [
+            AppScaffold(
+              bgColor: AppColors.colorPrimary,
+              appBar: PreferredSize(
+                preferredSize: const Size.fromHeight(kToolbarHeight),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 500),
+                  child: AppBarWidget(
+                    isBackVisible: true,
+                    title: "CART",
+                    isCartVisible: false,
+                  ),
+                ),
               ),
-            ),
-          ),
-          body:
-              (productProvider.cartModel?.productInfo == null ||
-                      productProvider.cartModel?.productInfo == [] ||
-                      (productProvider.cartModel?.productInfo?.length == 0))
-                  ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      AppUtils.emptyCartWidget(),
-                      10.toSizedBoxHeight,
-                      CommonButtonWidget(
-                        buttonText: "Continue Shopping",
-                        onPressed: () {
-                          if(widget.isAdmin == true){
-                            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => DashboardScreenAD(),), (route) => false);
-                          }else{
-                            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => DashboardScreen(),), (route) => true);
-                          }
-
-                        },
-                        verticalPadding: 10,
-                        fontSize: fontSizeSmall,
-                        horizontalMargin: 120,
-                      ),
-                    ],
-                  )
-                  : Stack(
-                    children: [
-                      Column(
+              body:
+                  (productProvider.cartModel?.productInfo == null ||
+                          productProvider.cartModel?.productInfo == [] ||
+                          (productProvider.cartModel?.productInfo?.length == 0))
+                      ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          AppUtils.emptyCartWidget(),
+                          10.toSizedBoxHeight,
+                          CommonButtonWidget(
+                            buttonText: "Continue Shopping",
+                            onPressed: () {
+                              if (widget.isAdmin == true) {
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => DashboardScreenAD(),
+                                  ),
+                                  (route) => false,
+                                );
+                              } else {
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => DashboardScreen(),
+                                  ),
+                                  (route) => true,
+                                );
+                              }
+                            },
+                            verticalPadding: 10,
+                            fontSize: fontSizeSmall,
+                            horizontalMargin: 120,
+                          ),
+                        ],
+                      )
+                      : Column(
                         children: [
                           Expanded(
                             // ✅ Changed from fixed height to Expanded
@@ -127,22 +139,17 @@ class _CartScreenState extends State<CartScreen> {
                           _subTotalView(productProvider),
                         ],
                       ),
-                      Visibility(
-                        visible: _cartProvider.isLoading,
-                        child: const CircleLoadingIndicatorWidget(),
-                      ),
-                    ],
-                  ),
+            ),
+            _cartProvider.isLoading == true
+                ? CircleLoadingIndicatorWidget()
+                : SizedBox(),
+          ],
         );
       },
     );
   }
 
-  Widget _listItem(
-    int index,
-    ProductInfo? item,
-    ProductProvider productProvider,
-  ) {
+  Widget _listItem(int index, Product? item, ProductProvider productProvider) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
@@ -291,26 +298,26 @@ class _CartScreenState extends State<CartScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  'Size : '.richTextView(
-                                    fontFamily: AppConstants.fontFamilyPoppins,
-                                    fontSize: fontSizeNormal,
-                                    color: AppColors.colorLightGrey,
-                                    textSpanList: [
-                                      const WidgetSpan(
-                                        child: SizedBox(width: 2),
-                                      ),
-                                      TextSpan(
-                                        text: item?.selectedSize?.name ?? 'N/A',
-                                        style: TextStyle(
-                                          color: AppColors.colorWhite,
-                                          fontSize: fontSizeSmall,
-                                          fontFamily:
-                                              AppConstants.fontFamilyPoppins,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                  // 'Size : '.richTextView(
+                                  //   fontFamily: AppConstants.fontFamilyPoppins,
+                                  //   fontSize: fontSizeNormal,
+                                  //   color: AppColors.colorLightGrey,
+                                  //   textSpanList: [
+                                  //     const WidgetSpan(
+                                  //       child: SizedBox(width: 2),
+                                  //     ),
+                                  //     TextSpan(
+                                  //       // text: item?.selectedSize?.name ?? 'N/A',
+                                  //       style: TextStyle(
+                                  //         color: AppColors.colorWhite,
+                                  //         fontSize: fontSizeSmall,
+                                  //         fontFamily:
+                                  //             AppConstants.fontFamilyPoppins,
+                                  //         fontWeight: FontWeight.bold,
+                                  //       ),
+                                  //     ),
+                                  //   ],
+                                  // ),
                                   2.toSizedBoxHeight,
                                   // 'Color : '.richTextView(
                                   //     color: AppColors.colorLightGrey,
@@ -347,7 +354,7 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _productItemCountView(int index, ProductInfo? item) {
+  Widget _productItemCountView(int index, Product? item) {
     return Align(
       alignment: Alignment.centerRight,
       child: Row(
@@ -355,10 +362,10 @@ class _CartScreenState extends State<CartScreen> {
         children: [
           InkWell(
             onTap: () {
-              if ((item?.qty ?? 1) > 1) {
+              if ((item?.productQty ?? 1) > 1) {
                 _productProvider.updateProductQtyFromCartListingScreen(
                   index,
-                  (item?.qty ?? 1) - 1,
+                  (item?.productQty ?? 1) - 1,
                   widget.isAdmin == true
                       ? PreferenceHelper.CART_MODEL_LIST_AD
                       : PreferenceHelper.CART_MODEL_LIST,
@@ -381,7 +388,8 @@ class _CartScreenState extends State<CartScreen> {
           // 12.toSizedBoxWidth,
           InkWell(
             onTap: () {
-              _productProvider.qtyEditController.text = '${item?.qty ?? 1}';
+              _productProvider.qtyEditController.text =
+                  '${item?.productQty ?? 1}';
               showAlertDialog(
                 context: context,
                 title: "Update Quantity",
@@ -405,7 +413,7 @@ class _CartScreenState extends State<CartScreen> {
                 horizontal: 10,
                 vertical: 10.0,
               ),
-              child: ('${item?.qty ?? 1}').textWidget(
+              child: ('${item?.productQty ?? 1}').textWidget(
                 fontSize: fontSizeMedium,
                 fontWeight: FontWeight.bold,
                 textAlign: TextAlign.center,
@@ -418,7 +426,7 @@ class _CartScreenState extends State<CartScreen> {
             onTap: () {
               _productProvider.updateProductQtyFromCartListingScreen(
                 index,
-                (item?.qty ?? 1) + 1,
+                (item?.productQty ?? 1) + 1,
                 widget.isAdmin == true
                     ? PreferenceHelper.CART_MODEL_LIST_AD
                     : PreferenceHelper.CART_MODEL_LIST,
@@ -477,69 +485,78 @@ class _CartScreenState extends State<CartScreen> {
             ),
             SizedBox(height: 20),
 
-            widget.isAdmin == true ?
-            ActionSlider.standard(
-               action: (controller) {
-                 // controller.loading();
-                 showAlertDialog(
-                   title: "Distributor Note",
-                   isTitleCenter: true,
-                   widget: DeliveryNotesDialogWidget(
-                     notesController: _cartProvider.notesController,
-                     positiveCallBack: (val) {
-                         _cartProvider.apiCallAddOrderAD(
-                           productProvider.cartModel?.productInfo,
-                               () {
-                             _cartProvider.notesController.clear();
-                             productProvider.clearList();
-                             // PreferenceHelper.remove(PreferenceHelper.remove(key))
-                           },
-                         );
+            widget.isAdmin == true
+                ? ActionSlider.standard(
+                  action: (controller) {
+                    // controller.loading();
+                    showAlertDialog(
+                      title: "Distributor Note",
+                      isTitleCenter: true,
+                      widget: DeliveryNotesDialogWidget(
+                        notesController: _cartProvider.notesController,
+                        positiveCallBack: (val) {
+                          _cartProvider.apiCallAddOrderAD(
+                            productProvider.cartModel?.productInfo,
+                            () {
+                              _cartProvider.notesController.clear();
+                              productProvider.clearList();
+                              // PreferenceHelper.remove(PreferenceHelper.remove(key))
+                            },
+                          );
+                        },
+                      ),
+                      context: context,
+                    );
+                    // controller.success();
+                  },
+                  sliderBehavior: SliderBehavior.move,
+                  rolling: false,
+                  backgroundColor: AppColors.colorLightGrey,
+                  customForegroundBuilder: (p0, p1, p2) {
+                    return Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: [AppColors.gradient1, AppColors.gradient2],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.done,
+                        color: AppColors.colorWhite,
+                        size: 30,
+                      ),
+                    );
+                  },
 
-                     },
-                   ),
-                   context: context,
-                 );
-                 // controller.success();
-
-               },
-              sliderBehavior: SliderBehavior.move,
-              rolling: false,
-              backgroundColor: AppColors.colorLightGrey,
-              customForegroundBuilder: (p0, p1, p2) {
-                return Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [AppColors.gradient1, AppColors.gradient2],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+                  child: Shimmer(
+                    child: "Confirm Order".textWidget(
+                      color: AppColors.colorDarkGrey,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                  child: Icon(
-                    Icons.done,
-                    color: AppColors.colorWhite,
-                    size: 30,
-                  ),
-                );
-              },
-
-              child: Shimmer(
-                child: "Confirm Order".textWidget(
-                  color: AppColors.colorDarkGrey,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
+                )
+                : CommonButtonWidget(
+                  buttonText: "Select Hospital",
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => SelectHospitalScreen(
+                              cartModel: productProvider.cartModel,
+                            ),
+                      ),
+                    ).then((value) {
+                      productProvider.clearList();
+                    });
+                  },
                 ),
-              ),
-            ) :  CommonButtonWidget(buttonText: "Select Hospital", onPressed: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context) => SelectHospitalScreen(cartModel: productProvider.cartModel,),)).then((value) {
-                productProvider.clearList();
-              },);
 
-
-            }),
             // ActionSlider.custom(
             //   // height: 80,
             //   width: double.infinity,
@@ -567,8 +584,6 @@ class _CartScreenState extends State<CartScreen> {
             //     ),
             //   );
             // },)
-
-
           ],
         ),
       ),

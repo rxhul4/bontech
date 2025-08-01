@@ -6,6 +6,7 @@ import 'package:sales_app_redesign/core/utils/app_utils.dart';
 import 'package:sales_app_redesign/features/admin/order/model/get_all_sales_man_order_model.dart';
 import 'package:sales_app_redesign/features/admin/order/model/get_distributor_order_model.dart';
 import 'package:sales_app_redesign/features/admin/order/presentation/order_detail_screen.dart';
+import 'package:sales_app_redesign/features/sales/sales_order/presentation/order_detail_screen.dart';
 
 class CommonOrderHistoryItemWidget extends StatefulWidget {
   const CommonOrderHistoryItemWidget({
@@ -15,6 +16,7 @@ class CommonOrderHistoryItemWidget extends StatefulWidget {
     this.callBack,
     this.salesItem,
     this.isAdmin,
+    this.isSalesSide =false
   });
 
   final int? index;
@@ -22,6 +24,8 @@ class CommonOrderHistoryItemWidget extends StatefulWidget {
   final SaleOrderListItem? salesItem;
   final Function? callBack;
   final bool? isAdmin;
+  final bool? isSalesSide;
+
 
   @override
   State<CommonOrderHistoryItemWidget> createState() =>
@@ -41,14 +45,14 @@ class _CommonOrderHistoryItemWidgetState
             context,
             MaterialPageRoute(
               builder:
-                  (context) => OrderDetailsScreen(
+                  (context) => widget.isSalesSide == false ? OrderDetailsScreen(
                     orderId:
                         widget.isAdmin == true
                             ? widget.item?.dealerOrderId
                             : widget.salesItem?.salesmanOrderId,
                     isAdmin: widget.isAdmin == true ? true : false,
                     isSalesSide: true,
-                  ),
+                  ):  SalesOrderOrderDetailsScreen(orderId: widget.salesItem?.salesmanOrderId,),
             ),
           ).then((value) {
             if (widget.callBack != null) {

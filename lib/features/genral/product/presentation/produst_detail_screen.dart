@@ -20,10 +20,8 @@ import 'package:sales_app_redesign/features/genral/product/provider/product_prov
 
 class ProductDetailScreen extends StatefulWidget {
   String? productId;
-  bool isFromOrder;
 
-
-  ProductDetailScreen({super.key, this.productId,required this.isFromOrder});
+  ProductDetailScreen({super.key, this.productId});
 
   @override
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();
@@ -45,13 +43,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     return Consumer<ProductProvider>(
       builder: (context, productProvider, child) {
         String description =
-            productProvider
-                .getProductByProductId
-                ?.data
-                ?.productInfo
-                ?.first
-                .productDescription ??
-            'N/A';
+            (productProvider
+                    .productResponse
+                    ?.data
+                    ?.productInfo?.productDescription??
+                "N/A");
 
         return Stack(
           children: [
@@ -60,8 +56,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               appBar: PreferredSize(
                 preferredSize: Size(double.infinity, appBarSize),
                 child: AppBarWidget(
-                  onBackPressed: (){
-                    widget.isFromOrder == true ?  Navigator.pop(context,true) :  Navigator.pop(context);
+                  onBackPressed: () {
+                    Navigator.pop(context);
                   },
                   isBackVisible: true,
                   title: "Product Detail",
@@ -76,7 +72,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     physics: NeverScrollableScrollPhysics(),
                     children: [
                       12.toSizedBoxHeight,
-                      _imageCarouselSliderView(context),
+                      _imageCarouselSliderView(context,productProvider),
                     ],
                   ),
                 ],
@@ -102,26 +98,112 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 10.toSizedBoxHeight,
-                                _productNameView(),
+                                _productNameView(productProvider),
                                 12.toSizedBoxHeight,
                                 _readMoreDescription(
                                   context,
                                   description.isNotEmpty ? description : 'N/A',
                                 ),
                                 20.toSizedBoxHeight,
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    _productProvider.sideVariantList.isNotEmpty? Expanded(child: _sideListView()) : SizedBox(),
-                                    // Expanded(child: _colorListView()),
-                                    _productProvider.sideVariantList.isNotEmpty ?  10.toSizedBoxWidth :  0.toSizedBoxWidth,
-                                    _productProvider.materialVariantList.isNotEmpty ? Expanded(child: _materialTypeListView()) : SizedBox(),
-                                  ],
-                                ),
-                                20.toSizedBoxHeight,
+                                Visibility(
+                                  visible:
+                                      productProvider
+                                          .productResponse
+                                          ?.data
+                                          ?.productInfo
+                                          ?.allVariants?.isNotEmpty ??
+                                      false,
+                                  child: ListView.builder(
+                                    // padding: EdgeInsets.only(bottom: 20),
+                                    shrinkWrap: true,
+                                    physics: NeverScrollableScrollPhysics(),
+                                    itemCount:
+                                        productProvider
+                                            .productResponse
+                                            ?.data
+                                            ?.productInfo
+                                            ?.allVariants
+                                            ?.length,
+                                    itemBuilder: (context, index) {
+                                      final variantAttribute =
+                                          productProvider
+                                              .productResponse
+                                              ?.data
+                                              ?.productInfo
+                                              ?.allVariants?[index];
+                                      final key = variantAttribute?.key;
+                                      final options =
+                                          variantAttribute?.value ?? [];
+                                      return Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          _labelView(key),
+                                          SizedBox(height: 8),
+                                          SizedBox(
+                                            height: 45,
+                                            width: double.infinity,
+                                            child: ListView.builder(
+                                              itemCount:
+                                                  productProvider
+                                                      .productResponse
+                                                      ?.data
+                                                      ?.productInfo
+                                                      ?.allVariants?[index]
+                                                      .value
+                                                      ?.length,
+                                              shrinkWrap: true,
+                                              scrollDirection: Axis.horizontal,
+                                              itemBuilder: (context, index1) {
+                                                final option = options[index1];
+                                                final isSelected = _productProvider.selectedVariants[key]?.id == option.id;
+                                                return Center(
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      if (key != null) {
+                                                        _productProvider.updateSelectedVariant(key, option);
+                                                      }
 
-                                _productProvider.stepVariantList.isNotEmpty ? _sizeListView() : SizedBox(),
-                                80.toSizedBoxHeight,
+                                                    },
+                                                    child: AnimatedContainer(
+                                                      duration: Duration(milliseconds: 400),
+                                                      margin:
+                                                          const EdgeInsets.only(
+                                                            right: 10,
+                                                          ),
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            horizontal: 16,
+                                                            vertical: 8,
+                                                          ),
+                                                      decoration: AppUtils.commonGradientBoxDecoration(
+                                                        borderRadius: 14,
+                                                        gradient1: isSelected ? AppColors.gradient1 : AppColors.colorTransparent,
+                                                        gradient2: isSelected ? AppColors.gradient2 : AppColors.colorTransparent,
+                                                        border: isSelected ? AppColors.colorTransparent : AppColors.colorLightGrey,
+                                                      ),
+                                                      child: (option.name ?? "")
+                                                          .textWidget(
+                                                            fontSize:
+                                                                fontSizeSmall,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color:
+                                                                AppColors
+                                                                    .colorWhite,
+                                                          ),
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                          SizedBox(height: 20),
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -129,7 +211,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             alignment: Alignment.bottomCenter,
                             child: AppUtils.commonGlassmorphicContainer(
                               padding: EdgeInsets.only(left: 30),
-                              child: _addToCartButtonView(),
+                              child: _addToCartButtonView(productProvider),
                             ),
                           ),
                         ],
@@ -148,7 +230,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     );
   }
 
-  Widget _productNameView() {
+  Widget _productNameView(ProductProvider productProvider) {
     return Container(
       alignment: Alignment.center,
       width: double.infinity,
@@ -161,20 +243,24 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                (_productProvider.productInfoResponse?.productName ?? 'N/A')
+                (productProvider
+                            .productResponse
+                            ?.data
+                            ?.productInfo
+                            ?.productName ??
+                        "N/A")
                     .textWidget(
                       fontWeight: FontWeight.bold,
                       fontSize: fontSizeLarge,
                       color: AppColors.colorWhite,
                     ),
                 5.toSizedBoxHeight,
-                (_productProvider
-                            .getProductByProductId
+                (productProvider
+                            .productResponse
                             ?.data
                             ?.productInfo
-                            ?.first
-                            .productCategoryName ??
-                        'N/A')
+                            ?.productCategoryName ??
+                        "N/A")
                     .textWidget(
                       color: AppColors.colorLightGrey,
                       fontSize: fontSizeSmall,
@@ -183,7 +269,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               ],
             ),
           ),
-          _productItemCountView(),
+          _productItemCountView(productProvider),
         ],
       ),
     );
@@ -224,7 +310,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     return document.text ?? '';
   }
 
-  Widget _productItemCountView() {
+  Widget _productItemCountView(ProductProvider productProvider) {
     return Align(
       alignment: Alignment.centerRight,
       child: Padding(
@@ -234,9 +320,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           children: [
             InkWell(
               onTap: () {
-                if ((_productProvider.productInfoResponse?.qty ?? 1) > 1) {
-                  _productProvider.updateProductQty(
-                    (_productProvider.productInfoResponse?.qty ?? 1) - 1,
+                if ((productProvider.product?.productQty ?? 1) > 1) {
+                  productProvider.updateProductQty(
+                    (productProvider.product?.productQty ?? 1) - 1,
                   );
                 }
               },
@@ -255,17 +341,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ),
             InkWell(
               onTap: () {
-                _productProvider.qtyEditController.text =
-                    '${_productProvider.productInfoResponse?.qty ?? 1}';
+                productProvider.qtyEditController.text =
+                    '${productProvider.product?.productQty ?? 1}';
                 showAlertDialog(
                   context: context,
                   title: "Update Quantity",
                   isTitleCenter: true,
                   widget: UpdateQuantityDialogWidget(
                     qtyTextEditingController:
-                        _productProvider.qtyEditController,
+                    productProvider.qtyEditController,
                     positiveCallBack: (val) {
-                      _productProvider.updateProductQty(int.parse(val));
+                      productProvider.updateProductQty(int.parse(val));
                     },
                   ),
                 );
@@ -276,7 +362,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   vertical: 10.0,
                 ),
                 margin: const EdgeInsets.symmetric(horizontal: 0),
-                child: ('${_productProvider.productInfoResponse?.qty ?? 1}')
+                child: ('${productProvider.product?.productQty ?? 1}')
                     .textWidget(
                       fontSize: fontSizeMedium,
                       fontWeight: FontWeight.bold,
@@ -287,8 +373,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ),
             InkWell(
               onTap: () {
-                _productProvider.updateProductQty(
-                  (_productProvider.productInfoResponse?.qty ?? 1) + 1,
+                productProvider.updateProductQty(
+                  (productProvider.product?.productQty ?? 1) + 1,
                 );
               },
               child: Container(
@@ -310,224 +396,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
 
-  Widget _sideListView() {
-    return Visibility(
-      visible: _productProvider.sideVariantList.isNotEmpty,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _labelView("Side"),
-          SizedBox(height: 8),
-          SizedBox(
-            height: 45,
-            width: double.infinity,
-            child: ListView.builder(
-              itemCount: _productProvider.sideVariantList.length,
-              shrinkWrap: true,
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (context, index) {
-                return Center(
-                  child: GestureDetector(
-                    onTap: () {
-                      _productProvider.refreshScreenOnSideChange(
-                        widget.productId,
-                        _productProvider.sideVariantList[index],
-                        index,
-                      );
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.only(right: 10),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      decoration: AppUtils.commonGradientBoxDecoration(
-                        borderRadius: 14,
-                        gradient1:
-                        (_productProvider.selectedSideVariant?.id ==
-                            _productProvider
-                                .sideVariantList[index]
-                                .id)
-                            ? AppColors.gradient1
-                            : AppColors.colorTransparent,
-                        gradient2:
-                        (_productProvider.selectedSideVariant?.id ==
-                            _productProvider
-                                .sideVariantList[index]
-                                .id)
-                            ? AppColors.gradient2
-                            : AppColors.colorTransparent,
-                        border:
-                        (_productProvider.selectedSideVariant?.id ==
-                            _productProvider
-                                .sideVariantList[index]
-                                .id)
-                            ? AppColors.colorTransparent
-                            : AppColors.colorLightGrey,
-                      ),
-                      child: (_productProvider
-                          .sideVariantList[index]
-                          .name ??
-                          '')
-                          .textWidget(
-                        fontSize: fontSizeSmall,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.colorWhite,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
-
-
-  Widget _sizeListView() {
-    return Visibility(
-      visible: _productProvider.stepVariantList.isNotEmpty,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _labelView("Size"),
-          SizedBox(height: 8),
-          SizedBox(
-            height: 45,
-            child: ListView.builder(
-              itemCount: _productProvider.stepVariantList.length,
-              shrinkWrap: true,
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (context, index) {
-                return Center(
-                  child: GestureDetector(
-                    onTap: () {
-                      _productProvider.refreshScreenOnSizeChange(
-                        widget.productId,
-                        _productProvider.stepVariantList[index],
-                        index,
-                      );
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.only(right: 10),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      decoration: AppUtils.commonGradientBoxDecoration(
-                        borderRadius: 14,
-                        gradient1:
-                            (_productProvider.selectedSizeVariant?.id ==
-                                    _productProvider.stepVariantList[index].id)
-                                ? AppColors.gradient1
-                                : AppColors.colorTransparent,
-                        gradient2:
-                            (_productProvider.selectedSizeVariant?.id ==
-                                    _productProvider.stepVariantList[index].id)
-                                ? AppColors.gradient2
-                                : AppColors.colorTransparent,
-                        border:
-                            (_productProvider.selectedSizeVariant?.id ==
-                                    _productProvider.stepVariantList[index].id)
-                                ? AppColors.colorTransparent
-                                : AppColors.colorLightGrey,
-                      ),
-                      child: '${_productProvider.stepVariantList[index].name}'
-                          .textWidget(
-                            color: AppColors.colorWhite,
-                            fontSize: fontSizeSmall,
-                            fontWeight: FontWeight.w600,
-                          ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _materialTypeListView() {
-    return Visibility(
-      visible: _productProvider.materialVariantList.isNotEmpty,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _labelView("Material"),
-          SizedBox(height: 8),
-          SizedBox(
-            height: 45,
-            width: double.infinity,
-            child: ListView.builder(
-              itemCount: _productProvider.materialVariantList.length,
-              shrinkWrap: true,
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (context, index) {
-                return Center(
-                  child: GestureDetector(
-                    onTap: () {
-                      _productProvider.refreshScreenOnMaterialChange(
-                        widget.productId,
-                        _productProvider.materialVariantList[index],
-                        index,
-                      );
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.only(right: 10),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      decoration: AppUtils.commonGradientBoxDecoration(
-                        borderRadius: 14,
-                        gradient1:
-                            (_productProvider.selectedMaterialVariant?.id ==
-                                    _productProvider
-                                        .materialVariantList[index]
-                                        .id)
-                                ? AppColors.gradient1
-                                : AppColors.colorTransparent,
-                        gradient2:
-                            (_productProvider.selectedMaterialVariant?.id ==
-                                    _productProvider
-                                        .materialVariantList[index]
-                                        .id)
-                                ? AppColors.gradient2
-                                : AppColors.colorTransparent,
-                        border:
-                            (_productProvider.selectedMaterialVariant?.id ==
-                                    _productProvider
-                                        .materialVariantList[index]
-                                        .id)
-                                ? AppColors.colorTransparent
-                                : AppColors.colorLightGrey,
-                      ),
-                      child: (_productProvider
-                                  .materialVariantList[index]
-                                  .name ??
-                              '')
-                          .textWidget(
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.colorWhite,
-                        fontSize: fontSizeSmall
-                          ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _addToCartButtonView() {
+  Widget _addToCartButtonView(ProductProvider productProvider) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -538,7 +408,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              '${AppConstants.currencySymbol}${_productProvider.productInfoResponse?.price ?? 0.0}'
+              '${AppConstants.currencySymbol}${productProvider.product?.price ?? 0.0}'
                   .textWidget(
                     color: AppColors.colorWhite,
                     fontWeight: FontWeight.bold,
@@ -558,22 +428,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         16.toSizedBoxWidth,
         GestureDetector(
           onTap: () {
-
             String? userType = PreferenceHelper.getString(
               PreferenceHelper.USER_TYPE_ID,
             );
             if (userType == AppConstants.userTypeDistributor) {
-              if(widget.isFromOrder == true){
-                _productProvider.addProductToOrder(product: _productProvider.productInfoResponse,context: context);
-
-              }else{
-                _productProvider.addToCartData(
-                  cartKey: PreferenceHelper.CART_MODEL_LIST_AD,
-                  context: context,
-                );
-              }
-
-
+              _productProvider.addToCartData(
+                cartKey: PreferenceHelper.CART_MODEL_LIST_AD,
+                context: context,
+              );
             } else {
               _productProvider.addToCartData(
                 cartKey: PreferenceHelper.CART_MODEL_LIST,
@@ -604,13 +466,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     );
   }
 
-  Widget _imageCarouselSliderView(BuildContext context) {
-    return (_productProvider
-                    .getProductByProductId
+  Widget _imageCarouselSliderView(BuildContext context,ProductProvider productProvider) {
+    return (productProvider
+                    .productResponse
                     ?.data
                     ?.productInfo
-                    ?.first
-                    .allVariants ??
+                    ?.productImages ??
                 [])
             .isEmpty
         ? InkWell(
@@ -638,7 +499,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           child: AppUtils.commonGlassmorphicContainer(
             margin: EdgeInsets.symmetric(horizontal: 16),
             height: MediaQuery.of(context).size.height * 0.35,
-            child: (_productProvider.productInfoResponse?.image ?? '')
+            child: (productProvider.productResponse?.data?.productInfo?.image ?? '')
                 .toNetWorkImage(fit: BoxFit.cover),
           ),
         )
@@ -669,7 +530,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               ),
             ),
             items:
-                (_productProvider.productInfoResponse?.productImages ?? []).map((
+                (productProvider.productResponse?.data?.productInfo?.productImages ?? []).map((
                   i,
                 ) {
                   return Builder(
@@ -682,18 +543,25 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               builder:
                                   (context) => ProductPreviewScreen(
                                     images:
-                                    _productProvider.productInfoResponse?.productImages,
-                                    image: _productProvider.productInfoResponse?.image,
-                                    color:
-                                    _productProvider.selectedColorVariant?.name,
-                                    size:
-                                    _productProvider.selectedSizeVariant?.name,
-                                    description:
-                                    _productProvider
-                                        .productInfoResponse
-                                        ?.productDescription,
-                                    material:
-                                    _productProvider.selectedSizeVariant?.name,
+                                        productProvider.productResponse?.data?.productInfo?.productImages,
+                                    image:
+                                    productProvider.productResponse?.data?.productInfo?.image,
+                                    // color:
+                                    //     _productProvider
+                                    //         .selectedColorVariant
+                                    //         ?.name,
+                                    // size:
+                                    //     _productProvider
+                                    //         .selectedSizeVariant
+                                    //         ?.name,
+                                    // description:
+                                    //     _productProvider
+                                    //         .product
+                                    //         ?.productDescription,
+                                    // material:
+                                    //     _productProvider
+                                    //         .selectedSizeVariant
+                                    //         ?.name,
                                   ),
                             ),
                           );

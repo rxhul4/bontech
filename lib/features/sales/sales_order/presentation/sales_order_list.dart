@@ -206,6 +206,7 @@ class _SalesOrderListScreenState extends State<SalesOrderListScreen>
               index: index,
               salesItem: item[index],
               isAdmin: false,
+              isSalesSide: true,
               callBack: () {
                 return _tabController.index == 0
                     ? salesOrderProvider.fetchOrderHistory(true)

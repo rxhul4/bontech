@@ -8,11 +8,13 @@ import 'package:sales_app_redesign/core/network/network_repository.dart';
 import 'package:sales_app_redesign/core/storage/preference_helper.dart';
 import 'package:sales_app_redesign/core/utils/app_constant.dart';
 import 'package:sales_app_redesign/features/admin/order/model/change_order_status_model.dart';
+import 'package:sales_app_redesign/features/admin/order/model/full_partial_deliver_model.dart';
 import 'package:sales_app_redesign/features/admin/order/model/get_all_order_status_model.dart';
 import 'package:sales_app_redesign/features/admin/order/model/get_all_sales_man_order_model.dart';
 import 'package:sales_app_redesign/features/admin/order/model/get_distributor_detail_order_by_id_model.dart';
 import 'package:sales_app_redesign/features/admin/order/model/get_distributor_order_model.dart';
 import 'package:sales_app_redesign/features/admin/order/model/get_sales_man_order_by_id_model.dart';
+import 'package:sales_app_redesign/features/admin/order/model/req_model/partially_delivery_req_model.dart';
 import 'package:sales_app_redesign/features/genral/cart/model/dealer_order_model.dart';
 
 class OrderProviderAd extends ChangeNotifier {
@@ -34,11 +36,6 @@ class OrderProviderAd extends ChangeNotifier {
 
   bool get hasMore => _hasMore;
 
-
-
-
-
-
   GetDistributorOrderModel? getDistributorOrderModel;
   GetDistributorOrderByIdModel? getDistributorOrderByIdModel;
   GetAllSalesmanOrderModel? getAllSalesmanOrderModel;
@@ -46,7 +43,7 @@ class OrderProviderAd extends ChangeNotifier {
   ChangeOrderStatusModel? changeOrderStatusModel;
   GetAllOrderStatusModel? getAllOrderStatusModel;
   AddOrderModelAd? addOrderModelAd;
-
+  FullyPartiallyDeliveredModel? fullyPartiallyDeliveredModel;
 
   List<ListItem> _myOrderList = [];
   List<SaleOrderListItem> _salesOrderList = [];
@@ -65,6 +62,8 @@ class OrderProviderAd extends ChangeNotifier {
 
   List<SalesOrderProductList> _salesOrderProductList = [];
   List<SalesOrderProductList> get salesOrderProductList => _salesOrderProductList;
+
+  String? orderStatus;
 
   int _totalAmount = 0;
   int get totalAmount => _totalAmount;
@@ -136,6 +135,7 @@ class OrderProviderAd extends ChangeNotifier {
     _myPastOrderList.clear();
     _pastSalesOrderList.clear();
     _salesOrderList.clear();
+    orderStatus = "";
     _hasMore = true;
     _page =1;
   }
@@ -195,20 +195,20 @@ class OrderProviderAd extends ChangeNotifier {
   }
 
 
-  addProductListIntoLocal(List<SalesOrderProductList> salesOrderDetails){
-    String jsonString = jsonEncode(
-      salesOrderDetails.map((e) => e.toJson()).toList(),
-    );
-    print("String$jsonString");
-    _totalAmount = calculateTotalAmount(salesOrderDetails);
-
-    PreferenceHelper.setString("ProductList", jsonString);
-
-    // Calculate and store total amount separately
-
-
-
-  }
+  // addProductListIntoLocal(List<SalesOrderProductList> salesOrderDetails){
+  //   String jsonString = jsonEncode(
+  //     salesOrderDetails.map((e) => e.toJson()).toList(),
+  //   );
+  //   print("String$jsonString");
+  //   _totalAmount = calculateTotalAmount(salesOrderDetails);
+  //
+  //   PreferenceHelper.setString("ProductList", jsonString);
+  //
+  //   // Calculate and store total amount separately
+  //
+  //
+  //
+  // }
 
   int calculateTotalAmount(List<SalesOrderProductList> salesOrderDetails){
     int total = 0;
@@ -222,72 +222,72 @@ class OrderProviderAd extends ChangeNotifier {
 
   }
 
+  //
+  // Future<List<SalesOrderProductList>> getProductListFromLocal() async {
+  //   String? jsonString = PreferenceHelper.getString("ProductList");
+  //
+  //   print("JsonString$jsonString");
+  //
+  //   if (jsonString == null || jsonString.isEmpty) return [];
+  //
+  //   List<dynamic> jsonList = jsonDecode(jsonString);
+  //
+  //   return jsonList
+  //       .map((item) => SalesOrderProductList.fromJson(item))
+  //       .toList();
+  // }
+  //
+  // Future<void> removeProductFromLocal(String productSkuId) async {
+  //   String? jsonString = PreferenceHelper.getString("ProductList");
+  //
+  //   if (jsonString == null || jsonString.isEmpty) return;
+  //
+  //   List<dynamic> jsonList = jsonDecode(jsonString);
+  //
+  //   // Convert to list of products
+  //   List<SalesOrderProductList> productList =
+  //   jsonList.map((item) => SalesOrderProductList.fromJson(item)).toList();
+  //
+  //   // Remove the product with matching SKU ID
+  //   productList.removeWhere((product) => product.productSKUID == productSkuId);
+  //
+  //   // Convert back to JSON string
+  //   String updatedJsonString = jsonEncode(productList);
+  //
+  //   // Save back to local storage
+  //    PreferenceHelper.setString("ProductList", updatedJsonString);
+  //   _salesOrderProductList = await getProductListFromLocal();
+  //   _totalAmount = calculateTotalAmount(_salesOrderProductList);
+  //   notifyListeners();
+  // }
 
-  Future<List<SalesOrderProductList>> getProductListFromLocal() async {
-    String? jsonString = PreferenceHelper.getString("ProductList");
-
-    print("JsonString$jsonString");
-
-    if (jsonString == null || jsonString.isEmpty) return [];
-
-    List<dynamic> jsonList = jsonDecode(jsonString);
-
-    return jsonList
-        .map((item) => SalesOrderProductList.fromJson(item))
-        .toList();
-  }
-
-  Future<void> removeProductFromLocal(String productSkuId) async {
-    String? jsonString = PreferenceHelper.getString("ProductList");
-
-    if (jsonString == null || jsonString.isEmpty) return;
-
-    List<dynamic> jsonList = jsonDecode(jsonString);
-
-    // Convert to list of products
-    List<SalesOrderProductList> productList =
-    jsonList.map((item) => SalesOrderProductList.fromJson(item)).toList();
-
-    // Remove the product with matching SKU ID
-    productList.removeWhere((product) => product.productSKUID == productSkuId);
-
-    // Convert back to JSON string
-    String updatedJsonString = jsonEncode(productList);
-
-    // Save back to local storage
-     PreferenceHelper.setString("ProductList", updatedJsonString);
-    _salesOrderProductList = await getProductListFromLocal();
-    _totalAmount = calculateTotalAmount(_salesOrderProductList);
-    notifyListeners();
-  }
-
-  updateProductFromLocal({String? productSkuId, int? newQuantity})async{
-    String? jsonString = PreferenceHelper.getString("ProductList");
-    if (jsonString == null || jsonString.isEmpty) return;
-
-    List<dynamic> jsonList = jsonDecode(jsonString);
-
-    List<SalesOrderProductList> productList =
-    jsonList.map((item) => SalesOrderProductList.fromJson(item)).toList();
-
-
-    for (var product in productList) {
-      if (product.productSKUID == productSkuId) {
-        product.quantity = newQuantity; // <- Make sure 'quantity' is the right field name
-        break;
-      }
-    }
-
-    // Save updated list
-    String updatedJson = jsonEncode(productList);
-    PreferenceHelper.setString("ProductList", updatedJson);
-    _salesOrderProductList = await getProductListFromLocal();
-    _totalAmount = calculateTotalAmount(_salesOrderProductList);
-    notifyListeners();
-  }
+  // updateProductFromLocal({String? productSkuId, int? newQuantity})async{
+  //   String? jsonString = PreferenceHelper.getString("ProductList");
+  //   if (jsonString == null || jsonString.isEmpty) return;
+  //
+  //   List<dynamic> jsonList = jsonDecode(jsonString);
+  //
+  //   List<SalesOrderProductList> productList =
+  //   jsonList.map((item) => SalesOrderProductList.fromJson(item)).toList();
+  //
+  //
+  //   for (var product in productList) {
+  //     if (product.productSKUID == productSkuId) {
+  //       product.quantity = newQuantity; // <- Make sure 'quantity' is the right field name
+  //       break;
+  //     }
+  //   }
+  //
+  //   // Save updated list
+  //   String updatedJson = jsonEncode(productList);
+  //   PreferenceHelper.setString("ProductList", updatedJson);
+  //   _salesOrderProductList = await getProductListFromLocal();
+  //   _totalAmount = calculateTotalAmount(_salesOrderProductList);
+  //   notifyListeners();
+  // }
 
   refreshListFnc()async{
-    _salesOrderProductList = await getProductListFromLocal();
+    // _salesOrderProductList = await getProductListFromLocal();
     _totalAmount = calculateTotalAmount(_salesOrderProductList);
     print("SalesOrderList${_salesOrderProductList.length}");
     notifyListeners();
@@ -389,11 +389,7 @@ class OrderProviderAd extends ChangeNotifier {
       if (getAllSalesmanOrderByIdModel?.isError == false &&
           getAllSalesmanOrderByIdModel?.isValidationFailed == false) {
         await apiCallGetAllOrderStatus();
-        addProductListIntoLocal(getAllSalesmanOrderByIdModel?.data?.salesOrderDetails ?? []);
-
-        _salesOrderProductList = await getProductListFromLocal();
-
-
+        orderStatus = getAllSalesmanOrderByIdModel?.data?.totOrderStatus;
       }
       print("reponse : $response");
     } catch (e) {
@@ -456,5 +452,43 @@ class OrderProviderAd extends ChangeNotifier {
     _isUploading = false;
     notifyListeners();
     return changeOrderStatusModel;
+  }
+
+
+  apiCallFullyPartialDelivery(
+      {String? salesOrderId, String? orderStatusId, required List<
+          PartiallyDeliverReqModel> items})async{
+    _isUploading = true;
+    // notifyListeners();
+    try{
+      String? userId = PreferenceHelper.getString(PreferenceHelper.USER_ID);
+      Map<String, dynamic> body = {
+        "salesOrderId": salesOrderId,
+        "user_id": userId,
+        "order_status_id": orderStatusId,
+        ...buildPartialDeliveryRequest(items),
+        "appOs": ""
+      };
+
+      String endPoint = ApiConstants.fullPartialDelivery;
+      print("Endpoint$endPoint");
+      var response = await callPostMethod(endPoint, body);
+      fullyPartiallyDeliveredModel = FullyPartiallyDeliveredModel.fromJson(json.decode(response));
+      if(fullyPartiallyDeliveredModel?.isError == false && fullyPartiallyDeliveredModel?.isValidationFailed == false){
+        apiCallAllSalesManOrderDetailById(salesOrderId);
+      }
+
+      print("reponse : $response");
+
+    }catch(e){
+      print('catch at get Change OrderStatus ${e}');
+      _isUploading = false;
+      notifyListeners();
+    }finally{
+      _isUploading = false;
+      notifyListeners();
+
+    }
+
   }
 }
