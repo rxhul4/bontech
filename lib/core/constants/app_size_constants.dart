@@ -1,6 +1,6 @@
 
 const int charLength40 = 40;
-const double appBarSize = 55;
+const double appBarSize = 70;
 
 const double fontSizeTiny = 10;
 const double fontSizeSmall = 12;

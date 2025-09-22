@@ -46,7 +46,7 @@ class _BottomSheetForPartiallyDeliveryState extends State<BottomSheetForPartiall
     return Padding(
       padding: MediaQuery.of(context).viewInsets,
       child: ListView(
-        physics: const NeverScrollableScrollPhysics(),
+        // physics: const sv(),
         shrinkWrap: true,
         padding: const EdgeInsets.all(16.0),
         children: [
@@ -65,7 +65,7 @@ class _BottomSheetForPartiallyDeliveryState extends State<BottomSheetForPartiall
               final product = widget.salesOrderProductList[index];
               final remainingQty = (product.quantity ?? 0) - (product.deliveredQuantity ?? 0);
 
-              return Column(
+              return remainingQty != 0 ? Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   "${product.productName ?? 'Product'} (Remaining: $remainingQty)"
@@ -105,7 +105,7 @@ class _BottomSheetForPartiallyDeliveryState extends State<BottomSheetForPartiall
                     ),
                   10.toSizedBoxHeight,
                 ],
-              );
+              ) : SizedBox();
             },
           ),
           16.toSizedBoxHeight,
@@ -132,10 +132,23 @@ class _BottomSheetForPartiallyDeliveryState extends State<BottomSheetForPartiall
                     bool hasError = false;
                     List<PartiallyDeliverReqModel> items = [];
 
-                    for (int i = 0; i < _controllers.length; i++) {
+                    for (int i = 0; i < widget.salesOrderProductList.length; i++) {
+                      final product = widget.salesOrderProductList[i];
+                      final remaining = (product.quantity ?? 0) - (product.deliveredQuantity ?? 0);
+
+                      if (remaining == 0) {
+                        // Always add with 0 qty
+                        items.add(
+                          PartiallyDeliverReqModel(
+                            productId: product.productId,
+                            productSkuId: product.productSKUID,
+                            deliveredQuantity: 0,
+                          ),
+                        );
+                        continue; // skip further validation
+                      }
+
                       final entered = int.tryParse(_controllers[i].text);
-                      final remaining = (widget.salesOrderProductList[i].quantity ?? 0) -
-                          (widget.salesOrderProductList[i].deliveredQuantity ?? 0);
 
                       if (entered == null || entered > remaining) {
                         setState(() {
@@ -147,11 +160,13 @@ class _BottomSheetForPartiallyDeliveryState extends State<BottomSheetForPartiall
                           _errorMessages[i] = null;
                         });
 
-                        items.add(PartiallyDeliverReqModel(
-                          productId: widget.salesOrderProductList[i].productId,
-                          productSkuId: widget.salesOrderProductList[i].productSKUID,
-                          deliveredQuantity: entered,
-                        ));
+                        items.add(
+                          PartiallyDeliverReqModel(
+                            productId: product.productId,
+                            productSkuId: product.productSKUID,
+                            deliveredQuantity: entered,
+                          ),
+                        );
                       }
                     }
 
@@ -160,6 +175,7 @@ class _BottomSheetForPartiallyDeliveryState extends State<BottomSheetForPartiall
                       Navigator.pop(context);
                     }
                   },
+
                   verticalPadding: 10,
                 ),
               ),

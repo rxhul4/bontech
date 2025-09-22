@@ -23,7 +23,31 @@ class CategoryProvider extends ChangeNotifier{
   AllCategoryModel? allCategoryModel;
 
 
-   apiCallGetAllCategory() async {
+   apiCallGetAllCategoryForDistributor() async {
+    String? userId = PreferenceHelper.getString(PreferenceHelper.USER_ID);
+
+    print("kkkkkkkkkk1");
+
+    _isFetching = true;
+    // notifyListeners();
+    try {
+      Map<String,dynamic> body = {
+        "distributor_id": userId,
+        "appOs": ""
+      };
+      String endPoint = ApiConstants.getDistributorAssignedCategory;
+      var response = await callPostMethod(endPoint,body);
+      allCategoryModel = AllCategoryModel.fromJson(json.decode(response));
+      print('yooooooooooo $response');
+    } catch (e) {
+      print('catch at get Category $e');
+    }
+    _isFetching = false;
+    notifyListeners();
+    // return allCategoryModel;
+  }
+
+  apiCallGetAllCategoryForSalesMan() async {
     String? userId = PreferenceHelper.getString(PreferenceHelper.USER_ID);
     String? parentId = PreferenceHelper.getString(PreferenceHelper.PARENT_ID);
     String? userTypeId = PreferenceHelper.getString(PreferenceHelper.USER_TYPE_ID);

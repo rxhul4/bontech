@@ -65,7 +65,7 @@ class Product {
   String? productCategoryId;
   String? productCategoryName;
   String? image;
-  double? price;
+  num? price;
   String? productVariantId;
   Map<String, VariantOption>? productVariant;
   List<VariantAttribute>? allVariants;
@@ -99,7 +99,7 @@ class Product {
       productCategoryId: json['productCategoryId'],
       productCategoryName: json['productCategoryName'],
       image: json['image'],
-      price: (json['price'] as num?)?.toDouble(),
+      price: (json['price'] as num?),
       productVariantId: json['productVariantId'],
       productVariant: (json['productVariant'] as Map<String, dynamic>?)?.map(
             (key, value) => MapEntry(key, VariantOption.fromJson(value)),

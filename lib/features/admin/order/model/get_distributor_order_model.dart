@@ -80,7 +80,7 @@ class ListItem {
   String? orderDate;
   String? totOrderStatusId;
   String? totOrderStatus;
-  int? totalAmount;
+  num? totalAmount;
   String? trackingNo;
   String? createdOn;
   String? productId;
@@ -89,8 +89,8 @@ class ListItem {
   String? categoryId;
   String? categoryName;
   String? productSkuId;
-  int? quantity;
-  int? amount;
+  num? quantity;
+  num? amount;
   List<DealerOrderDetails>? dealerOrderDetails;
 
   ListItem(
@@ -198,9 +198,9 @@ class DealerOrderDetails {
   String? size;
   String? color;
   String? material;
-  int? price;
-  int? quantity;
-  int? totalAmount;
+  num? price;
+  num? quantity;
+  num? totalAmount;
 
   DealerOrderDetails(
       {this.productName,

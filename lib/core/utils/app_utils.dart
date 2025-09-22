@@ -1,4 +1,4 @@
-
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:glassmorphism/glassmorphism.dart';
 import 'package:intl/intl.dart';
@@ -18,8 +18,13 @@ class AppUtils {
 
   static void redirectToLogin({required BuildContext context}) {
     // AutoRouter.of(context).replaceAll([const LogInRoute()]);
-    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => LogInScreen(),), (route) => false,);
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => LogInScreen()),
+      (route) => false,
+    );
   }
+
   //
   // static Future<void> launchToBrowser(Uri url) async {
   //   if (!await launchUrl(
@@ -29,7 +34,6 @@ class AppUtils {
   //     throw Exception('Could not launch $url');
   //   }
   // }
-
 
   // static Widget slideButton({required Function onSwipe, String? text, required BuildContext context}){
   //   return Padding(
@@ -76,73 +80,76 @@ class AppUtils {
   //   );
   // }
 
-  static Widget showNotesForm(
-      {required BuildContext context,
-        required Function() onSave,
-        String? title,
-        String? textFieldText,
-        required TextEditingController controller}) {
+  static Widget showNotesForm({
+    required BuildContext context,
+    required Function() onSave,
+    String? title,
+    String? textFieldText,
+    required TextEditingController controller,
+  }) {
     return AlertDialog(
-        backgroundColor: AppColors.colorWhite,
-        buttonPadding: EdgeInsets.zero,
+      backgroundColor: AppColors.colorWhite,
+      buttonPadding: EdgeInsets.zero,
 
-        contentPadding: EdgeInsets.all(20),
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10))),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppUtils.commonTextWidget(
-              text: title ?? "",
-              textColor: AppColors.colorPrimary,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-            const SizedBox(height: 20,),
-            CustomTextFormField(
-                maxLines: 4,
-                hintText: textFieldText ?? "",
-                maxLength: 200,
-                controller: controller),
+      contentPadding: EdgeInsets.all(20),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AppUtils.commonTextWidget(
+            text: title ?? "",
+            textColor: AppColors.colorPrimary,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+          const SizedBox(height: 20),
+          CustomTextFormField(
+            maxLines: 4,
+            hintText: textFieldText ?? "",
+            maxLength: 200,
+            controller: controller,
+          ),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Expanded(
-                  child: AppUtils.commonElevatedBtn(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      bgColor: AppColors.colorPrimary,
-                      height: 45,
-                      textColor: AppColors.colorWhite,
-                      text: "Cancel",
-                      leftMargin: 0,
-                      rightMargin: 0,
-                      topMargin: 30,
-                      bottomMargin: 0),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Expanded(
+                child: AppUtils.commonElevatedBtn(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  bgColor: AppColors.colorPrimary,
+                  height: 45,
+                  textColor: AppColors.colorWhite,
+                  text: "Cancel",
+                  leftMargin: 0,
+                  rightMargin: 0,
+                  topMargin: 30,
+                  bottomMargin: 0,
                 ),
-                SizedBox(width: 5,),
-                Expanded(
-                  child: AppUtils.commonElevatedBtn(
-                      onPressed: onSave,
-                      bgColor: AppColors.colorPrimary,
-                      height: 45,
-                      textColor: AppColors.colorWhite,
-                      text: "Place Order",
-                      leftMargin: 0,
-                      rightMargin: 0,
-                      topMargin: 30,
-                      bottomMargin: 0),
+              ),
+              SizedBox(width: 5),
+              Expanded(
+                child: AppUtils.commonElevatedBtn(
+                  onPressed: onSave,
+                  bgColor: AppColors.colorPrimary,
+                  height: 45,
+                  textColor: AppColors.colorWhite,
+                  text: "Place Order",
+                  leftMargin: 0,
+                  rightMargin: 0,
+                  topMargin: 30,
+                  bottomMargin: 0,
                 ),
-              ],
-            )
-          ],
-        )
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
-
-
 
   static String getDate({required String date, required String format}) {
     print("uuuuuuuuu $date");
@@ -162,72 +169,86 @@ class AppUtils {
       borderRadius: BorderRadius.circular(20),
       onTap: onTap ?? () {},
       child: AppUtils.commonContainer(
-          child: AppUtils.commonContainer(
-            padding: AppUtils.edgeInsetsAll(allPadding: 10),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    AppUtils.commonContainer(
-                        height: 5,
-                        width: 5,
-                        decoration: AppUtils.commonBoxDecoration(
-                            color: AppColors.colorLightGrey,
-                            shape: BoxShape.circle)),
-                    AppUtils.commonSizedBox(width: 10),
-                    AppUtils.commonContainer(
-                        height: 5,
-                        width: 5,
-                        decoration: AppUtils.commonBoxDecoration(
-                            color: AppColors.colorLightGrey,
-                            shape: BoxShape.circle)),
-                  ],
-                ),
-                AppUtils.commonSizedBox(height: 10),
-                Row(
-                  children: [
-                    AppUtils.commonContainer(
-                        height: 5,
-                        width: 5,
-                        decoration: AppUtils.commonBoxDecoration(
-                            color: AppColors.colorLightGrey,
-                            shape: BoxShape.circle)),
-                    AppUtils.commonSizedBox(width: 10),
-                    AppUtils.commonContainer(
-                        height: 5,
-                        width: 5,
-                        decoration: AppUtils.commonBoxDecoration(
-                            color: AppColors.colorLightGrey,
-                            shape: BoxShape.circle)),
-                  ],
-                ),
-              ],
-            ),
-          )),
+        child: AppUtils.commonContainer(
+          padding: AppUtils.edgeInsetsAll(allPadding: 10),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  AppUtils.commonContainer(
+                    height: 5,
+                    width: 5,
+                    decoration: AppUtils.commonBoxDecoration(
+                      color: AppColors.colorLightGrey,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  AppUtils.commonSizedBox(width: 10),
+                  AppUtils.commonContainer(
+                    height: 5,
+                    width: 5,
+                    decoration: AppUtils.commonBoxDecoration(
+                      color: AppColors.colorLightGrey,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ],
+              ),
+              AppUtils.commonSizedBox(height: 10),
+              Row(
+                children: [
+                  AppUtils.commonContainer(
+                    height: 5,
+                    width: 5,
+                    decoration: AppUtils.commonBoxDecoration(
+                      color: AppColors.colorLightGrey,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  AppUtils.commonSizedBox(width: 10),
+                  AppUtils.commonContainer(
+                    height: 5,
+                    width: 5,
+                    decoration: AppUtils.commonBoxDecoration(
+                      color: AppColors.colorLightGrey,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
-  static Widget appLogoDummy(
-      {double? logoSize, Color? primaryTextColor, Color? secondaryTextColor}) {
+  static Widget appLogoDummy({
+    double? logoSize,
+    Color? primaryTextColor,
+    Color? secondaryTextColor,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         commonTextWidget(
-            text: "SALES",
-            textAlign: TextAlign.center,
-            fontSize: logoSize ?? AppConstants.thirtyFive,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1,
-            textColor: primaryTextColor ?? AppColors.colorDarkGrey,
-            fontFamily: AppConstants.fontFamilyTeko),
+          text: "SALES",
+          textAlign: TextAlign.center,
+          fontSize: logoSize ?? AppConstants.thirtyFive,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 1,
+          textColor: primaryTextColor ?? AppColors.colorDarkGrey,
+          fontFamily: AppConstants.fontFamilyTeko,
+        ),
         commonTextWidget(
-            text: "APP",
-            textAlign: TextAlign.center,
-            fontSize: logoSize ?? AppConstants.thirtyFive,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1,
-            textColor: secondaryTextColor ?? AppColors.colorMainBlack,
-            fontFamily: AppConstants.fontFamilyTeko),
+          text: "APP",
+          textAlign: TextAlign.center,
+          fontSize: logoSize ?? AppConstants.thirtyFive,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 1,
+          textColor: secondaryTextColor ?? AppColors.colorMainBlack,
+          fontFamily: AppConstants.fontFamilyTeko,
+        ),
       ],
     );
   }
@@ -282,13 +303,14 @@ class AppUtils {
             // width: 80,
           ),
           AppUtils.commonTextWidget(
-              margin: edgeInsetsOnly(top: 5),
-              text: msg ?? "NO Data Found!",
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.5,
-              textColor: AppColors.colorWhite),
-          60.toSizedBoxHeight
+            margin: edgeInsetsOnly(top: 5),
+            text: msg ?? "NO Data Found!",
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 0.5,
+            textColor: AppColors.colorWhite,
+          ),
+          60.toSizedBoxHeight,
         ],
       ),
     );
@@ -326,22 +348,16 @@ class AppUtils {
     );
   }
 
-  static Widget commonSizedBox({
-    double? height,
-    double? width,
-    Widget? child,
-  }) {
-    return SizedBox(
-      height: height,
-      width: width,
-      child: child,
-    );
+  static Widget commonSizedBox({double? height, double? width, Widget? child}) {
+    return SizedBox(height: height, width: width, child: child);
   }
 
-  static showCustomDialog({required BuildContext ctx,
+  static showCustomDialog({
+    required BuildContext ctx,
     String? dialogMessage,
     String? dialogBtnText,
-    String? dialogTitle}) {
+    String? dialogTitle,
+  }) {
     showDialog(
       context: ctx,
       builder: (context) {
@@ -354,7 +370,8 @@ class AppUtils {
     );
   }
 
-  static showCustomTwoBtnDialog({required BuildContext ctx,
+  static showCustomTwoBtnDialog({
+    required BuildContext ctx,
     String? dialogMessage,
     String? dialogBtnTextRight,
     String? dialogBtnTextLeft,
@@ -362,7 +379,8 @@ class AppUtils {
     bool? rightPop,
     VoidCallback? dialogBtnLeftFnc,
     VoidCallback? dialogBtnRightFnc,
-    String? dialogTitle}) {
+    String? dialogTitle,
+  }) {
     showDialog(
       context: ctx,
       builder: (context) {
@@ -387,30 +405,23 @@ class AppUtils {
     double? left,
   }) {
     return EdgeInsets.only(
-        bottom: bottom ?? AppConstants.zero,
-        top: top ?? AppConstants.zero,
-        right: right ?? AppConstants.zero,
-        left: left ?? AppConstants.zero);
+      bottom: bottom ?? AppConstants.zero,
+      top: top ?? AppConstants.zero,
+      right: right ?? AppConstants.zero,
+      left: left ?? AppConstants.zero,
+    );
   }
 
-  static EdgeInsets edgeInsetsAll({
-    double? allPadding,
-  }) {
+  static EdgeInsets edgeInsetsAll({double? allPadding}) {
     return EdgeInsets.all(allPadding ?? 0);
   }
 
   static double getMediaHeight(BuildContext uiContext) {
-    return MediaQuery
-        .of(uiContext)
-        .size
-        .height;
+    return MediaQuery.of(uiContext).size.height;
   }
 
   static double getMediaWidth(BuildContext uiContext) {
-    return MediaQuery
-        .of(uiContext)
-        .size
-        .width;
+    return MediaQuery.of(uiContext).size.width;
   }
 
   static Widget commonContainer({
@@ -435,23 +446,57 @@ class AppUtils {
     );
   }
 
-
-  static BoxDecoration commonGradientBoxDecoration(
-      {double? borderRadius, Color? gradient1, Color? gradient2,Color? border,BoxShape? shape,double? borderWidth}) {
-    return BoxDecoration(shape: shape ?? BoxShape.rectangle,
+  static BoxDecoration commonGradientBoxDecoration({
+    double? borderRadius,
+    Color? gradient1,
+    Color? gradient2,
+    Color? border,
+    BoxShape? shape,
+    double? borderWidth,
+  }) {
+    return BoxDecoration(
+      shape: shape ?? BoxShape.rectangle,
       // color: AppColors.colorTransparent,
       gradient: LinearGradient(
-        colors: [gradient1 ?? AppColors.gradient1, gradient2 ?? AppColors.gradient2],
+        colors: [
+          gradient1 ?? AppColors.gradient1,
+          gradient2 ?? AppColors.gradient2,
+        ],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
       borderRadius: BorderRadius.circular(borderRadius ?? 12),
-      border: Border.all(color: border ?? Colors.transparent, width: borderWidth?? 1.5),
+      border: Border.all(
+        color: border ?? Colors.transparent,
+        width: borderWidth ?? 1.5,
+      ),
     );
   }
 
-  static Widget commonGlassmorphicContainer
-      ({
+  static loadingWidget() {
+    return const  CircularProgressIndicator(
+      valueColor: AlwaysStoppedAnimation<Color>(AppColors.colorSecondary),
+      strokeWidth: 2,
+    );
+  }
+
+  static Widget noImageFound() {
+    return Icon(Icons.photo_size_select_actual_outlined, size: 70);
+  }
+
+  static Widget cacheNetworkImage(String? imageUrl) {
+    return CachedNetworkImage(
+      imageUrl: imageUrl ?? "",
+      errorWidget: (context, url, error) {
+        return noImageFound();
+      },
+      placeholder: (context, url) {
+        return  loadingWidget();
+      },
+    );
+  }
+
+  static Widget commonGlassmorphicContainer({
     double width = double.infinity,
     double height = 70,
     double borderRadius = 20,
@@ -484,10 +529,7 @@ class AppUtils {
       borderGradient: LinearGradient(
         begin: Alignment.centerLeft,
         end: Alignment.centerRight,
-        colors: [
-          Colors.white.withOpacity(0.0),
-          Colors.white.withOpacity(0.0),
-        ],
+        colors: [Colors.white.withOpacity(0.0), Colors.white.withOpacity(0.0)],
       ),
       child: child,
     );
@@ -554,13 +596,15 @@ class AppUtils {
     );
   }
 
-  static BoxDecoration commonBoxDecoration({Color? color,
+  static BoxDecoration commonBoxDecoration({
+    Color? color,
     BoxBorder? border,
     Gradient? gradient,
     BoxShape? shape,
     DecorationImage? image,
     BorderRadiusGeometry? borderRadius,
-    List<BoxShadow>? boxShadow}) {
+    List<BoxShadow>? boxShadow,
+  }) {
     return BoxDecoration(
       image: image,
       shape: shape ?? BoxShape.rectangle,
@@ -608,10 +652,11 @@ class AppUtils {
         borderRadius: BorderRadius.circular(borderRadiusAll ?? 10),
       ),
       margin: AppUtils.edgeInsetsOnly(
-          bottom: bottomMargin ?? AppConstants.forty,
-          top: topMargin ?? AppConstants.thirty,
-          right: rightMargin ?? AppConstants.twenty,
-          left: leftMargin ?? AppConstants.twenty),
+        bottom: bottomMargin ?? AppConstants.forty,
+        top: topMargin ?? AppConstants.thirty,
+        right: rightMargin ?? AppConstants.twenty,
+        left: leftMargin ?? AppConstants.twenty,
+      ),
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
@@ -635,9 +680,11 @@ class AppUtils {
     );
   }
 
-  static showSnackBarWithColor({required BuildContext context,
+  static showSnackBarWithColor({
+    required BuildContext context,
     required String message,
-    Color? giveColor}) {
+    Color? giveColor,
+  }) {
     return ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         duration: const Duration(milliseconds: 1000),
@@ -657,26 +704,30 @@ class AppUtils {
   //   );
   // }
 
-  static Widget imageWidget({required String image,
+  static Widget imageWidget({
+    required String image,
     required BuildContext ctx,
     BoxFit? fit,
     double? height,
-    Color? color}) {
+    Color? color,
+  }) {
     return Center(
       child: Image.asset(
         image,
         fit: fit ?? BoxFit.cover,
         color: color,
-        height: height ?? MediaQuery
-            .of(ctx)
-            .size
-            .height / 5,
+        height: height ?? MediaQuery.of(ctx).size.height / 5,
         // height: MediaQuery.of(context).size.height,
       ),
     );
   }
 
-  static Widget commonDiver({Color? color, double? endIndent, double? indent,double? thickness}) {
+  static Widget commonDiver({
+    Color? color,
+    double? endIndent,
+    double? indent,
+    double? thickness,
+  }) {
     return Divider(
       color: color ?? AppColors.colorGrey,
       endIndent: endIndent,

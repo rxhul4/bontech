@@ -95,7 +95,7 @@ class _LogInScreenState extends State<LogInScreen> {
           FocusScope.of(context).unfocus();
         },
         child: AppScaffold(
-          bgColor: AppColors.colorPrimary,
+          // bgColor: AppColors.colorPrimary,
           body: Stack(
             children: [
               Center(

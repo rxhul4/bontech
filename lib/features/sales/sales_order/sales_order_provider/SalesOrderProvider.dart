@@ -10,14 +10,13 @@ import 'package:sales_app_redesign/features/admin/order/model/get_all_order_stat
 import 'package:sales_app_redesign/features/admin/order/model/get_all_sales_man_order_model.dart';
 import 'package:sales_app_redesign/features/admin/order/model/get_sales_man_order_by_id_model.dart';
 
-class SalesOrderProvider extends ChangeNotifier{
+class SalesOrderProvider extends ChangeNotifier {
   bool _isFetching = false;
   bool _isLoading = false;
   bool _isUploading = false;
   bool _isAdding = false;
 
   bool _hasMore = true;
-
 
   bool get isFetching => _isFetching;
 
@@ -26,21 +25,17 @@ class SalesOrderProvider extends ChangeNotifier{
   bool get isUploading => _isUploading;
 
   bool get isAdding => _isAdding;
+
   bool get hasMore => _hasMore;
 
   int _page = 1;
-
-
-
 
   GetAllSalesmanOrderModel? getAllSalesmanOrderModel;
   GetAllSalesmanOrderByIdModel? getAllSalesmanOrderByIdModel;
   GetAllOrderStatusModel? getAllOrderStatusModel;
 
-
   List<SaleOrderListItem> _activeSalesOrderList = [];
   List<SaleOrderListItem> _completeSalesOrderList = [];
-
 
   List<SaleOrderListItem> get activeSalesOrderList => _activeSalesOrderList;
 
@@ -48,56 +43,54 @@ class SalesOrderProvider extends ChangeNotifier{
 
   TextEditingController qtyController = TextEditingController();
 
-
-
-
   void resetOrderControllers() {
     _activeSalesOrderList.clear();
     _completeSalesOrderList.clear();
     _isLoading = false;
     _hasMore = true;
-    _page =1;
+    _page = 1;
     notifyListeners();
   }
 
-
-
-  fetchOrderHistory(bool? isActive)async{
-
-    if(_isLoading || !_hasMore)return;
+  fetchOrderHistory(bool? isActive) async {
+    if (_isLoading || !_hasMore) return;
     _isLoading = true;
 
-    try{
-      List<SaleOrderListItem> newOrderList = await apiCallGetAllSalesmanOrder(pageNo: _page,isActive: isActive);
+    try {
+      List<SaleOrderListItem> newOrderList = await apiCallGetAllSalesmanOrder(
+        pageNo: _page,
+        isActive: isActive,
+      );
 
-
-      if(newOrderList.isEmpty){
+      if (newOrderList.isEmpty) {
         _hasMore = false;
-
-      }else{
-        if(newOrderList.length < 10){
+      } else {
+        if (newOrderList.length < 10) {
           _hasMore = false;
         }
-        isActive ==true ? _activeSalesOrderList.addAll(newOrderList) : _completeSalesOrderList.addAll(newOrderList);
+        isActive == true
+            ? _activeSalesOrderList.addAll(newOrderList)
+            : _completeSalesOrderList.addAll(newOrderList);
         _page++;
       }
-
-    }catch(e){
+    } catch (e) {
       print("something went wrong");
     }
     _isLoading = false;
     notifyListeners();
-
   }
 
-  Future<List<SaleOrderListItem>> apiCallGetAllSalesmanOrder({int? pageNo, bool? isActive}) async {
+  Future<List<SaleOrderListItem>> apiCallGetAllSalesmanOrder({
+    int? pageNo,
+    bool? isActive,
+  }) async {
     var dealerId = PreferenceHelper.getString(PreferenceHelper.PARENT_ID);
 
     try {
       Map<String, dynamic> body = {
         "pageNo": pageNo,
         "pageSize": 10,
-        "isActive":  isActive,
+        "isActive": isActive,
         "dealer_id": dealerId,
         "appOs": "mobile",
       };
@@ -138,7 +131,6 @@ class SalesOrderProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-
   apiCallGetAllOrderStatus() async {
     // _isFetching = true;
     // notifyListeners();
@@ -155,7 +147,4 @@ class SalesOrderProvider extends ChangeNotifier{
     // notifyListeners();/
     return getAllOrderStatusModel;
   }
-
-
-
 }

@@ -22,6 +22,7 @@ import 'package:sales_app_redesign/features/genral/product/model/product_sku_by_
 import 'package:sales_app_redesign/features/genral/product/model/product_sku_by_product_varient_id.dart'
     as response;
 
+import '../../../../main.dart';
 import '../../../sales/dashboard/dashboard.dart';
 import '../model/get_product_by_productId_model.dart' as response;
 
@@ -516,13 +517,10 @@ class ProductProvider with ChangeNotifier {
           productSkuByProductVariantId?.isValidationFailed == false) {
         final product = productResponse?.data?.productInfo;
         product?.productQty = 1;
-        product?.productVariantId =
-            productSkuByProductVariantId?.data?.productSkuId;
-        product?.price = double.parse(
-          productSkuByProductVariantId?.data?.price.toString() ?? "",
-        );
-        product?.productImages =
-            productSkuByProductVariantId?.data?.productSkuImage;
+        product?.productVariantId = productSkuByProductVariantId?.data?.productSkuId;
+        product?.price = double.parse(productSkuByProductVariantId?.data?.price.toString() ?? "",);
+        product?.productImages = productSkuByProductVariantId?.data?.productSkuImage;
+        product?.productDescription = productSkuByProductVariantId?.data?.itemDescription;
       }
 
       print('yooooooooooo $response');

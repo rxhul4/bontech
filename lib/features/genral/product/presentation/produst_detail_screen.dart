@@ -15,6 +15,7 @@ import 'package:sales_app_redesign/core/utils/app_constant.dart';
 import 'package:sales_app_redesign/core/utils/app_extension.dart';
 import 'package:sales_app_redesign/core/utils/app_utils.dart';
 import 'package:sales_app_redesign/core/utils/common_function.dart';
+import 'package:sales_app_redesign/features/genral/product/model/get_product_by_productId_model.dart';
 import 'package:sales_app_redesign/features/genral/product/presentation/product_preview_screen.dart';
 import 'package:sales_app_redesign/features/genral/product/provider/product_provider.dart';
 
@@ -35,6 +36,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     // TODO: implement initState
     super.initState();
     _productProvider = Provider.of<ProductProvider>(context, listen: false);
+    _productProvider.selectedVariants = {};
+    _productProvider.product = Product();
     _productProvider.apiCallGetProductById(widget.productId);
   }
 
@@ -42,12 +45,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   Widget build(BuildContext context) {
     return Consumer<ProductProvider>(
       builder: (context, productProvider, child) {
-        String description =
-            (productProvider
-                    .productResponse
-                    ?.data
-                    ?.productInfo?.productDescription??
-                "N/A");
 
         return Stack(
           children: [
@@ -65,16 +62,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   isFavVisible: false,
                 ),
               ),
-              body: Stack(
+              body: ListView(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
                 children: [
-                  ListView(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    children: [
-                      12.toSizedBoxHeight,
-                      _imageCarouselSliderView(context,productProvider),
-                    ],
-                  ),
+                  12.toSizedBoxHeight,
+                  _imageCarouselSliderView(context,productProvider),
                 ],
               ),
               bottomSheet: BottomSheet(
@@ -83,143 +76,108 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 onClosing: () {},
                 backgroundColor: AppColors.colorPrimary.withOpacity(0.9),
                 builder: (context) {
+                  final mediaQuery = MediaQuery.of(context);
+                  final bottomPadding = mediaQuery.viewPadding.bottom + mediaQuery.viewInsets.bottom + 70.0;
+
+
                   return SizedBox(
                     height: MediaQuery.of(context).size.height * 0.48,
+                    child: Stack(
+                      children: [
+                        /// Scrollable Content Area
+                        SingleChildScrollView(
+                          padding: EdgeInsets.only(bottom: bottomPadding,left: 16,right: 16,top: 8),
+                          child: Column(
 
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 8,
-                      ),
-                      child: Stack(
-                        children: [
-                          SingleChildScrollView(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                10.toSizedBoxHeight,
-                                _productNameView(productProvider),
-                                12.toSizedBoxHeight,
-                                _readMoreDescription(
-                                  context,
-                                  description.isNotEmpty ? description : 'N/A',
-                                ),
-                                20.toSizedBoxHeight,
-                                Visibility(
-                                  visible:
-                                      productProvider
-                                          .productResponse
-                                          ?.data
-                                          ?.productInfo
-                                          ?.allVariants?.isNotEmpty ??
-                                      false,
-                                  child: ListView.builder(
-                                    // padding: EdgeInsets.only(bottom: 20),
-                                    shrinkWrap: true,
-                                    physics: NeverScrollableScrollPhysics(),
-                                    itemCount:
-                                        productProvider
-                                            .productResponse
-                                            ?.data
-                                            ?.productInfo
-                                            ?.allVariants
-                                            ?.length,
-                                    itemBuilder: (context, index) {
-                                      final variantAttribute =
-                                          productProvider
-                                              .productResponse
-                                              ?.data
-                                              ?.productInfo
-                                              ?.allVariants?[index];
-                                      final key = variantAttribute?.key;
-                                      final options =
-                                          variantAttribute?.value ?? [];
-                                      return Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          _labelView(key),
-                                          SizedBox(height: 8),
-                                          SizedBox(
-                                            height: 45,
-                                            width: double.infinity,
-                                            child: ListView.builder(
-                                              itemCount:
-                                                  productProvider
-                                                      .productResponse
-                                                      ?.data
-                                                      ?.productInfo
-                                                      ?.allVariants?[index]
-                                                      .value
-                                                      ?.length,
-                                              shrinkWrap: true,
-                                              scrollDirection: Axis.horizontal,
-                                              itemBuilder: (context, index1) {
-                                                final option = options[index1];
-                                                final isSelected = _productProvider.selectedVariants[key]?.id == option.id;
-                                                return Center(
-                                                  child: GestureDetector(
-                                                    onTap: () {
-                                                      if (key != null) {
-                                                        _productProvider.updateSelectedVariant(key, option);
-                                                      }
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              10.toSizedBoxHeight,
+                              _productNameView(productProvider),
+                              12.toSizedBoxHeight,
+                              _readMoreDescription(
+                                context,
+                                productProvider.product?.productDescription,
+                              ),
+                              20.toSizedBoxHeight,
+                              Visibility(
+                                visible: productProvider.productResponse?.data?.productInfo?.allVariants?.isNotEmpty ?? false,
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: NeverScrollableScrollPhysics(),
+                                  itemCount: productProvider.productResponse?.data?.productInfo?.allVariants?.length ?? 0,
+                                  itemBuilder: (context, index) {
+                                    final variantAttribute =
+                                    productProvider.productResponse?.data?.productInfo?.allVariants?[index];
+                                    final key = variantAttribute?.key;
+                                    final options = variantAttribute?.value ?? [];
 
-                                                    },
-                                                    child: AnimatedContainer(
-                                                      duration: Duration(milliseconds: 400),
-                                                      margin:
-                                                          const EdgeInsets.only(
-                                                            right: 10,
-                                                          ),
-                                                      padding:
-                                                          const EdgeInsets.symmetric(
-                                                            horizontal: 16,
-                                                            vertical: 8,
-                                                          ),
-                                                      decoration: AppUtils.commonGradientBoxDecoration(
-                                                        borderRadius: 14,
-                                                        gradient1: isSelected ? AppColors.gradient1 : AppColors.colorTransparent,
-                                                        gradient2: isSelected ? AppColors.gradient2 : AppColors.colorTransparent,
-                                                        border: isSelected ? AppColors.colorTransparent : AppColors.colorLightGrey,
-                                                      ),
-                                                      child: (option.name ?? "")
-                                                          .textWidget(
-                                                            fontSize:
-                                                                fontSizeSmall,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            color:
-                                                                AppColors
-                                                                    .colorWhite,
-                                                          ),
+                                    return Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        _labelView(key),
+                                        SizedBox(height: 8),
+                                        SizedBox(
+                                          height: 45,
+                                          width: double.infinity,
+                                          child: ListView.builder(
+                                            itemCount: options.length,
+                                            scrollDirection: Axis.horizontal,
+                                            itemBuilder: (context, index1) {
+                                              final option = options[index1];
+                                              final isSelected = _productProvider.selectedVariants[key]?.id == option.id;
+                                              return Center(
+                                                child: GestureDetector(
+                                                  onTap: () {
+                                                    if (key != null) {
+                                                      _productProvider.updateSelectedVariant(key, option);
+                                                    }
+                                                  },
+                                                  child: AnimatedContainer(
+                                                    duration: Duration(milliseconds: 400),
+                                                    margin: const EdgeInsets.only(right: 10),
+                                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                                    decoration: AppUtils.commonGradientBoxDecoration(
+                                                      borderRadius: 14,
+                                                      gradient1: isSelected ? AppColors.gradient1 : AppColors.colorTransparent,
+                                                      gradient2: isSelected ? AppColors.gradient2 : AppColors.colorTransparent,
+                                                      border: isSelected ? AppColors.colorTransparent : AppColors.colorLightGrey,
+                                                    ),
+                                                    child: (option.name ?? "").textWidget(
+                                                      fontSize: fontSizeSmall,
+                                                      fontWeight: FontWeight.w600,
+                                                      color: AppColors.colorWhite,
                                                     ),
                                                   ),
-                                                );
-                                              },
-                                            ),
+                                                ),
+                                              );
+                                            },
                                           ),
-                                          SizedBox(height: 20),
-                                        ],
-                                      );
-                                    },
-                                  ),
+                                        ),
+                                        SizedBox(height: 20),
+                                      ],
+                                    );
+                                  },
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                          Align(
-                            alignment: Alignment.bottomCenter,
-                            child: AppUtils.commonGlassmorphicContainer(
-                              padding: EdgeInsets.only(left: 30),
-                              child: _addToCartButtonView(productProvider),
-                            ),
+                        ),
+
+                        /// Bottom Button (Floating)
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: AppUtils.commonGlassmorphicContainer(
+                            margin: EdgeInsets.symmetric(horizontal: 14,vertical: 8),
+                            padding: EdgeInsets.only(left: 30),
+                            child: _addToCartButtonView(productProvider),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   );
                 },
               ),
+
             ),
             _productProvider.isFetching || _productProvider.isLoading
                 ? CircleLoadingIndicatorWidget()
@@ -542,10 +500,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             MaterialPageRoute(
                               builder:
                                   (context) => ProductPreviewScreen(
-                                    images:
-                                        productProvider.productResponse?.data?.productInfo?.productImages,
-                                    image:
-                                    productProvider.productResponse?.data?.productInfo?.image,
+                                    images: productProvider.productResponse?.data?.productInfo?.productImages,
+                                    image: productProvider.productResponse?.data?.productInfo?.image,
+                                    // product: productProvider.selectedVariants,
+                                    selectedVariant: productProvider.selectedVariants,
+                                    description: productProvider.product?.productDescription,
                                     // color:
                                     //     _productProvider
                                     //         .selectedColorVariant

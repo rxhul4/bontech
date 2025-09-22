@@ -1,3 +1,5 @@
+import 'package:sales_app_redesign/features/genral/product/model/get_product_by_productId_model.dart';
+
 class GetAllSalesmanOrderByIdModel {
   bool? isError;
   bool? isValidationFailed;
@@ -12,24 +14,14 @@ class GetAllSalesmanOrderByIdModel {
         this.message,
         this.data});
 
-  GetAllSalesmanOrderByIdModel.fromJson(Map<String, dynamic> json) {
-    isError = json['isError'];
-    isValidationFailed = json['isValidationFailed'];
-    errorCode = json['errorCode'];
-    message = json['message'];
-    data = json['data'] != null ? new Data.fromJson(json['data']) : null;
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['isError'] = this.isError;
-    data['isValidationFailed'] = this.isValidationFailed;
-    data['errorCode'] = this.errorCode;
-    data['message'] = this.message;
-    if (this.data != null) {
-      data['data'] = this.data!.toJson();
-    }
-    return data;
+  factory GetAllSalesmanOrderByIdModel.fromJson(Map<String, dynamic> json) {
+    return GetAllSalesmanOrderByIdModel(
+      isError: json['isError'] ?? false,
+      isValidationFailed: json['isValidationFailed'] ?? false,
+      errorCode: json['errorCode'] ?? '',
+      message: json['message'] ?? '',
+      data: json['data'] != null ? Data.fromJson(json['data']) : null,
+    );
   }
 }
 
@@ -43,7 +35,7 @@ class Data {
   String? orderDate;
   String? totOrderStatusId;
   String? totOrderStatus;
-  int? totalAmount;
+  num? totalAmount;
   String? trackingNo;
   String? createdOn;
   List<SalesOrderProductList>? salesOrderDetails;
@@ -63,48 +55,27 @@ class Data {
         this.createdOn,
         this.salesOrderDetails});
 
-  Data.fromJson(Map<String, dynamic> json) {
-    salesmanOrderId = json['salesman_order_id'];
-    salesmanId = json['salesman_id'];
-    hospitalName = json['hospital_name'];
-    hospitalAddress = json['hospital_address'];
-    hospitalPhoneNo = json['hospital_phone_no'];
-    salesmanName = json['salesman_name'];
-    orderDate = json['order_date'];
-    totOrderStatusId = json['tot_order_status_id'];
-    totOrderStatus = json['tot_order_status'];
-    totalAmount = json['total_amount'];
-    trackingNo = json['tracking_no'];
-    createdOn = json['created_on'];
-    if (json['salesOrderDetails'] != null) {
-      salesOrderDetails = <SalesOrderProductList>[];
-      json['salesOrderDetails'].forEach((v) {
-        salesOrderDetails!.add(new SalesOrderProductList.fromJson(v));
-      });
-    }
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['salesman_order_id'] = this.salesmanOrderId;
-    data['salesman_id'] = this.salesmanId;
-    data['hospital_name'] = this.hospitalName;
-    data['hospital_address'] = this.hospitalAddress;
-    data['hospital_phone_no'] = this.hospitalPhoneNo;
-    data['salesman_name'] = this.salesmanName;
-    data['order_date'] = this.orderDate;
-    data['tot_order_status_id'] = this.totOrderStatusId;
-    data['tot_order_status'] = this.totOrderStatus;
-    data['total_amount'] = this.totalAmount;
-    data['tracking_no'] = this.trackingNo;
-    data['created_on'] = this.createdOn;
-    if (this.salesOrderDetails != null) {
-      data['salesOrderDetails'] =
-          this.salesOrderDetails!.map((v) => v.toJson()).toList();
-    }
-    return data;
+  factory Data.fromJson(Map<String, dynamic> json) {
+    return Data(
+      salesmanOrderId: json['salesman_order_id'] ?? '',
+      salesmanId: json['salesman_id'] ?? '',
+      hospitalName: json['hospital_name'] ?? '',
+      hospitalAddress: json['hospital_address'] ?? '',
+      hospitalPhoneNo: json['hospital_phone_no'] ?? '',
+      salesmanName: json['salesman_name'] ?? '',
+      orderDate: json['order_date'] ?? '',
+      totOrderStatusId: json['tot_order_status_id'] ?? '',
+      totOrderStatus: json['tot_order_status'] ?? '',
+      totalAmount: json['total_amount'] ?? 0,
+      trackingNo: json['tracking_no'] ?? '',
+      salesOrderDetails: (json['salesOrderDetails'] as List<dynamic>?)
+          ?.map((e) => SalesOrderProductList.fromJson(e))
+          .toList() ??
+          [],
+    );
   }
 }
+
 
 class SalesOrderProductList {
   String? productId;
@@ -113,15 +84,16 @@ class SalesOrderProductList {
   String? categoryName;
   String? productSKUID;
   String? productImage;
+  Map<String, VariantOption>? productVariant;
   String? size;
   String? color;
   String? material;
-  int? price;
-  int? quantity;
+  num? price;
+  num? quantity;
   String? totOrderStatusId;
   String? totOrderStatus;
-  int? subAmount;
-  int? deliveredQuantity;
+  num? subAmount;
+  num? deliveredQuantity;
 
   SalesOrderProductList(
       {this.productId,
@@ -138,43 +110,40 @@ class SalesOrderProductList {
         this.totOrderStatusId,
         this.totOrderStatus,
         this.subAmount,
+        this.productVariant,
         this.deliveredQuantity});
 
-  SalesOrderProductList.fromJson(Map<String, dynamic> json) {
-    productId = json['productId'];
-    productName = json['productName'];
-    categoryId = json['categoryId'];
-    categoryName = json['categoryName'];
-    productSKUID = json['productSKU_ID'];
-    productImage = json['productImage'];
-    size = json['size'];
-    color = json['color'];
-    material = json['material'];
-    price = json['price'];
-    quantity = json['quantity'];
-    totOrderStatusId = json['tot_order_status_id'];
-    totOrderStatus = json['tot_order_status'];
-    subAmount = json['subAmount'];
-    deliveredQuantity = json['deliveredQuantity'];
+  factory SalesOrderProductList.fromJson(Map<String, dynamic> json) {
+    final Map<String, VariantOption> variantMap = {};
+    if (json['productVariant'] != null) {
+      final variantJson = json['productVariant'] as Map<String, dynamic>;
+      variantJson.forEach((key, value) {
+        variantMap[key] = VariantOption.fromJson(value);
+      });
+    }
+
+    return SalesOrderProductList(
+      productId: json['productId'] ?? '',
+      productName: json['productName'] ?? '',
+      categoryId: json['categoryId'],
+      categoryName: json['categoryName'] ?? '',
+      productSKUID: json['productSKU_ID'] ?? '',
+      productImage: json['productImage'] ?? '',
+      productVariant: variantMap,
+      price: json['price'] ?? 0,
+      quantity: json['quantity'] ?? 0,
+      totOrderStatusId: json['tot_order_status_id'] ?? '',
+      totOrderStatus: json['tot_order_status'] ?? '',
+      subAmount: json['subAmount'] ?? 0,
+      deliveredQuantity: json['deliveredQuantity'] ?? 0,
+    );
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['productId'] = this.productId;
-    data['productName'] = this.productName;
-    data['categoryId'] = this.categoryId;
-    data['categoryName'] = this.categoryName;
-    data['productSKU_ID'] = this.productSKUID;
-    data['productImage'] = this.productImage;
-    data['size'] = this.size;
-    data['color'] = this.color;
-    data['material'] = this.material;
-    data['price'] = this.price;
-    data['quantity'] = this.quantity;
-    data['tot_order_status_id'] = this.totOrderStatusId;
-    data['tot_order_status'] = this.totOrderStatus;
-    data['subAmount'] = this.subAmount;
-    data['deliveredQuantity'] = this.deliveredQuantity;
-    return data;
-  }
+
 }
+
+
+
+
+
+

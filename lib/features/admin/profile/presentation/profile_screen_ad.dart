@@ -10,12 +10,14 @@ import 'package:sales_app_redesign/core/storage/preference_helper.dart';
 import 'package:sales_app_redesign/core/utils/app_colors.dart';
 import 'package:sales_app_redesign/core/utils/app_extension.dart';
 import 'package:sales_app_redesign/core/utils/app_utils.dart';
+import 'package:sales_app_redesign/features/admin/pending_order/presentation/pending_order_screen.dart';
 import 'package:sales_app_redesign/features/admin/stock/presentation/pages/catagory_listing_screen.dart';
 import 'package:sales_app_redesign/features/admin/user/presentation/salesman_screen_ad.dart';
 import 'package:sales_app_redesign/features/auth/presentation/login_screen.dart';
 import 'package:sales_app_redesign/features/genral/change_password/presentation/chnage_password_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../main.dart';
 import '../../../sales/dashboard/dashboard.dart';
 
 class ProfileScreenAd extends StatefulWidget {
@@ -97,6 +99,17 @@ class _ProfileScreenAdState extends State<ProfileScreenAd> {
                             ));
                       }),
 
+
+                  commonRow(
+                      preIcon: Icons.pending_actions,
+                      text: "Pending Order Summary",
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PendingOrderSummaryScreen(),
+                            ));
+                      }),
                   commonRow(
                       preIcon: Icons.supervised_user_circle,
                       text: "Salesmen",

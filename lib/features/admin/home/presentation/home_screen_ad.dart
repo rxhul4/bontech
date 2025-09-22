@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,14 +9,19 @@ import 'package:provider/provider.dart';
 import 'package:sales_app_redesign/core/common/circle_loading_indicator_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_bar_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_scaffold.dart';
+import 'package:sales_app_redesign/core/common_statefull_widget/frost_conatiner.dart';
+import 'package:sales_app_redesign/core/common_statefull_widget/product_card.dart';
 import 'package:sales_app_redesign/core/constants/app_size_constants.dart';
 import 'package:sales_app_redesign/core/utils/app_colors.dart';
 import 'package:sales_app_redesign/core/utils/app_constant.dart';
+import 'package:sales_app_redesign/core/utils/app_extension.dart';
 import 'package:sales_app_redesign/core/utils/app_utils.dart';
 import 'package:sales_app_redesign/features/admin/home/provider/home_providerAD.dart';
 import 'package:sales_app_redesign/features/genral/product/presentation/product_listing_page.dart';
 import 'package:sales_app_redesign/features/genral/product/presentation/produst_detail_screen.dart';
 import 'package:sales_app_redesign/features/genral/search/presentation/search_delegate.dart';
+
+import '../model/get_home_model.dart';
 
 class HomeScreenAd extends StatefulWidget {
   const HomeScreenAd({super.key});
@@ -26,12 +33,21 @@ class HomeScreenAd extends StatefulWidget {
 class _HomeScreenAdState extends State<HomeScreenAd> {
   late HomeProviderAd _homeProviderAd;
 
+  final _bannerCtrl = PageController(viewportFraction: 0.90);
+  ValueNotifier<int> _bannerIndex = ValueNotifier(0);
+
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _homeProviderAd = Provider.of<HomeProviderAd>(context, listen: false);
     _homeProviderAd.apiCallGetHomeView(context);
+    _bannerCtrl.addListener(() {
+      final page = _bannerCtrl.page ?? 0;
+      final i = page.round();
+      if (i != _bannerIndex.value) setState(() => _bannerIndex.value = i);
+    });
   }
 
   late List<Widget>? imageSliders =
@@ -83,44 +99,41 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
                             ),
                           ),
                     ),
-                    Container(
-                      width: double.infinity,
-                      color: AppColors.colorMainBlack.withOpacity(0.3),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 10.0,
-                              horizontal: 10.0,
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                AppUtils.commonTextWidget(
-                                  text: item.bannerTitle ?? '',
-                                  textColor: AppColors.colorWhite,
-                                  textAlign: TextAlign.left,
-                                  fontSize: 16,
-                                  letterSpacing: 0.5,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                AppUtils.commonTextWidget(
-                                  text: item.bannerDescription ?? '',
-                                  textColor: AppColors.colorWhite,
-                                  textAlign: TextAlign.left,
-                                  fontSize: 12,
-                                  fontFamily: AppConstants.fontFamilyPoppins,
-                                  letterSpacing: 0.5,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ],
-                            ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Frost(
+
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 10.0,
+                            horizontal: 10.0,
                           ),
-                        ],
-                      ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              AppUtils.commonTextWidget(
+                                text: item.bannerTitle ?? '',
+                                textColor: AppColors.colorWhite,
+                                textAlign: TextAlign.left,
+                                fontSize: 16,
+                                letterSpacing: 0.5,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              AppUtils.commonTextWidget(
+                                text: item.bannerDescription ?? '',
+                                textColor: AppColors.colorWhite,
+                                textAlign: TextAlign.left,
+                                fontSize: 12,
+                                fontFamily: AppConstants.fontFamilyPoppins,
+                                letterSpacing: 0.5,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -131,7 +144,6 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
 
   @override
   Widget build(BuildContext context) {
-    // final homeProvider = Provider.of<HomeProviderAd>(context, listen: false);
     return Consumer<HomeProviderAd>(
       builder: (context, homeProvider, child) {
         return AppScaffold(
@@ -158,9 +170,16 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
                   : ListView(
                     shrinkWrap: true,
                     physics: BouncingScrollPhysics(),
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     children: [
-                      _imageCarousal(homeProvider),
+                      _BannerCarousel(
+                        items: homeProvider.bannerList ?? [],
+                        index: _bannerIndex.value,
+                        controller: _bannerCtrl,
+                        onTap: (p0) {},
+                      ),
+                      const SizedBox(height: 20,),
+                      // _imageCarousal(homeProvider),
                       _categoryListWidget(homeProvider),
                       _trendingProductList(homeProvider),
                       _bestsellerProductList(homeProvider),
@@ -172,553 +191,179 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
     );
   }
 
-  Widget _imageCarousal(HomeProviderAd homeProvider) {
-    return FlutterCarousel(
-      items: imageSliders,
-      options: FlutterCarouselOptions(
-        showIndicator: false,
-        slideIndicator: CircularSlideIndicator(
-          slideIndicatorOptions: SlideIndicatorOptions(
-            enableAnimation: true,
-
-            currentIndicatorColor: AppColors.colorSecondary,
-            indicatorRadius: 6,
-            alignment: Alignment.bottomCenter,
-
-            // haloPadding: EdgeInsets.zero
-            // padding: EdgeInsets.symmetric(horizontal: 10),
+  Widget _headerSectionWidget(String? title, Function()? onSee){
+    return Row(
+      children: [
+        Expanded(
+          child: AppUtils.commonTextWidget(
+            text: title?.toUpperCase() ?? "N/A",
+            fontSize: 16,
+            letterSpacing: 0.5,
+            textColor: AppColors.colorLightGrey,
+            fontWeight: FontWeight.w700,
+            textAlign: TextAlign.left,
           ),
         ),
-        autoPlay: false,
-        indicatorMargin: 0,
-        initialPage: _homeProviderAd.currentIndex,
-        enlargeCenterPage: true,
-        aspectRatio: 16 / 9,
 
-        viewportFraction: 1,
-        onPageChanged: (index, reason) {
-          _homeProviderAd.changeIndex(index);
-        },
-      ),
+        InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: () {
+            if(onSee != null){
+              onSee();
+            }
+
+          },
+          child: Frost(
+            blur: 14,
+            opacity: .18,
+            radius: 8,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            child: Row(
+              children: [
+                "See all".textWidget(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.colorWhite
+                ),
+
+                const SizedBox(width: 2),
+                const Icon(Icons.chevron_right, size: 16,color: AppColors.colorWhite),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   Widget _categoryListWidget(HomeProviderAd homeProvider) {
-    return AppUtils.commonContainer(
-      height: 100,
-      // color: AppColors.colorWhite,
-      margin: AppUtils.edgeInsetsOnly(left: 10, top: 10),
-      width: double.infinity,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        physics: BouncingScrollPhysics(),
-        child: Row(
-          children: [
-            ListView.builder(
-              padding: EdgeInsets.zero,
-              itemCount: _homeProviderAd.categoryItemList?.length,
-              physics: const NeverScrollableScrollPhysics(),
-              scrollDirection: Axis.horizontal,
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: AppUtils.edgeInsetsOnly(right: 20),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      AppUtils.commonInkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (context) => ProductListingScreen(
-                                    isBackButtonAvailable: true,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
 
-                                    isFromCategory: true,
-                                    categoryId:
-                                        homeProvider
-                                            .getHomeModel
-                                            ?.data
-                                            ?.categories?[index]
-                                            .categoryId,
-                                    categoryName:
-                                        homeProvider
-                                            .getHomeModel
-                                            ?.data
-                                            ?.categories?[index]
-                                            .categoryName ??
-                                        '',
-                                  ),
-                            ),
-                          );
-                        },
-                        child: AppUtils.commonContainer(
-                          height: 60,
-                          width: 60,
-                          // padding: AppUtils.edgeInsetsAll(allPadding: 20),
-                          decoration: AppUtils.commonBoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: AppColors.colorWhite,
-                              width: 0.5,
-                            ),
-                            color: AppColors.colorWhite,
-                          ),
-                          child: Stack(
-                            children: [
-                              AppUtils.commonContainer(
-                                decoration: AppUtils.commonBoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: AppColors.colorWhite,
-                                ),
-                              ),
-                              AppUtils.commonContainer(
-                                padding: AppUtils.edgeInsetsAll(allPadding: 3),
-                                child: ClipOval(
-                                  child: CachedNetworkImage(
-                                    imageUrl:
-                                        _homeProviderAd
-                                            .categoryItemList?[index]
-                                            .categoryImage ??
-                                        '',
-                                    imageBuilder:
-                                        (context, imageProvider) => Container(
-                                          decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                              image: imageProvider,
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                        ),
-                                    placeholder:
-                                        (context, url) => const Center(
-                                          child: CircularProgressIndicator(
-                                            color: AppColors.colorPrimary,
-                                            strokeWidth: 1.5,
-                                          ),
-                                        ),
-                                    errorWidget:
-                                        (context, url, error) => const Center(
-                                          child: Icon(
-                                            Icons.image_rounded,
-                                            size: 34,
-                                            color: AppColors.colorPrimary,
-                                          ),
-                                        ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      AppUtils.commonContainer(
-                        child: AppUtils.commonTextWidget(
-                          margin: AppUtils.edgeInsetsOnly(top: 5),
-                          text:
-                              _homeProviderAd
-                                  .categoryItemList?[index]
-                                  .categoryName ??
-                              '',
-                          textColor: AppColors.colorWhite,
-                          letterSpacing: 0.5,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ],
+        AppUtils.commonTextWidget(
+          text: ("Categories").toUpperCase() ?? "N/A",
+          fontSize: 16,
+          letterSpacing: 0.5,
+          textColor: AppColors.colorLightGrey,
+          fontWeight: FontWeight.w700,
+          textAlign: TextAlign.left,
         ),
-      ),
+
+        SizedBox(
+          height: 66,
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+            scrollDirection: Axis.horizontal,
+            itemCount: _homeProviderAd.categoryItemList.length ?? 0,
+            separatorBuilder: (_, __) => const SizedBox(width: 10),
+            itemBuilder: (context, i) => _CategoryChip(
+              item: _homeProviderAd.categoryItemList[i],
+              onTap: (){},
+            ),
+          ),
+        ),
+        const SizedBox(height: 10,)
+      ],
     );
   }
 
   Widget _trendingProductList(HomeProviderAd homeProvider) {
-    return (homeProvider.getHomeModel?.data?.trendingProducts?.length ?? 0) <= 0
+    return (homeProvider.trending.length ?? 0) <= 0
         ? AppUtils.commonSizedBox()
         : Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                AppUtils.commonTextWidget(
-                  text: "TRENDING PRODUCTS",
-                  fontSize: 16,
-                  letterSpacing: 0.5,
-                  textColor: AppColors.colorLightGrey,
-                  fontWeight: FontWeight.w700,
-                  textAlign: TextAlign.left,
+            _headerSectionWidget("TRENDING PRODUCTS", () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (context) => ProductListingScreen(
+                    isBackButtonAvailable: true,
+                    totViewTypeId: AppConstants.viewTypeTrending,
+
+                    categoryName: "Trending",
+                    isFromCategory: false,
+                  ),
                 ),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    foregroundColor: AppColors.colorLightGrey,
-                  ),
-                  child: Row(
-                    children: [
-                      AppUtils.commonTextWidget(
-                        margin: AppUtils.edgeInsetsOnly(right: 5),
-                        text: "See all",
-                        fontSize: 12,
-                        letterSpacing: 0.5,
-                        textColor: AppColors.colorLightGrey,
-                        fontWeight: FontWeight.w400,
-                      ),
-                      Icon(
-                        Icons.arrow_forward_ios,
-                        color: AppColors.colorLightGrey,
-                        size: 10,
-                      ),
-                    ],
-                  ),
-                  onPressed: () {
+              );
+            },),
+            const SizedBox(height: 10,),
+            SizedBox(
+              height: 230,
+              child: ListView.separated(
+                // shrinkWrap: true,
+                padding: const EdgeInsets.symmetric(horizontal: 0),
+                scrollDirection: Axis.horizontal,
+                itemCount: homeProvider.trending.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                itemBuilder: (context, i) => ProductCard(
+
+                  item: homeProvider.trending[i],
+                  onTap:  () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder:
-                            (context) => ProductListingScreen(
-                              isBackButtonAvailable: true,
-                              totViewTypeId: AppConstants.viewTypeTrending,
-
-                              categoryName: "Trending",
-                              isFromCategory: false,
-                            ),
+                            (context) => ProductDetailScreen(
+                          productId:
+                          homeProvider
+                              .trending[i].id,
+                        ),
                       ),
                     );
-                  },
-                ),
-              ],
-            ),
-            AppUtils.commonContainer(
-              height: 200,
-              // color: AppColors.colorWhite,
-              margin: AppUtils.edgeInsetsOnly(left: 10, top: 10),
-              width: double.infinity,
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                itemCount:
-                    homeProvider.getHomeModel?.data?.trendingProducts?.length,
-                // physics: NeverScrollableScrollPhysics(),
-                scrollDirection: Axis.horizontal,
-                // shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: AppUtils.edgeInsetsOnly(right: 20),
-                    child: SizedBox(
-                      // color: Colors.red,
-                      height: 140,
-                      width: 140,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          AppUtils.commonInkWell(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => ProductDetailScreen(
-                                        productId:
-                                            homeProvider
-                                                .getHomeModel
-                                                ?.data
-                                                ?.trendingProducts?[index]
-                                                .productId,
-                                      ),
-                                ),
-                              );
-                            },
-                            child: AppUtils.commonGlassmorphicContainer(
-                              height: 140,
-                              width: 140,
-
-                              // padding: AppUtils.edgeInsetsAll(allPadding: 20),
-                              // decoration:
-                              // AppUtils.commonBoxDecoration(
-                              //     shape: BoxShape.rectangle,
-                              //     boxShadow: [
-                              //       BoxShadow(
-                              //         color: AppColors
-                              //             .colorSecondary
-                              //             .withOpacity(0.1),
-                              //         spreadRadius: 1,
-                              //         blurRadius: 5,
-                              //         offset: Offset(0,
-                              //             4), // This is the bottom shadow offset
-                              //       ),
-                              //     ],
-                              //     // border: Border.all(
-                              //     //     color: AppColors.colorSecondary, width: 0.5),
-                              //     borderRadius:
-                              //     AppUtils.borderRadiusAll(
-                              //         raduis: 12),
-                              //     color: AppColors.colorWhite),
-                              child: ClipRRect(
-                                borderRadius: AppUtils.borderRadiusAll(
-                                  raduis: 12,
-                                ),
-                                child: Stack(
-                                  children: [
-                                    CachedNetworkImage(
-                                      imageUrl:
-                                          homeProvider
-                                              .getHomeModel
-                                              ?.data
-                                              ?.trendingProducts?[index]
-                                              .image ??
-                                          "",
-                                      imageBuilder:
-                                          (context, imageProvider) => Container(
-                                            decoration: BoxDecoration(
-                                              image: DecorationImage(
-                                                image: imageProvider,
-                                                fit: BoxFit.fill,
-                                              ),
-                                            ),
-                                          ),
-                                      placeholder:
-                                          (context, url) => Center(
-                                            child: CircularProgressIndicator(
-                                              color: AppColors.colorPrimary,
-                                              strokeWidth: 1.5,
-                                            ),
-                                          ),
-                                      errorWidget:
-                                          (context, url, error) => const Center(
-                                            child: Icon(
-                                              Icons.image_rounded,
-                                              size: 40,
-                                              color: AppColors.colorPrimary,
-                                            ),
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          AppUtils.commonContainer(
-                            margin: AppUtils.edgeInsetsOnly(left: 5, right: 5),
-                            child: AppUtils.commonTextWidget(
-                              margin: AppUtils.edgeInsetsOnly(top: 10),
-                              textAlign: TextAlign.left,
-                              text:
-                                  homeProvider
-                                      .getHomeModel
-                                      ?.data
-                                      ?.trendingProducts?[index]
-                                      .productName ??
-                                  "",
-                              textColor: AppColors.colorText,
-                              letterSpacing: 0.5,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 10,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+                  },),
               ),
             ),
+            const SizedBox(height: 15,),
           ],
         );
   }
 
   Widget _bestsellerProductList(HomeProviderAd homeProvider) {
-    return (homeProvider.getHomeModel?.data?.bestSellers?.length ?? 0) <= 0
+    return (homeProvider.bestSeller.length ?? 0) <= 0
         ? AppUtils.commonSizedBox()
         : Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                AppUtils.commonTextWidget(
-                  text: "BESTSELLER PRODUCTS",
-                  fontSize: 16,
-                  letterSpacing: 0.5,
-                  textColor: AppColors.colorLightGrey,
-                  fontWeight: FontWeight.w700,
-                  textAlign: TextAlign.left,
+            _headerSectionWidget("BESTSELLER PRODUCTS", () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (context) => ProductListingScreen(
+                    isBackButtonAvailable: true,
+                    totViewTypeId: AppConstants.viewTypeBestSeller,
+
+                    categoryName: "Best seller",
+                    isFromCategory: false,
+                  ),
                 ),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    foregroundColor: AppColors.colorLightGrey,
-                  ),
-                  child: Row(
-                    children: [
-                      AppUtils.commonTextWidget(
-                        margin: AppUtils.edgeInsetsOnly(right: 5),
-                        text: "See all",
-                        fontSize: 12,
-                        letterSpacing: 0.5,
-                        textColor: AppColors.colorLightGrey,
-                        fontWeight: FontWeight.w400,
-                      ),
-                      Icon(
-                        Icons.arrow_forward_ios,
-                        color: AppColors.colorLightGrey,
-                        size: 10,
-                      ),
-                    ],
-                  ),
-                  onPressed: () {
+              );
+            },),
+
+            const SizedBox(height: 10,),
+            SizedBox(
+              height: 230,
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: 0),
+                scrollDirection: Axis.horizontal,
+                itemCount: homeProvider.bestSeller.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                itemBuilder: (context, i) => ProductCard(
+                  item: homeProvider.bestSeller[i],
+                  onTap:  () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder:
-                            (context) => ProductListingScreen(
-                              isBackButtonAvailable: true,
-                              totViewTypeId: AppConstants.viewTypeBestSeller,
-                              categoryName: "Bestseller",
-                              isFromCategory: false,
-                            ),
+                            (context) => ProductDetailScreen(
+                          productId:
+                          homeProvider
+                              .bestSeller[i].id,
+                        ),
                       ),
                     );
-                  },
-                ),
-              ],
-            ),
-            AppUtils.commonContainer(
-              height: 200,
-              // color: AppColors.colorWhite,
-              margin: AppUtils.edgeInsetsOnly(left: 10, top: 10),
-              width: double.infinity,
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                itemCount: homeProvider.getHomeModel?.data?.bestSellers?.length,
-                // physics: NeverScrollableScrollPhysics(),
-                scrollDirection: Axis.horizontal,
-                // shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: AppUtils.edgeInsetsOnly(right: 20),
-                    child: SizedBox(
-                      // color: Colors.red,
-                      height: 140,
-                      width: 140,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          AppUtils.commonInkWell(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => ProductDetailScreen(
-                                        productId:
-                                            homeProvider
-                                                .getHomeModel
-                                                ?.data
-                                                ?.bestSellers?[index]
-                                                .productId,
-                                      ),
-                                ),
-                              );
-                            },
-                            child: AppUtils.commonGlassmorphicContainer(
-                              height: 140,
-                              width: 140,
-
-                              // padding: AppUtils.edgeInsetsAll(allPadding: 20),
-                              // decoration:
-                              // AppUtils.commonBoxDecoration(
-                              //     shape: BoxShape.rectangle,
-                              //     boxShadow: [
-                              //       BoxShadow(
-                              //         color: AppColors
-                              //             .colorSecondary
-                              //             .withOpacity(0.1),
-                              //         spreadRadius: 1,
-                              //         blurRadius: 5,
-                              //         offset: Offset(0,
-                              //             4), // This is the bottom shadow offset
-                              //       ),
-                              //     ],
-                              //     // border: Border.all(
-                              //     //     color: AppColors.colorSecondary, width: 0.5),
-                              //     borderRadius:
-                              //     AppUtils.borderRadiusAll(
-                              //         raduis: 12),
-                              //     color: AppColors.colorWhite),
-                              child: ClipRRect(
-                                borderRadius: AppUtils.borderRadiusAll(
-                                  raduis: 12,
-                                ),
-                                child: Stack(
-                                  children: [
-                                    CachedNetworkImage(
-                                      imageUrl:
-                                          homeProvider
-                                              .getHomeModel
-                                              ?.data
-                                              ?.bestSellers?[index]
-                                              .image ??
-                                          "",
-
-                                      imageBuilder:
-                                          (context, imageProvider) => Container(
-                                            decoration: BoxDecoration(
-                                              image: DecorationImage(
-                                                image: imageProvider,
-                                                fit: BoxFit.fill,
-                                              ),
-                                            ),
-                                          ),
-                                      placeholder:
-                                          (context, url) => Center(
-                                            child: CircularProgressIndicator(
-                                              color: AppColors.colorPrimary,
-                                              strokeWidth: 1.5,
-                                            ),
-                                          ),
-                                      errorWidget:
-                                          (context, url, error) => const Center(
-                                            child: Icon(
-                                              Icons.image_rounded,
-                                              size: 40,
-                                              color: AppColors.colorPrimary,
-                                            ),
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          AppUtils.commonContainer(
-                            margin: AppUtils.edgeInsetsOnly(left: 5, right: 5),
-                            child: AppUtils.commonTextWidget(
-                              margin: AppUtils.edgeInsetsOnly(top: 10),
-                              textAlign: TextAlign.left,
-                              text:
-                                  homeProvider
-                                      .getHomeModel
-                                      ?.data
-                                      ?.bestSellers?[index]
-                                      .productName ??
-                                  "",
-                              textColor: AppColors.colorText,
-                              letterSpacing: 0.5,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 10,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+                  },),
               ),
             ),
           ],
@@ -726,194 +371,235 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
   }
 
   Widget _newArrivalProductList(HomeProviderAd homeProvider) {
-    return (homeProvider.getHomeModel?.data?.newArrivals?.length ?? 0) <= 0
+    return (homeProvider.newArrival.length ?? 0) <= 0
         ? AppUtils.commonSizedBox()
         : Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                AppUtils.commonTextWidget(
-                  text: "NEW ARRIVAL PRODUCTS",
-                  fontSize: 16,
-                  letterSpacing: 0.5,
-                  textColor: AppColors.colorLightGrey,
-                  fontWeight: FontWeight.w700,
-                  textAlign: TextAlign.left,
-                ),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    foregroundColor: AppColors.colorLightGrey,
-                  ),
-                  child: Row(
-                    children: [
-                      AppUtils.commonTextWidget(
-                        margin: AppUtils.edgeInsetsOnly(right: 5),
-                        text: "See all",
-                        fontSize: 12,
-                        letterSpacing: 0.5,
-                        textColor: AppColors.colorLightGrey,
-                        fontWeight: FontWeight.w400,
-                      ),
-                      Icon(
-                        Icons.arrow_forward_ios,
-                        color: AppColors.colorLightGrey,
-                        size: 10,
-                      ),
-                    ],
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (context) => ProductListingScreen(
-                              isBackButtonAvailable: true,
-                              totViewTypeId: AppConstants.viewTypeNewArrival,
-                              categoryName: "New Arrival",
-                              isFromCategory: false,
-                            ),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-            GridView.builder(
-              padding: EdgeInsets.zero,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: homeProvider.getHomeModel?.data?.newArrivals?.length,
-              shrinkWrap: true,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 15,
-                mainAxisSpacing: 20,
-                mainAxisExtent: 230,
-
-                // childAspectRatio: 0.75
-              ),
-              itemBuilder: (context, index) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AppUtils.commonInkWell(
-                      onTap: () {
-                        Navigator.push(
+            _headerSectionWidget("NEW ARRIVAL PRODUCTS", () {
+              Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder:
-                                (context) => ProductDetailScreen(
-                                  productId:
-                                      homeProvider
-                                          .getHomeModel
-                                          ?.data
-                                          ?.newArrivals?[index]
-                                          .productId,
+                                (context) => ProductListingScreen(
+                                  isBackButtonAvailable: true,
+                                  totViewTypeId: AppConstants.viewTypeNewArrival,
+                                  categoryName: "New Arrival",
+                                  isFromCategory: false,
                                 ),
                           ),
                         );
-                      },
-                      child: AppUtils.commonContainer(
-                        constraints: BoxConstraints(
-                          maxHeight: 180,
-                          minHeight: 150,
-                        ),
-                        decoration: AppUtils.commonBoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.colorSecondary.withOpacity(0.1),
-                              spreadRadius: 1,
-                              blurRadius: 5,
-                              offset: Offset(
-                                0,
-                                4,
-                              ), // This is the bottom shadow offset
-                            ),
-                          ],
-                          // border: Border.all(
-                          //     color: AppColors.colorDarkGrey, width: 0.5),
-                          borderRadius: AppUtils.borderRadiusAll(raduis: 12),
-                          color: AppColors.colorWhite,
-                        ),
-                        child: ClipRRect(
-                          borderRadius: AppUtils.borderRadiusAll(raduis: 12),
-                          child: Stack(
-                            children: [
-                              CachedNetworkImage(
-                                fit: BoxFit.cover,
-                                imageUrl:
-                                    homeProvider
-                                        .getHomeModel
-                                        ?.data
-                                        ?.newArrivals?[index]
-                                        .image ??
-                                    "",
-                                imageBuilder:
-                                    (context, imageProvider) => Container(
-                                      decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                          image: imageProvider,
-                                          fit: BoxFit.contain,
+            },),
+            const SizedBox(height: 10,),
+            SizedBox(
+              height: 230,
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: 0),
+                scrollDirection: Axis.horizontal,
+                itemCount: homeProvider.newArrival.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                itemBuilder: (context, i) => ProductCard(
+                  item: homeProvider.newArrival[i],
+                  onTap:  () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => ProductDetailScreen(
+                                          productId:
+                                              homeProvider
+                                                  .newArrival[i].id,
                                         ),
-                                      ),
-                                    ),
-                                placeholder:
-                                    (context, url) => const Center(
-                                      child: CircularProgressIndicator(
-                                        color: AppColors.colorPrimary,
-                                        strokeWidth: 1.5,
-                                      ),
-                                    ),
-                                errorWidget:
-                                    (context, url, error) => const Center(
-                                      child: Icon(
-                                        Icons.image_rounded,
-                                        size: 40,
-                                        color: AppColors.colorPrimary,
-                                      ),
-                                    ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    AppUtils.commonTextWidget(
-                      margin: AppUtils.edgeInsetsOnly(
-                        right: 5,
-                        left: 5,
-                        top: 10,
-                      ),
-                      text:
-                      homeProvider
-                          .getHomeModel
-                          ?.data
-                          ?.newArrivals?[index]
-                          .productName ??
-                          "",
-                      fontSize: 12,
-                      letterSpacing: 0.5,
-                      textColor: AppColors.colorText,
-                      fontWeight: FontWeight.w700,
-                    ),
-                    // Padding(
-                    //   padding: AppUtils.edgeInsetsOnly(right: 5, left: 5, top: 2),
-                    //   child: RatingBarIndicator(
-                    //       rating: 2.5,
-                    //       itemCount: 5,
-                    //       itemSize: 12,
-                    //       unratedColor: AppColors.colorLightGrey,
-                    //       itemBuilder: (context, _) => const Icon(
-                    //             Icons.star,
-                    //             color: AppColors.colorPrimary,
-                    //           )),
-                    // ),
-                  ],
-                );
-              },
+                                  ),
+                                );
+                  },),
+              ),
             ),
+
           ],
         );
   }
 }
+
+class _BannerCarousel extends StatelessWidget {
+  final PageController controller;
+  final List<Banners> items;
+  final int index;
+  final void Function(Banners) onTap;
+
+  const _BannerCarousel({
+    required this.controller,
+    required this.items,
+    required this.index,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (items.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 220,
+          child: PageView.builder(
+            controller: controller,
+            itemCount: items.length,
+            itemBuilder: (context, i) {
+              final b = items[i];
+              return GestureDetector(
+                onTap: () => onTap(b),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Image.network(b.bannerImage ?? "", fit: BoxFit.cover),
+                        // vignette
+                        Positioned.fill(
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.bottomCenter,
+                                end: Alignment.topCenter,
+                                colors: [
+                                  Colors.black.withOpacity(0.45),
+                                  Colors.transparent,
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        // label plate (glass)
+                        Positioned(
+                          left: 12,
+                          right: 12,
+                          bottom: 12,
+                          child: AppUtils.commonGlassmorphicContainer(
+                            blur: 18,
+
+                            // padding: EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 10,
+                              ),
+
+                              alignment: Alignment.centerLeft,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  (b.bannerTitle ?? "").textWidget(
+                                    maxLine: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    fontWeight: FontWeight.w700,
+                                    textAlign: TextAlign.start,
+                                    fontSize: 16,
+                                  ),
+                                  if (b.bannerDescription != null) ...[
+                                    const SizedBox(height: 2),
+                                    (b.bannerDescription ?? "").textWidget(
+                                      maxLine: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      fontSize: 14,
+                                      textAlign: TextAlign.start,
+                                      color: AppColors.colorWhite.withOpacity(
+                                        0.50,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 10),
+        _Dots(count: items.length, index: index),
+      ],
+    );
+  }
+}
+
+class _Dots extends StatelessWidget {
+  final int count;
+  final int index;
+
+  const _Dots({required this.count, required this.index});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(count, (i) {
+        final active = i == index;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          margin: const EdgeInsets.symmetric(horizontal: 3),
+          height: 6,
+          width: active ? 16 : 6,
+          decoration: BoxDecoration(
+            color: active ? AppColors.colorSecondary : Colors.white,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        );
+      }),
+    );
+  }
+}
+
+class _CategoryChip extends StatelessWidget {
+  final Categories item;
+  final VoidCallback onTap;
+  const _CategoryChip({required this.item, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Frost(
+      blur: 14,
+      opacity: .22,
+      radius: 999,
+      frame: Frost.outlineBorder(),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 14,
+              backgroundImage: NetworkImage(item.categoryImage ?? ""),
+            ),
+            const SizedBox(width: 8),
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 140),
+              child: Text(
+                item.categoryName?.toUpperCase() ?? "",
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  letterSpacing: .6,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.colorWhite
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+

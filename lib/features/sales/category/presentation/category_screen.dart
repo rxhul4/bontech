@@ -35,7 +35,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
     // TODO: implement initState
     super.initState();
     _categoryProvider = Provider.of<CategoryProvider>(context,listen: false);
-    _categoryProvider.apiCallGetAllCategory();
+    _categoryProvider.apiCallGetAllCategoryForSalesMan();
   }
 
 

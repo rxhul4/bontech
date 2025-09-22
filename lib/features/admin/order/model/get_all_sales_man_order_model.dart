@@ -75,7 +75,7 @@ class SaleOrderListItem {
   String? orderDate;
   String? totOrderStatusId;
   String? totOrderStatus;
-  int? totalAmount;
+  num? totalAmount;
   String? trackingNo;
   String? createdOn;
   String? productId;
@@ -84,8 +84,8 @@ class SaleOrderListItem {
   String? categoryId;
   String? categoryName;
   String? productSkuId;
-  int? quantity;
-  int? amount;
+  num? quantity;
+  num? amount;
   List<SalesOrderDetails>? salesOrderDetails;
 
   SaleOrderListItem(
@@ -178,8 +178,8 @@ class SalesOrderDetails {
   String? size;
   String? color;
   String? material;
-  int? price;
-  int? quantity;
+  num? price;
+  num? quantity;
   String? totOrderStatusId;
   String? totOrderStatus;
 

@@ -33,7 +33,7 @@ class ProductListingScreen extends StatefulWidget {
     this.isAdmin,
     this.isFromCategory,
     this.isFromOrder,
-    required this.isBackButtonAvailable
+    required this.isBackButtonAvailable,
   });
 
   @override
@@ -63,8 +63,10 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
           appBar: PreferredSize(
             preferredSize: Size(double.infinity, appBarSize),
             child: AppBarWidget(
-              onBackPressed: (){
-                widget.isFromOrder == true ?  Navigator.pop(context,true) :  Navigator.pop(context,false);
+              onBackPressed: () {
+                widget.isFromOrder == true
+                    ? Navigator.pop(context, true)
+                    : Navigator.pop(context, false);
               },
               onPressedSearch: () {
                 widget.isFromCategory == true
@@ -90,26 +92,32 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
               10.toSizedBoxHeight,
               widget.isFromCategory == true
                   ? Expanded(
-                    child:
-                        NotificationListener(
-                          onNotification: (ScrollNotification scrollInfo) {
-                            if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent && !productProvider.isLoading) {
-                             productProvider.fetchProductListForCategory(widget.categoryId);
-                            }
-                            return false;
-                          },
-                          child: productProvider.isLoading
+                    child: NotificationListener(
+                      onNotification: (ScrollNotification scrollInfo) {
+                        if (scrollInfo.metrics.pixels ==
+                                scrollInfo.metrics.maxScrollExtent &&
+                            !productProvider.isLoading) {
+                          productProvider.fetchProductListForCategory(
+                            widget.categoryId,
+                          );
+                        }
+                        return false;
+                      },
+                      child:
+                          productProvider.isLoading
                               ? CircleLoadingIndicatorWidget()
-                              : productProvider.categoryProduct == [] || productProvider.categoryProduct.isEmpty
+                              : productProvider.categoryProduct == [] ||
+                                  productProvider.categoryProduct.isEmpty
                               ? AppUtils.noDataWidget()
                               : GridView.builder(
-                            cacheExtent: 1000,
+                                cacheExtent: 1000,
                                 physics: BouncingScrollPhysics(),
                                 padding: EdgeInsets.symmetric(
                                   horizontal: 16,
                                   vertical: 10,
                                 ),
-                                itemCount: productProvider.categoryProduct.length,
+                                itemCount:
+                                    productProvider.categoryProduct.length,
                                 shrinkWrap: true,
                                 gridDelegate:
                                     const SliverGridDelegateWithFixedCrossAxisCount(
@@ -119,27 +127,32 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
                                       mainAxisExtent: 270,
                                     ),
                                 itemBuilder: (context, index) {
-
                                   return _listItemForCategory(
                                     index: index,
-                                    item: productProvider.categoryProduct[index],
+                                    item:
+                                        productProvider.categoryProduct[index],
                                   );
                                 },
                               ),
-                        ),
+                    ),
                   )
                   : Expanded(
-                    child:
-                        NotificationListener(
-                          onNotification: (ScrollNotification scrollInfo) {
-                            if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent && !productProvider.isLoading) {
-                              productProvider.fetchProductListForCategory(widget.totViewTypeId);
-                            }
-                            return false;
-                          },
-                          child: productProvider.isFetching
+                    child: NotificationListener(
+                      onNotification: (ScrollNotification scrollInfo) {
+                        if (scrollInfo.metrics.pixels ==
+                                scrollInfo.metrics.maxScrollExtent &&
+                            !productProvider.isLoading) {
+                          productProvider.fetchProductListForCategory(
+                            widget.totViewTypeId,
+                          );
+                        }
+                        return false;
+                      },
+                      child:
+                          productProvider.isFetching
                               ? CircleLoadingIndicatorWidget()
-                              : productProvider.totProduct.isEmpty || productProvider.totProduct == []
+                              : productProvider.totProduct.isEmpty ||
+                                  productProvider.totProduct == []
                               ? AppUtils.noDataWidget()
                               : GridView.builder(
                                 physics: BouncingScrollPhysics(),
@@ -164,7 +177,7 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
                                   );
                                 },
                               ),
-                        ),
+                    ),
                   ),
             ],
           ),
@@ -173,10 +186,7 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
     );
   }
 
-  Widget _listItemForCategory({
-    required int index,
-    required ListItem? item,
-  }) {
+  Widget _listItemForCategory({required int index, required ListItem? item}) {
     return InkWell(
       borderRadius: BorderRadius.circular(24),
       onTap: () {
@@ -217,12 +227,9 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
                 Expanded(
                   child: Align(
                     alignment: Alignment.center,
-                    child:  CachedNetworkImage(imageUrl: item?.imagePath ?? "", fit: BoxFit.cover,placeholder: (context, url) {
-                      return const CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.colorSecondary),
-                        strokeWidth: 2,
-                      );
-                    },fadeInDuration: Duration.zero,memCacheHeight: 400,)
+                    child: AppUtils.cacheNetworkImage(
+                      item?.imagePath ?? "",
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),

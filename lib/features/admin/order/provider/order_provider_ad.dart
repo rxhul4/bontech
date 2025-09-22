@@ -36,6 +36,24 @@ class OrderProviderAd extends ChangeNotifier {
 
   bool get hasMore => _hasMore;
 
+  bool _isLoadingActive = false;
+  bool _isLoadingPast = false;
+
+  int _activePage = 1;
+  int _pastPage = 1;
+
+  bool _hasMoreActive = true;
+  bool _hasMorePast = true;
+
+  bool get isLoadingActive => _isLoadingActive;
+  bool get isLoadingPast => _isLoadingPast;
+
+  int get activePage => _activePage;
+  int get pastPage => _pastPage;
+
+  bool get hasMoreActive => _hasMoreActive;
+  bool get hasMorePast => _hasMorePast;
+
   GetDistributorOrderModel? getDistributorOrderModel;
   GetDistributorOrderByIdModel? getDistributorOrderByIdModel;
   GetAllSalesmanOrderModel? getAllSalesmanOrderModel;
@@ -65,67 +83,102 @@ class OrderProviderAd extends ChangeNotifier {
 
   String? orderStatus;
 
-  int _totalAmount = 0;
-  int get totalAmount => _totalAmount;
+  num _totalAmount = 0;
+  num get totalAmount => _totalAmount;
+
+
+  Future<void> fetchMyOrderList(bool isActive) async {
+    if (isActive) {
+      if (_isLoadingActive || !_hasMoreActive) return;
+      _isLoadingActive = true;
+    } else {
+      if (_isLoadingPast || !_hasMorePast) return;
+      _isLoadingPast = true;
+    }
+    Future.microtask(() => notifyListeners()); // 👈 this will trigger loader
+
+    try {
+      int currentPage = isActive ? _activePage : _pastPage;
+
+      List<ListItem> newOrderList = await apiCallGetMyOrder(
+        pageNo: currentPage,
+        isActive: isActive,
+      );
+
+      if (newOrderList.isEmpty) {
+        isActive ? _hasMoreActive = false : _hasMorePast = false;
+      } else {
+        if (newOrderList.length < 10) {
+          isActive ? _hasMoreActive = false : _hasMorePast = false;
+        }
+        if (isActive) {
+          _myOrderList.addAll(newOrderList);
+          _activePage++;
+        } else {
+          _myPastOrderList.addAll(newOrderList);
+          _pastPage++;
+        }
+      }
+    } catch (e) {
+      print("something went wrong: $e");
+    } finally {
+      if (isActive) {
+        _isLoadingActive = false;
+      } else {
+        _isLoadingPast = false;
+      }
+      notifyListeners();
+    }
+  }
 
 
 
-  fetchMyOrderList(bool? isActive)async{
+  fetchSalesOrderList(bool isActive)async{
 
-    if(_isLoading || !_hasMore)return;
-    _isLoading = true;
+    if (isActive) {
+      if (_isLoadingActive || !_hasMoreActive) return;
+      _isLoadingActive = true;
+    } else {
+      if (_isLoadingPast || !_hasMorePast) return;
+      _isLoadingPast = true;
+    }
+    Future.microtask(() => notifyListeners());
 
     try{
-      List<ListItem> newOrderList = await apiCallGetMyOrder(pageNo: _page,isActive: isActive);
+      int currentPage = isActive ? _activePage : _pastPage;
 
+      List<SaleOrderListItem> newOrderList = await apiCallGetAllSalesmanOrder(pageNo: currentPage,isActive: isActive);
 
       if(newOrderList.isEmpty){
-        _hasMore = false;
+        isActive ? _hasMoreActive = false : _hasMorePast = false;
+
 
       }else{
         if(newOrderList.length < 10){
-          _hasMore = false;
+          isActive ? _hasMoreActive = false : _hasMorePast = false;
         }
-        isActive ==true ? _myOrderList.addAll(newOrderList) : _myPastOrderList.addAll(newOrderList);
-        _page++;
+        if(isActive == true) {
+          _salesOrderList.addAll(newOrderList);
+          _activePage++;
+        }else{
+          _pastSalesOrderList.addAll(newOrderList);
+          _pastPage++;
+        }
       }
     }catch(e){
       print("something went wrong");
     }finally{
-      _isLoading = false;
+      if (isActive) {
+        _isLoadingActive = false;
+      } else {
+        _isLoadingPast = false;
+      }
       notifyListeners();
     }
 
   }
 
 
-  fetchSalesOrderList(bool? isActive)async{
-
-    if(_isLoading || !_hasMore)return;
-    _isLoading = true;
-
-    try{
-      List<SaleOrderListItem> newOrderList = await apiCallGetAllSalesmanOrder(pageNo: _page,isActive: isActive);
-
-      if(newOrderList.isEmpty){
-        _hasMore = false;
-
-
-      }else{
-        if(newOrderList.length < 10){
-          _hasMore = false;
-        }
-        isActive == true ? _salesOrderList.addAll(newOrderList) : _pastSalesOrderList.addAll(newOrderList);
-        _page++;
-      }
-    }catch(e){
-      print("something went wrong");
-    }finally{
-      _isLoading = false;
-      notifyListeners();
-    }
-
-  }
 
 
 
@@ -136,8 +189,12 @@ class OrderProviderAd extends ChangeNotifier {
     _pastSalesOrderList.clear();
     _salesOrderList.clear();
     orderStatus = "";
-    _hasMore = true;
-    _page =1;
+    _hasMoreActive = true;
+    _hasMorePast = true;
+    _isLoadingActive = false;
+    _isLoadingPast = false;
+    _activePage = 1;
+    _pastPage = 1;
   }
 
 
@@ -210,11 +267,11 @@ class OrderProviderAd extends ChangeNotifier {
   //
   // }
 
-  int calculateTotalAmount(List<SalesOrderProductList> salesOrderDetails){
-    int total = 0;
+  num calculateTotalAmount(List<SalesOrderProductList> salesOrderDetails){
+    num total = 0;
     for (var product in salesOrderDetails) {
-      int price = product.price ?? 0;
-      int qty = product.quantity ?? 0;
+      num price = product.price ?? 0;
+      num qty = product.quantity ?? 0;
       total += price * qty;
       }
       print("totalAmount$total");
@@ -423,9 +480,8 @@ class OrderProviderAd extends ChangeNotifier {
     String? orderId,
     String? salesManId,
     String? orderStatusId,
-    bool? isAcceptAndOrder,
   }) async {
-    _isUploading = true;
+    _isLoading = true;
     notifyListeners();
     try {
       Map<String, dynamic> body = {
@@ -439,9 +495,6 @@ class OrderProviderAd extends ChangeNotifier {
         json.decode(response),
       );
       if(changeOrderStatusModel?.isError == false && changeOrderStatusModel?.isValidationFailed ==false){
-        if(isAcceptAndOrder == true ){
-          await apiCallAddOrderAD();
-        }
         await apiCallAllSalesManOrderDetailById(orderId);
 
       }
@@ -449,7 +502,7 @@ class OrderProviderAd extends ChangeNotifier {
     } catch (e) {
       print('catch at get Change OrderStatus ${e}');
     }
-    _isUploading = false;
+    _isLoading = false;
     notifyListeners();
     return changeOrderStatusModel;
   }

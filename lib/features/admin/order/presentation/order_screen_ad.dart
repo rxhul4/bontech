@@ -48,67 +48,59 @@ class _OrderScreenAdState extends State<OrderScreenAd> {
           ),
           body: Column(
             children: [
-              20.toSizedBoxHeight,
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  InkWell(
-                    borderRadius: BorderRadius.circular(8),
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => OrderListScreen(title: "My Order",isSalesOrderScreen: false,),));
-                    },
-                    child: AppUtils.commonContainer(
-                      height: 130,
-                      width: 130,
-                      // padding: EdgeInsets.all(20),
-                      decoration: AppUtils.commonGradientBoxDecoration(
-                        borderRadius: 8,
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => OrderListScreen(title: "My Order",isSalesOrderScreen: false,),));
+                },
+                child: AppUtils.commonContainer(
+                  margin: EdgeInsets.symmetric(horizontal: 16,vertical: 10),
+                  height: 60,
+                  width: double.infinity,
+                  // padding: EdgeInsets.all(20),
+                  decoration: AppUtils.commonGradientBoxDecoration(
+                    borderRadius: 8,
 
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.shopping_cart,color: AppColors.colorWhite,size: 34 ,),
-                          'My Order'.textWidget(
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      'My Order'.textWidget(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                        color: AppColors.colorWhite
+                      )
+                    ],
+                  )
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => OrderListScreen(title: "Sales Order",isSalesOrderScreen: true,),));
+                },
+                child: AppUtils.commonContainer(
+                    margin: EdgeInsets.symmetric(horizontal: 16,vertical: 10),
+                    height: 60,
+                    width: double.infinity,
+                    // padding: EdgeInsets.all(20),
+                    decoration: AppUtils.commonGradientBoxDecoration(
+                      borderRadius: 8,
+
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        'Sales Order'.textWidget(
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
                             color: AppColors.colorWhite
-                          )
-                        ],
-                      )
-                    ),
-                  ),
-                  InkWell(
-                    borderRadius: BorderRadius.circular(8),
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => OrderListScreen(title: "Sales Order",isSalesOrderScreen: true,),));
-                    },
-                    child: AppUtils.commonContainer(
-                      height: 130,
-                        width: 130,
-                        // padding: EdgeInsets.all(20),
-                        decoration: AppUtils.commonGradientBoxDecoration(
-                          borderRadius: 8,
-
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.local_shipping,color: AppColors.colorWhite,size: 34 ,),
-                            'Sales Order'.textWidget(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                                color: AppColors.colorWhite
-                            )
-                          ],
                         )
-                    ),
-                  ),
-
-                ],
+                      ],
+                    )
+                ),
               ),
+
             ],
           ),
         );

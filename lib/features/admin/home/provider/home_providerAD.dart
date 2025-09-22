@@ -7,6 +7,8 @@ import 'package:sales_app_redesign/core/storage/preference_helper.dart';
 import 'package:sales_app_redesign/core/utils/app_utils.dart';
 import 'package:sales_app_redesign/features/admin/home/model/get_home_model.dart';
 
+import '../model/product_card_model.dart';
+
 class HomeProviderAd extends ChangeNotifier {
   bool _isFetching = false;
   bool _isLoading = false;
@@ -24,10 +26,11 @@ class HomeProviderAd extends ChangeNotifier {
   GetHomeModel? getHomeModel;
 
   //variable List
-  List<Categories>? categoryItemList = [];
-  // List<BestSellers>? bestSellerProductList = [];
-  // List<TrendingProducts>? trendingProductList = [];
-  // List<NewArrivals>? newArrivalProductList = [];
+  List<Categories> categoryItemList = [];
+  List<ProductItem> productCard = [];
+  List<ProductItem> trending = [];
+  List<ProductItem> bestSeller = [];
+  List<ProductItem> newArrival = [];
   List<Banners>? bannerList = [];
 
   int currentIndex = 0;
@@ -54,7 +57,26 @@ class HomeProviderAd extends ChangeNotifier {
         //     getHomeModel?.data?.products?.bestSellerProducts?.toList();
         // trendingProductList =
         //     getHomeModel?.data?.products?.trandingProducts?.toList();
-        categoryItemList = getHomeModel?.data?.categories?.toList();
+        if(getHomeModel?.data?.categories != null){
+          categoryItemList = getHomeModel?.data?.categories?.toList() ?? [];
+        }
+
+        trending = getHomeModel?.data?.trendingProducts
+            ?.map((e) => ProductItem.fromJson(e.toJson()))
+            .toList()
+            ?? [];
+
+        bestSeller = getHomeModel?.data?.bestSellers
+            ?.map((e) => ProductItem.fromJson(e.toJson()))
+            .toList()
+            ?? [];
+        newArrival= getHomeModel?.data?.newArrivals
+            ?.map((e) => ProductItem.fromJson(e.toJson()))
+            .toList()
+            ?? [];
+
+
+
         bannerList = getHomeModel?.data?.banners?.toList();
       }
       print('yooooooooooo $response');

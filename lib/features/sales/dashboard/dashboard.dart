@@ -12,7 +12,6 @@ import 'package:sales_app_redesign/features/sales/profile/presentation/profile_s
 
 import '../../../core/common_statefull_widget/app_scaffold.dart';
 
-int cartItemCount = 0;
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});

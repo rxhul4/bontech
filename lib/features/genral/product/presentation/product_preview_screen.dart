@@ -5,6 +5,7 @@ import 'package:sales_app_redesign/core/common_statefull_widget/app_scaffold.dar
 import 'package:sales_app_redesign/core/utils/app_colors.dart';
 import 'package:sales_app_redesign/core/utils/app_extension.dart';
 import 'package:sales_app_redesign/core/utils/app_utils.dart';
+import 'package:sales_app_redesign/features/genral/product/model/get_product_by_productId_model.dart';
 import 'package:sales_app_redesign/features/genral/product/model/get_product_by_productid.dart' as details_res;
 
 class ProductPreviewScreen extends StatefulWidget {
@@ -12,18 +13,17 @@ class ProductPreviewScreen extends StatefulWidget {
     super.key,
     this.images,
     this.image,
-    this.color,
-    this.size,
-    this.material,
-    this.description
+    this.description,
+    this.product,
+    this.selectedVariant
   });
 
   final List<String>? images;
   String? image;
-  final String? color;
-  final String? material;
-  final String? size;
   final String? description;
+  Product? product;
+  Map<String, VariantOption>? selectedVariant;
+
 
 
   @override
@@ -37,9 +37,6 @@ class _ProductPreviewScreenState extends State<ProductPreviewScreen> {
   @override
   void initState() {
     super.initState();
-    if (kDebugMode) {
-      print('logcat :: product info => ${widget.color}');
-    }
   }
 
   @override
@@ -71,7 +68,7 @@ class _ProductPreviewScreenState extends State<ProductPreviewScreen> {
   }
 
   Widget _closeIconView() {
-    print("-----------Data${widget.color}");
+    // print("-----------Data${widget.color}");
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,23 +103,11 @@ class _ProductPreviewScreenState extends State<ProductPreviewScreen> {
           child: Padding(
             padding: AppUtils.edgeInsetsOnly(left: 20, right: 20),
             child: Column(
-              children: [
-                _commonViewSideOption(
-                    title: '',
-                    value: '',
-                    boxColor: HexColor.fromHex(
-                      widget.color ?? "",
-                    ),),
-                16.toSizedBoxHeight,
-                _commonViewSideOption(
-                    title: 'Size',
-                    value: (widget.size ?? 'N/A')),
-                16.toSizedBoxHeight,
-                _commonViewSideOption(
-                    title: 'Material',
-                    value:
-                        (widget.material ?? 'N/A')),
-              ],
+              children: widget.selectedVariant!.entries.map((entry) {
+                final key = entry.key;
+                final value = entry.value;
+                return _commonViewSideOption(title: key, value: value.name ?? "");
+              },).toList(),
             ),
           ),
         ),
@@ -135,6 +120,8 @@ class _ProductPreviewScreenState extends State<ProductPreviewScreen> {
     return Container(
       width: 85,
       height: 110,
+      padding: EdgeInsets.symmetric(vertical: 10),
+      margin: EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         color: boxColor ?? AppColors.colorLightGrey,

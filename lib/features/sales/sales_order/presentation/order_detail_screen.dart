@@ -23,6 +23,7 @@ import 'package:sales_app_redesign/features/admin/order/model/get_sales_man_orde
     as slOd;
 import 'package:sales_app_redesign/features/admin/order/model/get_sales_man_order_by_id_model.dart';
 import 'package:sales_app_redesign/features/admin/order/provider/order_provider_ad.dart';
+import 'package:sales_app_redesign/features/genral/product/model/get_product_by_productId_model.dart';
 import 'package:sales_app_redesign/features/genral/product/presentation/product_listing_page.dart';
 import 'package:sales_app_redesign/features/sales/sales_order/sales_order_provider/SalesOrderProvider.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
@@ -40,12 +41,12 @@ class SalesOrderOrderDetailsScreen extends StatefulWidget {
 }
 
 class _SalesOrderOrderDetailsScreenState extends State<SalesOrderOrderDetailsScreen> {
-  late SalesOrderProvider _orderProviderAd;
+  late OrderProviderAd _orderProviderAd;
 
   @override
   void initState() {
     super.initState();
-    _orderProviderAd = Provider.of<SalesOrderProvider>(context, listen: false);
+    _orderProviderAd = Provider.of<OrderProviderAd>(context, listen: false);
     _orderProviderAd.apiCallAllSalesManOrderDetailById(widget.orderId);
 
   }
@@ -76,7 +77,7 @@ class _SalesOrderOrderDetailsScreenState extends State<SalesOrderOrderDetailsScr
           body: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             child:
-                orderDetails.isFetching
+                orderDetails.isFetching == true
                     ? CircleLoadingIndicatorWidget()
                     : Column(
                       children: [
@@ -105,7 +106,7 @@ class _SalesOrderOrderDetailsScreenState extends State<SalesOrderOrderDetailsScr
                                 color: AppColors.colorWhite,
                               ),
                               5.toSizedBoxHeight,
-                              _orderList(
+                              _salesOrderList(
                                 orderDetails
                                     .getAllSalesmanOrderByIdModel
                                     ?.data,
@@ -123,19 +124,19 @@ class _SalesOrderOrderDetailsScreenState extends State<SalesOrderOrderDetailsScr
     );
   }
 
-
-  Widget _orderList(slOd.Data? orderData) {
+  Widget _salesOrderList(slOd.Data? orderData) {
     return (orderData?.salesOrderDetails ?? []).isEmpty
         ? const Padding(padding: EdgeInsets.all(10.0), child: NoDataWidget())
         : ListView.builder(
-          itemCount: (orderData?.salesOrderDetails ?? []).length,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemBuilder: (context, index) {
-            slOd.SalesOrderProductList? item = orderData?.salesOrderDetails?[index];
-            return _listItemSalesOrderItem(item);
-          },
-        );
+      itemCount: (orderData?.salesOrderDetails ?? []).length,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemBuilder: (context, index) {
+        slOd.SalesOrderProductList? item =
+        orderData?.salesOrderDetails?[index];
+        return _listItemSalesOrderItem(item);
+      },
+    );
   }
 
   Widget _salesOrderInfoView(slOd.Data? orderData) {
@@ -232,6 +233,7 @@ class _SalesOrderOrderDetailsScreenState extends State<SalesOrderOrderDetailsScr
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     flex: 3,
@@ -243,7 +245,7 @@ class _SalesOrderOrderDetailsScreenState extends State<SalesOrderOrderDetailsScr
                     ),
                   ),
 
-                  'Delivered Qty :'.richTextView(
+                  item?.deliveredQuantity?.toInt()  == 0 ?  SizedBox() : 'Delivered Qty :'.richTextView(
                     textSpanList: [
                       const WidgetSpan(child: SizedBox(width: 3)),
                       TextSpan(
@@ -261,65 +263,108 @@ class _SalesOrderOrderDetailsScreenState extends State<SalesOrderOrderDetailsScr
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Expanded(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        2.toSizedBoxHeight,
-                        'Qty :'.richTextView(
-                          textSpanList: [
-                            const WidgetSpan(child: SizedBox(width: 3)),
-                            TextSpan(
-                              text: '${item?.quantity?.toInt()}',
-                              style: const TextStyle(
-                                color: AppColors.colorWhite,
-                                fontWeight: FontWeight.bold,
-                              ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      2.toSizedBoxHeight,
+                      'Qty :'.richTextView(
+                        textSpanList: [
+                          const WidgetSpan(child: SizedBox(width: 3)),
+                          TextSpan(
+                            text: '${item?.quantity?.toInt()}',
+                            style: const TextStyle(
+                              color: AppColors.colorWhite,
+                              fontWeight: FontWeight.bold,
                             ),
-                          ],
-                        ),
-                        2.toSizedBoxHeight,
-                        ' | Side :'.richTextView(
-                          textSpanList: [
-                            const WidgetSpan(child: SizedBox(width: 3)),
-                            TextSpan(
-                              text: item?.size ?? 'N/A',
-                              style: const TextStyle(
-                                color: AppColors.colorWhite,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ],
               ),
               5.toSizedBoxHeight,
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Expanded(
-                    child: (item?.material ?? 'N/A').textWidget(
-                      fontWeight: FontWeight.w400,
-                      fontFamily: AppConstants.fontFamilyRoboto,
-                      fontSize: 13,
-                      color: AppColors.colorWhite,
+                  if ((item?.productVariant?.isNotEmpty ?? false))
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: item!.productVariant!.entries.map((entry) {
+                        final key = entry.key;
+                        final value = entry.value;
+
+                        return '$key : '.richTextView(
+                          fontFamily: AppConstants.fontFamilyPoppins,
+                          fontSize: fontSizeNormal,
+                          color: AppColors.colorLightGrey,
+                          textSpanList: [
+                            const WidgetSpan(child: SizedBox(width: 2)),
+                            TextSpan(
+                              text: value.name ?? 'N/A',
+                              style: TextStyle(
+                                color: AppColors.colorWhite,
+                                fontSize: fontSizeSmall,
+                                fontFamily: AppConstants.fontFamilyPoppins,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        );
+                      }).toList(),
                     ),
-                  ),
-                  '${AppConstants.currencySymbol}${item?.price}'.textWidget(
-                    fontWeight: FontWeight.bold,
-                    fontFamily: AppConstants.fontFamilyRoboto,
-                    fontSize: fontSizeNormal,
-                    color: AppColors.colorLightGrey,
-                  ),
+                      '${AppConstants.currencySymbol}${item?.price}'.textWidget(
+                        fontWeight: FontWeight.bold,
+                        fontFamily: AppConstants.fontFamilyRoboto,
+                        fontSize: fontSizeNormal,
+                        color: AppColors.colorLightGrey,
+                      ),
+
+                  // '${AppConstants.currencySymbol}${item?.price?.toStringAsFixed(2) ?? 0}'
+                  //     .textWidget(
+                  //   color: AppColors.colorWhite,
+                  //   fontSize: fontSizeNormal,
+                  //   fontWeight: FontWeight.bold,
+                  //   fontFamily: AppConstants.fontFamilyRoboto,
+                  // ),
                 ],
+
               ),
+              // Row(
+              //   children: [
+              //     Expanded(
+              //       child: (/*item?.material ??*/ 'N/A').textWidget(
+              //         fontWeight: FontWeight.w400,
+              //         fontFamily: AppConstants.fontFamilyRoboto,
+              //         fontSize: 13,
+              //         color: AppColors.colorWhite,
+              //       ),
+              //     ),
+              //     '${AppConstants.currencySymbol}${item?.price}'.textWidget(
+              //       fontWeight: FontWeight.bold,
+              //       fontFamily: AppConstants.fontFamilyRoboto,
+              //       fontSize: fontSizeNormal,
+              //       color: AppColors.colorLightGrey,
+              //     ),
+              //   ],
+              // ),
             ],
           ),
         ),
       ),
     );
   }
+
+
+  Widget buildVariantInfo(Map<String, VariantOption> variantMap) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: variantMap.entries.map((entry) {
+        return Text('${entry.key}: ${entry.value.name}');
+      }).toList(),
+    );
+  }
+
 
 }

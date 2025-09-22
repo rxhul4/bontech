@@ -41,7 +41,7 @@ class _OrderListScreenState extends State<OrderListScreen>
     super.initState();
     _tabController = TabController(initialIndex: 0, length: 2, vsync: this);
     _orderProviderAd = Provider.of<OrderProviderAd>(context, listen: false);
-    _orderProviderAd.resetOrderControllers();
+    // _orderProviderAd.resetOrderControllers();
     fetchOrders(_tabController.index);
     // _tabController.addListener(() {
     //
@@ -154,14 +154,18 @@ class _OrderListScreenState extends State<OrderListScreen>
     return RefreshIndicator(
       onRefresh: () {
         orderProvider.resetOrderControllers();
-       return  _tabController.index == 0
+        return _tabController.index == 0
             ? orderProvider.fetchMyOrderList(true)
             : orderProvider.fetchMyOrderList(false);
       },
-      child: NotificationListener(
-        onNotification: (ScrollNotification scrollInfo) {
+      child: NotificationListener<ScrollNotification>(
+        onNotification: (scrollInfo) {
           if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent &&
-              !orderProvider.isLoading) {
+              (_tabController.index == 0
+                  ? !orderProvider.isLoadingActive &&
+                      orderProvider.hasMoreActive
+                  : !orderProvider.isLoadingPast &&
+                      orderProvider.hasMorePast)) {
             _tabController.index == 0
                 ? orderProvider.fetchMyOrderList(true)
                 : orderProvider.fetchMyOrderList(false);
@@ -169,16 +173,25 @@ class _OrderListScreenState extends State<OrderListScreen>
           return false;
         },
         child:
-            orderProvider.isLoading == true
-                ? CircleLoadingIndicatorWidget()
-                : item == null
+            // 👇 show full loader only if list is empty
+            (item.isEmpty &&
+                    (_tabController.index == 0
+                        ? orderProvider.isLoadingActive
+                        : orderProvider.isLoadingPast))
+                ? const Center(child: CircleLoadingIndicatorWidget())
+                : item.isEmpty
                 ? AppUtils.noDataWidget()
                 : ListView.builder(
-                  itemCount: item.length + (orderProvider.hasMore ? 1 : 0),
+                  itemCount:
+                      item.length +
+                      (_tabController.index == 0
+                          ? (orderProvider.hasMoreActive ? 1 : 0)
+                          : (orderProvider.hasMorePast ? 1 : 0)),
                   itemBuilder: (context, index) {
                     if (index == item.length) {
+                      // 👇 only show bottom loader during pagination
                       return Padding(
-                        padding: const EdgeInsets.only(top: 20),
+                        padding: const EdgeInsets.only(top: 20, bottom: 20),
                         child: Center(
                           child: SizedBox(
                             width: 30,
@@ -197,6 +210,11 @@ class _OrderListScreenState extends State<OrderListScreen>
                       index: index,
                       item: item[index],
                       isAdmin: true,
+                      // callBack: () {
+                      //   return _tabController.index == 0
+                      //       ? orderProvider.fetchMyOrderList(true)
+                      //       : orderProvider.fetchMyOrderList(false);
+                      // },
                     );
                   },
                 ),
@@ -211,14 +229,18 @@ class _OrderListScreenState extends State<OrderListScreen>
     return RefreshIndicator(
       onRefresh: () {
         orderProvider.resetOrderControllers();
-        return  _tabController.index == 0
+        return _tabController.index == 0
             ? orderProvider.fetchSalesOrderList(true)
             : orderProvider.fetchSalesOrderList(false);
       },
       child: NotificationListener(
         onNotification: (ScrollNotification scrollInfo) {
           if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent &&
-              !orderProvider.isLoading) {
+              (_tabController.index == 0
+                  ? !orderProvider.isLoadingActive &&
+                      orderProvider.hasMoreActive
+                  : !orderProvider.isLoadingPast &&
+                      orderProvider.hasMorePast)) {
             _tabController.index == 0
                 ? orderProvider.fetchSalesOrderList(true)
                 : orderProvider.fetchSalesOrderList(false);
@@ -226,12 +248,19 @@ class _OrderListScreenState extends State<OrderListScreen>
           return false;
         },
         child:
-            orderProvider.isLoading == true
+            (item.isEmpty &&
+                    (_tabController.index == 0
+                        ? orderProvider.isLoadingActive
+                        : orderProvider.isLoadingPast))
                 ? CircleLoadingIndicatorWidget()
-                : item == null
+                : item.isEmpty
                 ? AppUtils.noDataWidget()
                 : ListView.builder(
-                  itemCount: item.length + (orderProvider.hasMore ? 1 : 0),
+                  itemCount:
+                      item.length +
+                      (_tabController.index == 0
+                          ? (orderProvider.hasMoreActive ? 1 : 0)
+                          : (orderProvider.hasMorePast ? 1 : 0)),
                   itemBuilder: (context, index) {
                     if (index == item.length) {
                       return Padding(
@@ -255,6 +284,7 @@ class _OrderListScreenState extends State<OrderListScreen>
                       salesItem: item[index],
                       isAdmin: false,
                       callBack: () {
+                        orderProvider.resetOrderControllers();
                         return _tabController.index == 0
                             ? orderProvider.fetchSalesOrderList(true)
                             : orderProvider.fetchSalesOrderList(false);

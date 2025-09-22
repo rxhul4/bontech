@@ -157,7 +157,6 @@ class _CartScreenState extends State<CartScreen> {
       ),
       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Slidable(
-        // enabled: true,
         key: UniqueKey(),
         endActionPane: ActionPane(
           extentRatio: 0.20,
@@ -176,20 +175,13 @@ class _CartScreenState extends State<CartScreen> {
                   ctx: context,
                   dialogBtnTextRight: "Yes",
                   dialogBtnTextLeft: "No",
-                  dialogMessage:
-                      "Are you sure you want to remove this product from cart?",
+                  dialogMessage: "Are you sure you want to remove this product from cart?",
                   dialogTitle: "Alert",
                   dialogBtnRightFnc: () {
                     if (widget.isAdmin == true) {
-                      productProvider.removeProductFromCartListingScreen(
-                        index,
-                        PreferenceHelper.CART_MODEL_LIST_AD,
-                      );
+                      productProvider.removeProductFromCartListingScreen(index, PreferenceHelper.CART_MODEL_LIST_AD);
                     } else {
-                      productProvider.removeProductFromCartListingScreen(
-                        index,
-                        PreferenceHelper.CART_MODEL_LIST,
-                      );
+                      productProvider.removeProductFromCartListingScreen(index, PreferenceHelper.CART_MODEL_LIST);
                     }
                   },
                 );
@@ -198,13 +190,8 @@ class _CartScreenState extends State<CartScreen> {
                 topRight: Radius.circular(12),
                 bottomRight: Radius.circular(12),
               ),
-              // backgroundColor: AppColors.colorLightGrey,
               foregroundColor: AppColors.colorPrimary,
-              child: Icon(
-                Icons.delete,
-                size: 26,
-                color: AppColors.colorPrimary,
-              ),
+              child: Icon(Icons.delete, size: 26, color: AppColors.colorPrimary),
             ),
           ],
         ),
@@ -234,14 +221,13 @@ class _CartScreenState extends State<CartScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // Image section
                   Container(
                     height: 100,
                     width: 90,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
-                      color: AppColors.colorLightGrey.withOpacity(
-                        0.15,
-                      ), // Base layer
+                      color: AppColors.colorLightGrey.withOpacity(0.15),
                     ),
                     child: Container(
                       alignment: Alignment.center,
@@ -253,7 +239,6 @@ class _CartScreenState extends State<CartScreen> {
                           colors: [
                             AppColors.colorWhite.withOpacity(0.15),
                             AppColors.colorSecondary.withOpacity(0.15),
-                            // AppColors.gradientImage2.withOpacity(0.15)
                           ],
                         ),
                       ),
@@ -265,12 +250,14 @@ class _CartScreenState extends State<CartScreen> {
                     ),
                   ),
                   AppUtils.commonSizedBox(width: 10),
+
+                  // Product info
                   Expanded(
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Name + Price
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -282,66 +269,69 @@ class _CartScreenState extends State<CartScreen> {
                               ),
                             ),
                             5.toSizedBoxWidth,
+
                             '${AppConstants.currencySymbol}${item?.price?.toStringAsFixed(2) ?? 0}'
                                 .textWidget(
-                                  color: AppColors.colorWhite,
-                                  fontSize: fontSizeNormal,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: AppConstants.fontFamilyRoboto,
-                                ),
-                          ],
-                        ),
-                        5.toSizedBoxHeight,
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // 'Size : '.richTextView(
-                                  //   fontFamily: AppConstants.fontFamilyPoppins,
-                                  //   fontSize: fontSizeNormal,
-                                  //   color: AppColors.colorLightGrey,
-                                  //   textSpanList: [
-                                  //     const WidgetSpan(
-                                  //       child: SizedBox(width: 2),
-                                  //     ),
-                                  //     TextSpan(
-                                  //       // text: item?.selectedSize?.name ?? 'N/A',
-                                  //       style: TextStyle(
-                                  //         color: AppColors.colorWhite,
-                                  //         fontSize: fontSizeSmall,
-                                  //         fontFamily:
-                                  //             AppConstants.fontFamilyPoppins,
-                                  //         fontWeight: FontWeight.bold,
-                                  //       ),
-                                  //     ),
-                                  //   ],
-                                  // ),
-                                  2.toSizedBoxHeight,
-                                  // 'Color : '.richTextView(
-                                  //     color: AppColors.colorLightGrey,
-                                  //     textSpanList: [
-                                  //       const WidgetSpan(
-                                  //           child: SizedBox(width: 4)),
-                                  //       TextSpan(
-                                  //           text: item?.,
-                                  //           style: const TextStyle(
-                                  //             color: AppColors.colorWhite,
-                                  //             fontWeight: FontWeight.bold,
-                                  //           ))
-                                  //     ]),
-                                  // 2.toSizedBoxHeight,
-                                  // (item?.selectedMaterial?.name ?? 'N/A')
-                                  //     .textWidget(
-                                  //         color: AppColors.colorPrimary,
-                                  //         fontWeight: FontWeight.bold),
-                                ],
-                              ),
+                              color: AppColors.colorWhite,
+                              fontSize: fontSizeNormal,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: AppConstants.fontFamilyRoboto,
                             ),
-                            _productItemCountView(index, item),
                           ],
                         ),
+
+                        5.toSizedBoxHeight,
+
+                        /// 🔽 Product Variant ListView
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            if ((item?.productVariant?.isNotEmpty ?? false))
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: item!.productVariant!.entries.map((entry) {
+                                  final key = entry.key;
+                                  final value = entry.value;
+
+                                  return '$key : '.richTextView(
+                                    fontFamily: AppConstants.fontFamilyPoppins,
+                                    fontSize: fontSizeNormal,
+                                    color: AppColors.colorLightGrey,
+                                    textSpanList: [
+                                      const WidgetSpan(child: SizedBox(width: 2)),
+                                      TextSpan(
+                                        text: value.name ?? 'N/A',
+                                        style: TextStyle(
+                                          color: AppColors.colorWhite,
+                                          fontSize: fontSizeSmall,
+                                          fontFamily: AppConstants.fontFamilyPoppins,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }).toList(),
+                              ),
+                            _productItemCountView(index, item),
+
+                            // '${AppConstants.currencySymbol}${item?.price?.toStringAsFixed(2) ?? 0}'
+                            //     .textWidget(
+                            //   color: AppColors.colorWhite,
+                            //   fontSize: fontSizeNormal,
+                            //   fontWeight: FontWeight.bold,
+                            //   fontFamily: AppConstants.fontFamilyRoboto,
+                            // ),
+                          ],
+
+                        ),
+
+
+
+                        5.toSizedBoxHeight,
+
+                        /// 🔽 Quantity stepper or actions
+                        // _productItemCountView(index, item),
                       ],
                     ),
                   ),

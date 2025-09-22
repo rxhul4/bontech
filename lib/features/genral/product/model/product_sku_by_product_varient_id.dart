@@ -36,7 +36,7 @@ class ProductSkuByProductVariantId {
 class Data {
   String? productSkuId;
   String? itemDescription;
-  int? price;
+  num? price;
   List<String>? productSkuImage;
   SelectedVariant? selectedVariant;
 

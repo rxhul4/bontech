@@ -1,3 +1,5 @@
+import 'package:sales_app_redesign/features/genral/product/model/get_product_by_productId_model.dart';
+
 class GetDistributorOrderByIdModel {
   bool? isError;
   bool? isValidationFailed;
@@ -48,7 +50,7 @@ class Data {
   String? orderDate;
   String? totOrderStatusId;
   String? totOrderStatus;
-  int? totalAmount;
+  num? totalAmount;
   String? trackingNo;
   Null? createdOn;
   String? productId;
@@ -57,8 +59,8 @@ class Data {
   String? categoryId;
   String? categoryName;
   String? productSkuId;
-  int? quantity;
-  Null? amount;
+  num? quantity;
+  num? amount;
   List<DealerOrderDetails>? dealerOrderDetails;
 
   Data(
@@ -167,22 +169,27 @@ class DealerOrderDetails {
   String? size;
   String? color;
   String? material;
-  int? price;
-  int? quantity;
-  int? totalAmount;
+  num? price;
+  num? quantity;
+  num? totalAmount;
+  num? deliveredQuantity;
+  Map<String, VariantOption>? productVariant;
 
-  DealerOrderDetails(
-      {this.productName,
-        this.productSkuCode,
-        this.productSKUID,
-        this.productImage,
-        this.categoryName,
-        this.size,
-        this.color,
-        this.material,
-        this.price,
-        this.quantity,
-        this.totalAmount});
+  DealerOrderDetails({
+    this.productName,
+    this.productSkuCode,
+    this.productSKUID,
+    this.productImage,
+    this.categoryName,
+    this.size,
+    this.color,
+    this.material,
+    this.price,
+    this.quantity,
+    this.totalAmount,
+    this.productVariant,
+    this.deliveredQuantity
+  });
 
   DealerOrderDetails.fromJson(Map<String, dynamic> json) {
     productName = json['productName'];
@@ -196,10 +203,17 @@ class DealerOrderDetails {
     price = json['price'];
     quantity = json['quantity'];
     totalAmount = json['totalAmount'];
+    deliveredQuantity = json['deliveredQuantity'];
+    if (json['productVariant'] != null) {
+      productVariant = {};
+      json['productVariant'].forEach((key, value) {
+        productVariant![key] = VariantOption.fromJson(value);
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = {};
     data['productName'] = this.productName;
     data['productSkuCode'] = this.productSkuCode;
     data['productSKU_ID'] = this.productSKUID;
@@ -211,6 +225,12 @@ class DealerOrderDetails {
     data['price'] = this.price;
     data['quantity'] = this.quantity;
     data['totalAmount'] = this.totalAmount;
+    data['deliveredQuantity'] = this.deliveredQuantity;
+    if (this.productVariant != null) {
+      data['productVariant'] = this.productVariant!.map(
+            (key, value) => MapEntry(key, value.toJson()),
+      );
+    }
     return data;
   }
 }

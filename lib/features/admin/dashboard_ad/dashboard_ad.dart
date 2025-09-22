@@ -1,14 +1,11 @@
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:sales_app_redesign/core/common_statefull_widget/frost_conatiner.dart';
 import 'package:sales_app_redesign/core/utils/app_colors.dart';
 import 'package:sales_app_redesign/core/utils/app_constant.dart';
+import 'package:sales_app_redesign/core/utils/app_utils.dart';
 import 'package:sales_app_redesign/features/admin/category_ad/category_screen_ad.dart';
 import 'package:sales_app_redesign/features/admin/home/presentation/home_screen_ad.dart';
-import 'package:sales_app_redesign/features/admin/order/presentation/pages/order_screen_Ad.dart';
-import 'package:sales_app_redesign/features/admin/profile/presentation/profile_screen_ad.dart';
-import 'package:sales_app_redesign/features/admin/user/presentation/salesman_screen_ad.dart';
-import 'package:sales_app_redesign/features/genral/product/presentation/product_listing_page.dart';
-import 'package:sales_app_redesign/features/sales/category/presentation/category_screen.dart';
 
 import '../../../core/common_statefull_widget/app_scaffold.dart';
 import '../order/presentation/order_screen_ad.dart';
@@ -28,9 +25,9 @@ class _DashboardScreenADState extends State<DashboardScreenAD> {
 
   final _pages = [
     const HomeScreenAd(),
-    const CategoryScreenAd(),
+    CategoryScreenAd(),
     const OrderScreenAd(),
-    const StockScreenAd(),
+    // const StockScreenAd(),
   ];
 
   int pageIndex = 0;
@@ -50,7 +47,7 @@ class _DashboardScreenADState extends State<DashboardScreenAD> {
       },
       child: AppScaffold(
         bgColor: AppColors.colorPrimary,
-        bottomNavigationBar: _buildNavBar(),
+        bottomNavigationBar: NavBar(),
         body: Column(
           children: [
             Expanded(
@@ -128,14 +125,14 @@ class _DashboardScreenADState extends State<DashboardScreenAD> {
           ),
           activeItem: Icon(Icons.note, color: AppColors.colorWhite),
         ),
-        BottomBarItem(
-          itemLabel: "Stock",
-          inActiveItem: Icon(
-            Icons.category_outlined,
-            color: AppColors.colorPrimary,
-          ),
-          activeItem: Icon(Icons.category, color: AppColors.colorWhite),
-        ),
+        // BottomBarItem(
+        //   itemLabel: "Stock",
+        //   inActiveItem: Icon(
+        //     Icons.category_outlined,
+        //     color: AppColors.colorPrimary,
+        //   ),
+        //   activeItem: Icon(Icons.category, color: AppColors.colorWhite),
+        // ),
         // BottomBarItem(
         //   itemLabel: "User",
         //   inActiveItem: Icon(
@@ -157,6 +154,42 @@ class _DashboardScreenADState extends State<DashboardScreenAD> {
         _pageController.jumpToPage(index);
         setState(() => pageIndex = index);
       },
+    );
+  }
+
+  static const List<NavigationDestination> _navDestinations = [
+    NavigationDestination(
+      icon: Icon(Icons.home_outlined),
+      selectedIcon: Icon(Icons.home),
+      label: 'Home',
+    ),
+    NavigationDestination(
+      icon: Icon(Icons.inventory_2_outlined),
+      selectedIcon: Icon(Icons.inventory_2),
+      label: 'Products',
+    ),
+    NavigationDestination(
+      icon: Icon(Icons.receipt_long_outlined),
+      selectedIcon: Icon(Icons.receipt_long),
+      label: 'Orders',
+    ),
+  ];
+
+  Widget NavBar() {
+    return Frost(
+      margin: EdgeInsets.only(left: 10, right: 10, bottom: 16),
+      child: SafeArea(
+        top: true,
+        child: NavigationBar(
+          backgroundColor: Colors.transparent,
+          destinations: _navDestinations,
+          selectedIndex: pageIndex,
+          onDestinationSelected: (index) {
+            _pageController.jumpToPage(index);
+            setState(() => pageIndex = index);
+          },
+        ),
+      ),
     );
   }
 }

@@ -15,8 +15,10 @@ import 'package:sales_app_redesign/features/auth/presentation/login_screen.dart'
 import 'package:sales_app_redesign/features/genral/change_password/presentation/chnage_password_screen.dart';
 import 'package:sales_app_redesign/features/sales/hospital/presentation/hospital_screen.dart';
 import 'package:sales_app_redesign/features/sales/sales_order/presentation/sales_order_list.dart';
+import 'package:sales_app_redesign/main.dart';
 
-import '../../../../main.dart' show cartItemCount;
+
+import '../../dashboard/dashboard.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});

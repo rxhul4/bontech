@@ -29,6 +29,9 @@ class ApiConstants{
   static String allCategory = "$baseUrl/SuperAdmin/Category/GetAll";
   static String getProductByCategory = "$baseUrl/SuperAdmin/Category/GetProductByCategoryId";
   static String getAssignedCategory = "$baseUrl/Mobile/Salesman/GetAssignedCategories";
+  static String getDistributorAssignedCategory = "$baseUrl/Mobile/Distributor/GetAssignedCategories";
+
+
 
   //product
   static String getProductById = "$baseUrl/SuperAdmin/Product/GetById";
@@ -73,6 +76,11 @@ class ApiConstants{
   static String getDistributorStock = "$baseUrl/General/DistributorStock/GetById";
   static String updateDistributorStock = "$baseUrl/General/DistributorStock/UpdateById";
   static String updateByCategory = "$baseUrl/General/DistributorStock/UpdateByCategory";
+
+
+  //getAllPendingOrderSummary
+  static String getPendingProductsSummary = "$baseUrl/Mobile/Distributor/GetPendingProductsSummary";
+
 
 
 }

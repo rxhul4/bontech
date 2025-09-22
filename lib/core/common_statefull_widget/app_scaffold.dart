@@ -1,7 +1,5 @@
-
 import 'package:flutter/material.dart';
 import 'package:sales_app_redesign/core/utils/app_colors.dart';
-import 'package:sales_app_redesign/core/utils/app_extension.dart';
 
 class AppScaffold extends StatefulWidget {
   final Widget body;
@@ -9,10 +7,9 @@ class AppScaffold extends StatefulWidget {
   final PreferredSizeWidget? appBar;
   final BottomSheet? bottomSheet;
   final Widget? floatingActionButton;
-  final bool? isBgAsset;
-  final String? bg;
   final double? bgHeight;
   final Color? bgColor;
+  final Color? bgGradient; // ✅ gradient supported
 
   const AppScaffold({
     super.key,
@@ -20,11 +17,10 @@ class AppScaffold extends StatefulWidget {
     this.bottomNavigationBar,
     this.appBar,
     this.bgHeight,
-    this.isBgAsset,
-    this.bg,
     this.bottomSheet,
     this.bgColor,
-    this.floatingActionButton
+    this.bgGradient,
+    this.floatingActionButton,
   });
 
   @override
@@ -34,8 +30,6 @@ class AppScaffold extends StatefulWidget {
 class _AppScaffoldState extends State<AppScaffold> {
   @override
   Widget build(BuildContext context) {
-    final bool isBgAsset = widget.isBgAsset == true && widget.bg != null;
-
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, dynamic) {
@@ -44,23 +38,56 @@ class _AppScaffoldState extends State<AppScaffold> {
       },
       child: SizedBox(
         width: MediaQuery.sizeOf(context).width,
-        height:  MediaQuery.sizeOf(context).height,
+        height: MediaQuery.sizeOf(context).height,
         child: Stack(
           children: [
-            if (isBgAsset)
-              widget.bg!.imageAssetWidget(
-                height: widget.bgHeight ?? MediaQuery.sizeOf(context).height,
-                width: MediaQuery.sizeOf(context).width,
-                boxFit: BoxFit.cover,
+
+            Container(
+              color: AppColors.bgDark,
+              width: double.infinity,
+              height: double.infinity,
+            ),
+
+            // ✅ Radial gradient overlay
+            Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  center: const Alignment(-0.6, -1.2),
+                  radius: 1.4,
+                  colors: [
+                    AppColors.grad1.withOpacity(.24),
+                    Colors.transparent,
+                  ],
+                ),
               ),
+            ),
+
+
             Scaffold(
+              backgroundColor: AppColors.colorTransparent,
+
+              // Transparent to show background
               bottomSheet: widget.bottomSheet,
-              backgroundColor: !isBgAsset ?  widget.bgColor ?? AppColors.colorPrimary    : null,
               bottomNavigationBar: widget.bottomNavigationBar,
               appBar: widget.appBar,
               body: SafeArea(child: widget.body),
               floatingActionButton: widget.floatingActionButton,
             ),
+
+            // ✅ Background Layer
+            // Container(
+            //   width: double.infinity,
+            //   height: double.infinity,
+            //   decoration: BoxDecoration(
+            //     color: AppColors.bgDark,
+            //     gradient:
+            //   ),
+            // ),
+
+            // ✅ Foreground Scaffold
+
           ],
         ),
       ),
