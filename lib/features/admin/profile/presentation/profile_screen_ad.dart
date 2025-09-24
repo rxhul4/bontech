@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:sales_app_redesign/core/common/circle_loading_indicator_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_bar_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_scaffold.dart';
+import 'package:sales_app_redesign/core/common_statefull_widget/frost_conatiner.dart';
 import 'package:sales_app_redesign/core/constants/app_size_constants.dart';
 import 'package:sales_app_redesign/core/storage/preference_helper.dart';
 import 'package:sales_app_redesign/core/utils/app_colors.dart';
@@ -173,15 +174,17 @@ class _ProfileScreenAdState extends State<ProfileScreenAd> {
     return Column(
       children: [
         AppUtils.commonInkWell(
+          borderRadius: BorderRadius.circular(16),
           onTap: onTap,
-          child: AppUtils.commonContainer(
+          child: Frost(
+
             child: Padding(
               padding: AppUtils.edgeInsetsOnly(left: 20, right: 20,top: 10,bottom: 10),
               child: Row(
                 children: [
                   AppUtils.commonContainer(
                       padding: AppUtils.edgeInsetsAll(allPadding: 8),
-                      decoration: AppUtils.commonGradientBoxDecoration(borderRadius: 8),
+                      decoration: AppUtils.commonGradientBoxDecoration(borderRadius: 12),
                       child: Center(
                           child: Icon(preIcon,
                               color: AppColors.colorWhite, size: 22))),

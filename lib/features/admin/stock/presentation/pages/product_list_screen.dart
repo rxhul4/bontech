@@ -6,6 +6,8 @@ import 'package:sales_app_redesign/core/common/circle_loading_indicator_widget.d
 import 'package:sales_app_redesign/core/common_statefull_widget/app_bar_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_scaffold.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/bulk_qty_update_dialog_widget.dart';
+import 'package:sales_app_redesign/core/common_statefull_widget/frost_conatiner.dart';
+import 'package:sales_app_redesign/core/common_statefull_widget/glass_sheet_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/update_quantity_dialog_widget.dart';
 import 'package:sales_app_redesign/core/constants/app_size_constants.dart';
 import 'package:sales_app_redesign/core/utils/app_colors.dart';
@@ -122,11 +124,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 
   Widget _listItemForCategory({int? index, StockList? item}) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: AppColors.colorLightGrey,
-      ),
+    return Frost(
       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Slidable(
         // enabled: true,
@@ -153,31 +151,13 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 topRight: Radius.circular(12),
                 bottomRight: Radius.circular(12),
               ),
-              // backgroundColor: AppColors.colorLightGrey,
+              backgroundColor: AppColors.colorTransparent,
               foregroundColor: AppColors.colorPrimary,
-              child: Icon(Icons.edit, size: 26, color: AppColors.colorPrimary),
+              child: Icon(Icons.edit, size: 26, color: AppColors.colorWhite),
             ),
           ],
         ),
-        child: Container(
-          decoration: BoxDecoration(
-            color: AppColors.colorPrimary,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.white.withOpacity(0.08)),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.colorPrimary.withOpacity(0.25),
-                blurRadius: 0,
-                spreadRadius: 0.0,
-                offset: const Offset(0, 1.5),
-              ),
-              BoxShadow(
-                color: Colors.black.withOpacity(0.6),
-                blurRadius: 30,
-                offset: const Offset(0, 12),
-              ),
-            ],
-          ),
+        child: Frost(
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: IntrinsicHeight(
@@ -241,6 +221,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
       ),
     );
   }
+
+
+
+
+
 
 
   showQtyUpdateDialog(StockList? item) {
@@ -381,3 +366,6 @@ class _ProductListScreenState extends State<ProductListScreen> {
   //   );
   // }
 }
+
+
+

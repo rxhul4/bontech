@@ -7,6 +7,7 @@ import 'package:readmore/readmore.dart';
 import 'package:sales_app_redesign/core/common/circle_loading_indicator_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_bar_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_scaffold.dart';
+import 'package:sales_app_redesign/core/common_statefull_widget/frost_conatiner.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/update_quantity_dialog_widget.dart';
 import 'package:sales_app_redesign/core/constants/app_size_constants.dart';
 import 'package:sales_app_redesign/core/storage/preference_helper.dart';
@@ -454,14 +455,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             // AutoRouter.of(context).push(ProductPreviewRoute(
             //     productInfo: _productCubit.productDetailsResponseProductInfo));
           },
-          child: AppUtils.commonGlassmorphicContainer(
+          child: Frost(
             margin: EdgeInsets.symmetric(horizontal: 16),
             height: MediaQuery.of(context).size.height * 0.35,
             child: (productProvider.productResponse?.data?.productInfo?.image ?? '')
                 .toNetWorkImage(fit: BoxFit.cover),
           ),
         )
-        : AppUtils.commonGlassmorphicContainer(
+        : Frost(
           margin: EdgeInsets.symmetric(horizontal: 16),
           height: MediaQuery.of(context).size.height * 0.35,
           blur: 100,
@@ -476,10 +477,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 slideIndicatorOptions: SlideIndicatorOptions(
                   indicatorRadius: 4,
                   itemSpacing: 14,
-
                   enableAnimation: true,
-
-                  // enableHalo: true,
                   padding: EdgeInsets.all(10),
                   currentIndicatorColor: AppColors.colorSecondary,
                   indicatorBackgroundColor: AppColors.colorLightGrey
@@ -494,6 +492,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   return Builder(
                     builder: (BuildContext context) {
                       return InkWell(
+                        borderRadius: BorderRadius.circular(16),
                         onTap: () {
                           Navigator.push(
                             context,
@@ -505,38 +504,19 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                     // product: productProvider.selectedVariants,
                                     selectedVariant: productProvider.selectedVariants,
                                     description: productProvider.product?.productDescription,
-                                    // color:
-                                    //     _productProvider
-                                    //         .selectedColorVariant
-                                    //         ?.name,
-                                    // size:
-                                    //     _productProvider
-                                    //         .selectedSizeVariant
-                                    //         ?.name,
-                                    // description:
-                                    //     _productProvider
-                                    //         .product
-                                    //         ?.productDescription,
-                                    // material:
-                                    //     _productProvider
-                                    //         .selectedSizeVariant
-                                    //         ?.name,
                                   ),
                             ),
                           );
-                          // AutoRouter.of(context).push(ProductPreviewRoute(
-                          //   productInfo:
-                          //   _productCubit.productDetailsResponseProductInfo,
-                          // ));
                         },
-                        child: Container(
-                          height: 300,
+                        child: SizedBox(
+                          // height: 300,
                           // color: Colors.red,
                           width: double.infinity,
                           child: i.toNetWorkImage(
-                            height: 250,
+                            height: 240,
                             width: 200,
                             fit: BoxFit.cover,
+
                             // height: 170,
                           ),
                         ),

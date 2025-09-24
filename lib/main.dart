@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:sales_app_redesign/core/storage/preference_helper.dart';
 import 'package:sales_app_redesign/core/utils/app_colors.dart';
+import 'package:sales_app_redesign/features/admin/category_ad/provider/category_provider_ad.dart';
 import 'package:sales_app_redesign/features/admin/home/provider/home_providerAD.dart';
 import 'package:sales_app_redesign/features/admin/order/provider/order_provider_ad.dart';
 import 'package:sales_app_redesign/features/admin/pending_order/provider/pending_order_provider.dart';
@@ -38,6 +39,8 @@ List<SingleChildWidget> providers = [
   ChangeNotifierProvider<StockProvider>(create: (_) => StockProvider()),
   ChangeNotifierProvider<PendingOrderProvider>(
     create: (_) => PendingOrderProvider(),
+  ),ChangeNotifierProvider<CategoryProviderAD>(
+    create: (_) => CategoryProviderAD(),
   ),
 ];
 

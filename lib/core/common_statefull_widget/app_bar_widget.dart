@@ -64,7 +64,7 @@ class _AppBarWidgetState extends State<AppBarWidget> {
     return SafeArea(
       bottom: false,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+        padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 4),
         child: Frost(
           blur: 18,
           opacity: .20,
@@ -73,6 +73,7 @@ class _AppBarWidgetState extends State<AppBarWidget> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Row(
             children: [
+              widget.isBackVisible == true ? _backArrow(context) : const SizedBox(),
               Row(
                 children: [
                   const SizedBox(width: 12),
@@ -232,18 +233,7 @@ class _AppBarWidgetState extends State<AppBarWidget> {
           Navigator.pop(context);
         }
       },
-      child: Container(
-        width: 44,
-        height: 44,
-        alignment: Alignment.center,
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-        decoration: AppUtils.commonGradientBoxDecoration(),
-        child: const Icon(
-          Icons.arrow_back_ios_new_rounded,
-          size: 18,
-          color: Colors.white,
-        ),
-      ),
+      child: Frost(radius:12,padding: const EdgeInsets.all(8),child: Icon(Icons.arrow_back_ios_new,color: AppColors.colorWhite,size: 20,))
     );
   }
 
@@ -333,6 +323,7 @@ class _RoundIcon extends StatelessWidget {
       blur: 14,
       opacity: .18,
       radius: 12,
+
       padding: const EdgeInsets.all(8),
       child: InkWell(
         onTap: onTap,

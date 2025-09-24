@@ -12,6 +12,7 @@ import 'package:sales_app_redesign/core/common/no_data_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_bar_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_scaffold.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/bulk_product_quantity_update_dialog_widget.dart';
+import 'package:sales_app_redesign/core/common_statefull_widget/frost_conatiner.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/notes_dialog_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/update_quantity_dialog_widget.dart';
 import 'package:sales_app_redesign/core/constants/app_size_constants.dart';
@@ -799,26 +800,26 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   }
 
   Widget _noteTile(String title, String? note) {
-    return AppUtils.commonContainer(
+    return Frost(
       width: double.infinity,
-      decoration: BoxDecoration(
-        color: AppColors.colorPrimary,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.colorSecondary.withOpacity(0.25),
-            blurRadius: 0,
-            spreadRadius: 0.0,
-            offset: const Offset(0, 2),
-          ),
-          // BoxShadow(
-          //   color: Colors.white.withOpacity(0.6),
-          //   blurRadius: 30,
-          //   offset: const Offset(0, 0),
-          // ),
-        ],
-      ),
+      // decoration: BoxDecoration(
+      //   color: AppColors.colorPrimary,
+      //   borderRadius: BorderRadius.circular(12),
+      //   border: Border.all(color: Colors.white.withOpacity(0.08)),
+      //   boxShadow: [
+      //     BoxShadow(
+      //       color: AppColors.colorSecondary.withOpacity(0.25),
+      //       blurRadius: 0,
+      //       spreadRadius: 0.0,
+      //       offset: const Offset(0, 2),
+      //     ),
+      //     // BoxShadow(
+      //     //   color: Colors.white.withOpacity(0.6),
+      //     //   blurRadius: 30,
+      //     //   offset: const Offset(0, 0),
+      //     // ),
+      //   ],
+      // ),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -841,21 +842,22 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
 
   Widget _listItemOrderItem(od.DealerOrderDetails? item) {
     return InkWell(
-      child: Container(
+      borderRadius: BorderRadius.circular(16),
+      child: Frost(
         margin: EdgeInsets.symmetric(vertical: 8),
-        decoration: BoxDecoration(
-          color: AppColors.colorPrimary,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white.withOpacity(0.08)),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.colorSecondary.withOpacity(0.25),
-              blurRadius: 0,
-              spreadRadius: 0.0,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
+        // decoration: BoxDecoration(
+        //   color: AppColors.colorPrimary,
+        //   borderRadius: BorderRadius.circular(12),
+        //   border: Border.all(color: Colors.white.withOpacity(0.08)),
+        //   boxShadow: [
+        //     BoxShadow(
+        //       color: AppColors.colorSecondary.withOpacity(0.25),
+        //       blurRadius: 0,
+        //       spreadRadius: 0.0,
+        //       offset: const Offset(0, 2),
+        //     ),
+        //   ],
+        // ),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         width: double.infinity,
         child: Column(

@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:sales_app_redesign/core/common/common_dialog.dart';
 import 'package:sales_app_redesign/core/common/custom_text_form_field.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/common_two_btn_dialog.dart';
+import 'package:sales_app_redesign/core/common_statefull_widget/frost_conatiner.dart';
 import 'package:sales_app_redesign/core/utils/app_colors.dart';
 import 'package:sales_app_redesign/core/utils/app_constant.dart';
 import 'package:sales_app_redesign/core/utils/app_extension.dart';
@@ -459,8 +460,8 @@ class AppUtils {
       // color: AppColors.colorTransparent,
       gradient: LinearGradient(
         colors: [
-          gradient1 ?? AppColors.gradient1,
-          gradient2 ?? AppColors.gradient2,
+          gradient1 ?? Color(0xFF5C9DFF),
+          gradient2 ?? Color(0xFF3E7BFA),
         ],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
@@ -484,8 +485,13 @@ class AppUtils {
     return Icon(Icons.photo_size_select_actual_outlined, size: 70);
   }
 
-  static Widget cacheNetworkImage(String? imageUrl) {
+  static Widget cacheNetworkImage(
+      {String? imageUrl, double? height, double? width,double? radius}) {
     return CachedNetworkImage(
+
+      height: height ?? 50,
+      width: width ?? 50,
+
       imageUrl: imageUrl ?? "",
       errorWidget: (context, url, error) {
         return noImageFound();
@@ -493,6 +499,55 @@ class AppUtils {
       placeholder: (context, url) {
         return  loadingWidget();
       },
+    );
+  }
+
+
+  static Widget searchbar({required TextEditingController searchController,}){
+    return Frost(
+        margin: EdgeInsets.symmetric(horizontal: 12,vertical: 10),
+        radius: 14,
+        blur: 16,
+        opacity: .10,
+
+        // padding: const EdgeInsets.symmetric(horizontal: 14,vertical: 14),
+        child: TextField(
+          enableIMEPersonalizedLearning: true,
+          textAlignVertical: TextAlignVertical.center,
+
+          onSubmitted: (value) {
+            print("Value$value");
+          },
+          controller: searchController,
+          textAlign: TextAlign.start,
+          style:  TextStyle(
+
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              fontFamily : AppConstants.fontFamilyPoppins
+          ),
+          cursorColor: Colors.white70,
+          decoration: InputDecoration(
+            alignLabelWithHint: true,
+            isDense: true, // makes content tighter
+
+            // contentPadding: const EdgeInsets.symmetric(vertical: 13), // balance vertical alignment
+
+            prefixIcon: const Icon(
+              Icons.search,
+              color: Colors.white70,
+              size: 20,
+            ),
+
+
+
+            hintText: 'Search categories',
+            hintStyle: TextStyle(color: Colors.white60, fontSize: 14,fontFamily: AppConstants.fontFamilyPoppins),
+            border: InputBorder.none,
+          ),
+        )
+
     );
   }
 

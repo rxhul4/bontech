@@ -84,7 +84,7 @@ extension AppExtension on String{
   Widget toNetWorkImage({
     double height = 50,
     double width = 50,
-    num borderRadius = 20,
+    num borderRadius = 12,
     bool isAllRounded = true,
     double topLeftBorder = 10.0,
     double topRightBorder = 10.0,

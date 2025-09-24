@@ -16,6 +16,7 @@ import 'package:sales_app_redesign/core/utils/app_colors.dart';
 import 'package:sales_app_redesign/core/utils/app_constant.dart';
 import 'package:sales_app_redesign/core/utils/app_extension.dart';
 import 'package:sales_app_redesign/core/utils/app_utils.dart';
+import 'package:sales_app_redesign/features/admin/category_ad/presentation/category_screen_ad.dart';
 import 'package:sales_app_redesign/features/admin/home/provider/home_providerAD.dart';
 import 'package:sales_app_redesign/features/genral/product/presentation/product_listing_page.dart';
 import 'package:sales_app_redesign/features/genral/product/presentation/produst_detail_screen.dart';
@@ -35,7 +36,6 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
 
   final _bannerCtrl = PageController(viewportFraction: 0.90);
   ValueNotifier<int> _bannerIndex = ValueNotifier(0);
-
 
   @override
   void initState() {
@@ -104,7 +104,6 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Frost(
-
                           padding: const EdgeInsets.symmetric(
                             vertical: 10.0,
                             horizontal: 10.0,
@@ -178,7 +177,7 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
                         controller: _bannerCtrl,
                         onTap: (p0) {},
                       ),
-                      const SizedBox(height: 20,),
+                      const SizedBox(height: 20),
                       // _imageCarousal(homeProvider),
                       _categoryListWidget(homeProvider),
                       _trendingProductList(homeProvider),
@@ -191,7 +190,7 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
     );
   }
 
-  Widget _headerSectionWidget(String? title, Function()? onSee){
+  Widget _headerSectionWidget(String? title, Function()? onSee) {
     return Row(
       children: [
         Expanded(
@@ -208,10 +207,9 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
         InkWell(
           borderRadius: BorderRadius.circular(8),
           onTap: () {
-            if(onSee != null){
+            if (onSee != null) {
               onSee();
             }
-
           },
           child: Frost(
             blur: 14,
@@ -221,13 +219,17 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
             child: Row(
               children: [
                 "See all".textWidget(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.colorWhite
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.colorWhite,
                 ),
 
                 const SizedBox(width: 2),
-                const Icon(Icons.chevron_right, size: 16,color: AppColors.colorWhite),
+                const Icon(
+                  Icons.chevron_right,
+                  size: 16,
+                  color: AppColors.colorWhite,
+                ),
               ],
             ),
           ),
@@ -240,7 +242,6 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
         AppUtils.commonTextWidget(
           text: ("Categories").toUpperCase() ?? "N/A",
           fontSize: 16,
@@ -257,13 +258,35 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
             scrollDirection: Axis.horizontal,
             itemCount: _homeProviderAd.categoryItemList.length ?? 0,
             separatorBuilder: (_, __) => const SizedBox(width: 10),
-            itemBuilder: (context, i) => _CategoryChip(
-              item: _homeProviderAd.categoryItemList[i],
-              onTap: (){},
-            ),
+            itemBuilder:
+                (context, i) => _CategoryChip(
+                  item: _homeProviderAd.categoryItemList[i],
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => ProductListingScreen(
+                              isFromCategory: true,
+                              isFromOrder: false,
+                              isBackButtonAvailable: true,
+                              isAdmin: true,
+                              categoryId:
+                                  _homeProviderAd
+                                      .categoryItemList[i]
+                                      .categoryId,
+                              categoryName:
+                                  _homeProviderAd
+                                      .categoryItemList[i]
+                                      .categoryName,
+                            ),
+                      ),
+                    );
+                  },
+                ),
           ),
         ),
-        const SizedBox(height: 10,)
+        const SizedBox(height: 10),
       ],
     );
   }
@@ -279,16 +302,16 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
                 MaterialPageRoute(
                   builder:
                       (context) => ProductListingScreen(
-                    isBackButtonAvailable: true,
-                    totViewTypeId: AppConstants.viewTypeTrending,
+                        isBackButtonAvailable: true,
+                        totViewTypeId: AppConstants.viewTypeTrending,
 
-                    categoryName: "Trending",
-                    isFromCategory: false,
-                  ),
+                        categoryName: "Trending",
+                        isFromCategory: false,
+                      ),
                 ),
               );
-            },),
-            const SizedBox(height: 10,),
+            }),
+            const SizedBox(height: 10),
             SizedBox(
               height: 230,
               child: ListView.separated(
@@ -297,25 +320,24 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
                 scrollDirection: Axis.horizontal,
                 itemCount: homeProvider.trending.length,
                 separatorBuilder: (_, __) => const SizedBox(width: 12),
-                itemBuilder: (context, i) => ProductCard(
-
-                  item: homeProvider.trending[i],
-                  onTap:  () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (context) => ProductDetailScreen(
-                          productId:
-                          homeProvider
-                              .trending[i].id,
-                        ),
-                      ),
-                    );
-                  },),
+                itemBuilder:
+                    (context, i) => ProductCard(
+                      item: homeProvider.trending[i],
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => ProductDetailScreen(
+                                  productId: homeProvider.trending[i].id,
+                                ),
+                          ),
+                        );
+                      },
+                    ),
               ),
             ),
-            const SizedBox(height: 15,),
+            const SizedBox(height: 15),
           ],
         );
   }
@@ -331,17 +353,17 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
                 MaterialPageRoute(
                   builder:
                       (context) => ProductListingScreen(
-                    isBackButtonAvailable: true,
-                    totViewTypeId: AppConstants.viewTypeBestSeller,
+                        isBackButtonAvailable: true,
+                        totViewTypeId: AppConstants.viewTypeBestSeller,
 
-                    categoryName: "Best seller",
-                    isFromCategory: false,
-                  ),
+                        categoryName: "Best seller",
+                        isFromCategory: false,
+                      ),
                 ),
               );
-            },),
+            }),
 
-            const SizedBox(height: 10,),
+            const SizedBox(height: 10),
             SizedBox(
               height: 230,
               child: ListView.separated(
@@ -349,21 +371,21 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
                 scrollDirection: Axis.horizontal,
                 itemCount: homeProvider.bestSeller.length,
                 separatorBuilder: (_, __) => const SizedBox(width: 12),
-                itemBuilder: (context, i) => ProductCard(
-                  item: homeProvider.bestSeller[i],
-                  onTap:  () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (context) => ProductDetailScreen(
-                          productId:
-                          homeProvider
-                              .bestSeller[i].id,
-                        ),
-                      ),
-                    );
-                  },),
+                itemBuilder:
+                    (context, i) => ProductCard(
+                      item: homeProvider.bestSeller[i],
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => ProductDetailScreen(
+                                  productId: homeProvider.bestSeller[i].id,
+                                ),
+                          ),
+                        );
+                      },
+                    ),
               ),
             ),
           ],
@@ -377,19 +399,19 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
           children: [
             _headerSectionWidget("NEW ARRIVAL PRODUCTS", () {
               Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) => ProductListingScreen(
-                                  isBackButtonAvailable: true,
-                                  totViewTypeId: AppConstants.viewTypeNewArrival,
-                                  categoryName: "New Arrival",
-                                  isFromCategory: false,
-                                ),
-                          ),
-                        );
-            },),
-            const SizedBox(height: 10,),
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (context) => ProductListingScreen(
+                        isBackButtonAvailable: true,
+                        totViewTypeId: AppConstants.viewTypeNewArrival,
+                        categoryName: "New Arrival",
+                        isFromCategory: false,
+                      ),
+                ),
+              );
+            }),
+            const SizedBox(height: 10),
             SizedBox(
               height: 230,
               child: ListView.separated(
@@ -397,24 +419,23 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
                 scrollDirection: Axis.horizontal,
                 itemCount: homeProvider.newArrival.length,
                 separatorBuilder: (_, __) => const SizedBox(width: 12),
-                itemBuilder: (context, i) => ProductCard(
-                  item: homeProvider.newArrival[i],
-                  onTap:  () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) => ProductDetailScreen(
-                                          productId:
-                                              homeProvider
-                                                  .newArrival[i].id,
-                                        ),
-                                  ),
-                                );
-                  },),
+                itemBuilder:
+                    (context, i) => ProductCard(
+                      item: homeProvider.newArrival[i],
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => ProductDetailScreen(
+                                  productId: homeProvider.newArrival[i].id,
+                                ),
+                          ),
+                        );
+                      },
+                    ),
               ),
             ),
-
           ],
         );
   }
@@ -561,6 +582,7 @@ class _Dots extends StatelessWidget {
 class _CategoryChip extends StatelessWidget {
   final Categories item;
   final VoidCallback onTap;
+
   const _CategoryChip({required this.item, required this.onTap});
 
   @override
@@ -590,7 +612,7 @@ class _CategoryChip extends StatelessWidget {
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   letterSpacing: .6,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.colorWhite
+                  color: AppColors.colorWhite,
                 ),
               ),
             ),
@@ -600,6 +622,3 @@ class _CategoryChip extends StatelessWidget {
     );
   }
 }
-
-
-

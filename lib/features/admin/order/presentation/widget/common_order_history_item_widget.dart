@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sales_app_redesign/core/common_statefull_widget/frost_conatiner.dart';
 import 'package:sales_app_redesign/core/utils/app_colors.dart';
 import 'package:sales_app_redesign/core/utils/app_constant.dart';
 import 'package:sales_app_redesign/core/utils/app_extension.dart';
@@ -39,7 +40,7 @@ class _CommonOrderHistoryItemWidgetState
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         onTap: () {
           Navigator.push(
             context,
@@ -65,26 +66,26 @@ class _CommonOrderHistoryItemWidgetState
           //   widget.callBack!();
           // });
         },
-        child: Container(
+        child: Frost(
           // margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          decoration: BoxDecoration(
-            color: AppColors.colorPrimary,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.white.withOpacity(0.08)),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.colorSecondary.withOpacity(0.25),
-                blurRadius: 0,
-                spreadRadius: 0.0,
-                offset: const Offset(0, 1.5),
-              ),
-              // BoxShadow(
-              //   color: Colors.black.withOpacity(0.6),
-              //   blurRadius: 30,
-              //   offset: const Offset(0, 12),
-              // ),
-            ],
-          ),
+          // decoration: BoxDecoration(
+          //   color: AppColors.colorPrimary,
+          //   borderRadius: BorderRadius.circular(12),
+          //   border: Border.all(color: Colors.white.withOpacity(0.08)),
+          //   boxShadow: [
+          //     BoxShadow(
+          //       color: AppColors.colorSecondary.withOpacity(0.25),
+          //       blurRadius: 0,
+          //       spreadRadius: 0.0,
+          //       offset: const Offset(0, 1.5),
+          //     ),
+          //     // BoxShadow(
+          //     //   color: Colors.black.withOpacity(0.6),
+          //     //   blurRadius: 30,
+          //     //   offset: const Offset(0, 12),
+          //     // ),
+          //   ],
+          // ),
           padding: const EdgeInsets.only(
             left: 12,
             top: 12,

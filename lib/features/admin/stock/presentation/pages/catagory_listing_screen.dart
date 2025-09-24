@@ -20,6 +20,7 @@ import 'package:sales_app_redesign/features/sales/category/model/all_category_mo
 import 'package:sales_app_redesign/features/sales/category/provider/category_provider.dart';
 
 class CategoryListingScreen extends StatefulWidget {
+
   const CategoryListingScreen({super.key});
 
   @override

@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:sales_app_redesign/core/common/circle_loading_indicator_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_bar_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_scaffold.dart';
+import 'package:sales_app_redesign/core/common_statefull_widget/frost_conatiner.dart';
+import 'package:sales_app_redesign/core/common_statefull_widget/glass_sheet_widget.dart';
 import 'package:sales_app_redesign/core/constants/app_size_constants.dart';
 import 'package:sales_app_redesign/core/utils/app_colors.dart';
 import 'package:sales_app_redesign/core/utils/app_constant.dart';
@@ -16,16 +18,18 @@ import 'package:sales_app_redesign/features/genral/product/presentation/produst_
 import 'package:sales_app_redesign/features/genral/product/provider/product_provider.dart';
 import 'package:sales_app_redesign/features/genral/search/presentation/search_delegate.dart';
 
-class ProductListingScreen extends StatefulWidget {
-  String? categoryName;
-  String? categoryId;
-  String? totViewTypeId;
-  bool? isAdmin;
-  bool? isFromCategory;
-  bool? isFromOrder;
-  bool isBackButtonAvailable;
+enum SortBy { nameAZ, nameZA, codeAZ, codeZA }
 
-  ProductListingScreen({
+class ProductListingScreen extends StatefulWidget {
+  final String? categoryName;
+  final String? categoryId;
+  final String? totViewTypeId;
+  final bool? isAdmin;
+  final bool? isFromCategory;
+  final bool? isFromOrder;
+  final bool isBackButtonAvailable;
+
+  const ProductListingScreen({
     super.key,
     this.categoryName,
     this.categoryId,
@@ -42,13 +46,14 @@ class ProductListingScreen extends StatefulWidget {
 
 class _ProductListingScreenState extends State<ProductListingScreen> {
   late ProductProvider _productProvider;
+  SortBy _sort = SortBy.nameAZ;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _productProvider = Provider.of<ProductProvider>(context, listen: false);
     _productProvider.resetProductData();
+
     widget.isFromCategory == true
         ? _productProvider.fetchProductListForCategory(widget.categoryId)
         : _productProvider.fetchProductListUsingTotId(widget.totViewTypeId);
@@ -58,127 +63,99 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
   Widget build(BuildContext context) {
     return Consumer<ProductProvider>(
       builder: (context, productProvider, child) {
+        final list =
+            widget.isFromCategory == true
+                ? productProvider.categoryProduct
+                : productProvider.totProduct;
+
+        _applySort(list);
+
         return AppScaffold(
-          bgColor: AppColors.colorPrimary,
           appBar: PreferredSize(
             preferredSize: Size(double.infinity, appBarSize),
             child: AppBarWidget(
-              onBackPressed: () {
-                widget.isFromOrder == true
-                    ? Navigator.pop(context, true)
-                    : Navigator.pop(context, false);
-              },
-              onPressedSearch: () {
-                widget.isFromCategory == true
-                    ? showSearch(
-                      context: context,
-                      delegate: ProductSearchDelegate(
-                        categoryId: widget.categoryId,
-                      ),
-                    )
-                    : showSearch(
-                      context: context,
-                      delegate: ProductSearchDelegate(),
-                    );
-              },
+              onBackPressed:
+                  () => Navigator.pop(context, widget.isFromOrder == true),
+              onPressedSearch:
+                  () => showSearch(
+                    context: context,
+                    delegate: ProductSearchDelegate(
+                      categoryId:
+                          widget.isFromCategory == true
+                              ? widget.categoryId
+                              : null,
+                    ),
+                  ),
               isSearchVisible: true,
               isCartVisible: true,
               isBackVisible: widget.isBackButtonAvailable,
               title: widget.categoryName,
             ),
           ),
-          body: Column(
+          body: Stack(
             children: [
-              10.toSizedBoxHeight,
-              widget.isFromCategory == true
-                  ? Expanded(
-                    child: NotificationListener(
-                      onNotification: (ScrollNotification scrollInfo) {
-                        if (scrollInfo.metrics.pixels ==
-                                scrollInfo.metrics.maxScrollExtent &&
+              Column(
+                children: [
+                  10.toSizedBoxHeight,
+                  Expanded(
+                    child: NotificationListener<ScrollNotification>(
+                      onNotification: (scroll) {
+                        if (scroll.metrics.pixels ==
+                                scroll.metrics.maxScrollExtent &&
                             !productProvider.isLoading) {
-                          productProvider.fetchProductListForCategory(
-                            widget.categoryId,
-                          );
+                          widget.isFromCategory == true
+                              ? productProvider.fetchProductListForCategory(
+                                widget.categoryId,
+                              )
+                              : productProvider.fetchProductListUsingTotId(
+                                widget.totViewTypeId,
+                              );
                         }
                         return false;
                       },
                       child:
-                          productProvider.isLoading
-                              ? CircleLoadingIndicatorWidget()
-                              : productProvider.categoryProduct == [] ||
-                                  productProvider.categoryProduct.isEmpty
+                          productProvider.isLoading ||
+                                  productProvider.isFetching
+                              ? const CircleLoadingIndicatorWidget()
+                              : list.isEmpty
                               ? AppUtils.noDataWidget()
-                              : GridView.builder(
-                                cacheExtent: 1000,
-                                physics: BouncingScrollPhysics(),
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 10,
-                                ),
-                                itemCount:
-                                    productProvider.categoryProduct.length,
-                                shrinkWrap: true,
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 2,
-                                      crossAxisSpacing: 20,
-                                      mainAxisSpacing: 20,
-                                      mainAxisExtent: 270,
-                                    ),
-                                itemBuilder: (context, index) {
-                                  return _listItemForCategory(
-                                    index: index,
-                                    item:
-                                        productProvider.categoryProduct[index],
-                                  );
-                                },
-                              ),
-                    ),
-                  )
-                  : Expanded(
-                    child: NotificationListener(
-                      onNotification: (ScrollNotification scrollInfo) {
-                        if (scrollInfo.metrics.pixels ==
-                                scrollInfo.metrics.maxScrollExtent &&
-                            !productProvider.isLoading) {
-                          productProvider.fetchProductListForCategory(
-                            widget.totViewTypeId,
-                          );
-                        }
-                        return false;
-                      },
-                      child:
-                          productProvider.isFetching
-                              ? CircleLoadingIndicatorWidget()
-                              : productProvider.totProduct.isEmpty ||
-                                  productProvider.totProduct == []
-                              ? AppUtils.noDataWidget()
-                              : GridView.builder(
-                                physics: BouncingScrollPhysics(),
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 10,
-                                ),
-                                itemCount: productProvider.totProduct.length,
-                                shrinkWrap: false,
-                                addAutomaticKeepAlives: true,
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 2,
-                                      crossAxisSpacing: 20,
-                                      mainAxisSpacing: 20,
-                                      mainAxisExtent: 270,
-                                    ),
-                                itemBuilder: (context, index) {
-                                  return _listItemForViewType(
-                                    index: index,
-                                    item: productProvider.totProduct[index],
-                                  );
-                                },
+                              : _ProductGrid(
+                                isFromCategory: widget.isFromCategory ?? false,
+                                list: list,
                               ),
                     ),
                   ),
+                ],
+              ),
+              // ---- Sticky bottom SORT bar ----
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                    child: Frost(
+                      blur: 22,
+                      opacity: .18,
+                      radius: 18,
+                      padding: const EdgeInsets.all(6),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: _BottomAction(
+                              icon: Icons.sort_rounded,
+                              label: 'SORT',
+                              onTap: _openSort,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         );
@@ -186,60 +163,174 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
     );
   }
 
-  Widget _listItemForCategory({required int index, required ListItem? item}) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(24),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder:
-                (context) => ProductDetailScreen(productId: item?.productId),
-          ),
+  void _applySort(List list) {
+    switch (_sort) {
+      case SortBy.nameAZ:
+        list.sort(
+          (a, b) => (a.productName ?? '').compareTo(b.productName ?? ''),
         );
-      },
-      child: Stack(
-        children: [
-          Container(
-            // height: 500,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
-            decoration: BoxDecoration(
-              color: AppColors.colorPrimary,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.white.withOpacity(0.08)),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.colorSecondary.withOpacity(0.25),
-                  offset: const Offset(0, 1.5),
+        break;
+      case SortBy.nameZA:
+        list.sort(
+          (a, b) => (b.productName ?? '').compareTo(a.productName ?? ''),
+        );
+        break;
+      case SortBy.codeAZ:
+        list.sort(
+          (a, b) => (a.productCode ?? '').compareTo(b.productCode ?? ''),
+        );
+        break;
+      case SortBy.codeZA:
+        list.sort(
+          (a, b) => (b.productCode ?? '').compareTo(a.productCode ?? ''),
+        );
+        break;
+      case SortBy.nameAZ:
+      default:
+        break;
+    }
+  }
+
+  void _openSort() async {
+    final result = await showModalBottomSheet<SortBy>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder:
+          (ctx) => GlassSheet(
+            title: 'Sort by',
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _SortTile(
+                  title: 'Name A → Z',
+                  selected: _sort == SortBy.nameAZ,
+                  onTap: () => Navigator.pop(ctx, SortBy.nameAZ),
                 ),
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.6),
-                  blurRadius: 30,
-                  offset: const Offset(0, 12),
+                _SortTile(
+                  title: 'Name Z → A',
+                  selected: _sort == SortBy.nameZA,
+                  onTap: () => Navigator.pop(ctx, SortBy.nameZA),
+                ),
+                _SortTile(
+                  title: 'Code A → Z',
+                  selected: _sort == SortBy.codeAZ,
+                  onTap: () => Navigator.pop(ctx, SortBy.codeAZ),
+                ),
+                _SortTile(
+                  title: 'Code Z → A',
+                  selected: _sort == SortBy.codeZA,
+                  onTap: () => Navigator.pop(ctx, SortBy.codeZA),
                 ),
               ],
             ),
+          ),
+    );
+    if (result != null) setState(() => _sort = result);
+  }
+}
+
+class _ProductGrid extends StatelessWidget {
+  final List list;
+  final bool isFromCategory;
+
+  const _ProductGrid({required this.list, required this.isFromCategory});
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      itemCount: list.length,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing:  20,
+        mainAxisSpacing:  20,
+        mainAxisExtent:  250,
+      ),
+      itemBuilder: (context, index) {
+        final item = list[index];
+        return _ProductCard(item: item, isFromCategory: isFromCategory);
+      },
+    );
+  }
+}
+
+class _ProductCard extends StatelessWidget {
+  final dynamic item;
+  final bool isFromCategory;
+
+  const _ProductCard({required this.item, required this.isFromCategory});
+
+  @override
+  Widget build(BuildContext context) {
+    print("ProductCode${item?.productCode}");
+    return InkWell(
+      borderRadius: BorderRadius.circular(24),
+      onTap:
+          () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ProductDetailScreen(productId: item?.productId),
+            ),
+          ),
+      child: Stack(
+        children: [
+          Frost(
+            padding: const EdgeInsets.all(14),
             child: Column(
-              // mainAxisSize: MainAxisSize.max, // Allow dynamic height
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 12),
                 Expanded(
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: AppUtils.cacheNetworkImage(
-                      item?.imagePath ?? "",
-                    ),
-                  ),
+                  child:
+                      isFromCategory
+                          ? ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: AspectRatio(
+                              aspectRatio: 1.07,
+                              child: Image.network(
+                                item?.imagePath ?? "",
+                                fit: BoxFit.cover,
+                                errorBuilder:
+                                    (_, __, ___) => const Icon(
+                                      Icons.broken_image,
+                                      color: Colors.white,
+                                    ),
+                              ),
+                            ),
+                          )
+                          : ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: AspectRatio(
+                              aspectRatio: 1.07,
+                              child: Image.network(
+                                item?.imagePath ?? "",
+                                fit: BoxFit.cover,
+                                errorBuilder:
+                                    (_, __, ___) => const Icon(
+                                      Icons.broken_image,
+                                      color: Colors.white,
+                                    ),
+                              ),
+                            ),
+                          ),
                 ),
-                const SizedBox(height: 12),
-                (item?.productName ?? 'N/A').textWidget(
-                  fontWeight: FontWeight.bold,
-                  fontFamily: AppConstants.fontFamilyPoppins,
-                  fontSize: 14,
-                  color: AppColors.colorLightGrey,
+                const SizedBox(height: 10),
+                ("${item?.productName}").textWidget(
+                  maxLine: 1,
                   overflow: TextOverflow.ellipsis,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                  color: AppColors.colorWhite,
                 ),
+
+                ("${item?.productCode}").textWidget(
+                  maxLine: 1,
+                  overflow: TextOverflow.ellipsis,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 12,
+                  color: AppColors.colorWhite,
+                ),
+
               ],
             ),
           ),
@@ -256,80 +347,160 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
       ),
     );
   }
+}
+// class _ProductCard extends StatelessWidget {
+//   final dynamic item;
+//   final bool isFromCategory;
+//
+//   const _ProductCard({required this.item, required this.isFromCategory});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     print("ProductCode${item?.productCode}");
+//     return InkWell(
+//       borderRadius: BorderRadius.circular(24),
+//       onTap:
+//           () => Navigator.push(
+//             context,
+//             MaterialPageRoute(
+//               builder: (_) => ProductDetailScreen(productId: item?.productId),
+//             ),
+//           ),
+//       child: Stack(
+//         children: [
+//           Frost(
+//             padding: const EdgeInsets.all(14),
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 Expanded(
+//                   child:
+//                       isFromCategory
+//                           ? ClipRRect(
+//                             borderRadius: BorderRadius.circular(12),
+//                             child: AspectRatio(
+//                               aspectRatio: 1.07,
+//                               child: Image.network(
+//                                 item?.imagePath ?? "",
+//                                 fit: BoxFit.cover,
+//                                 errorBuilder:
+//                                     (_, __, ___) => const Icon(
+//                                       Icons.broken_image,
+//                                       color: Colors.white,
+//                                     ),
+//                               ),
+//                             ),
+//                           )
+//                           : ClipRRect(
+//                             borderRadius: BorderRadius.circular(12),
+//                             child: AspectRatio(
+//                               aspectRatio: 1.07,
+//                               child: Image.network(
+//                                 item?.imagePath ?? "",
+//                                 fit: BoxFit.cover,
+//                                 errorBuilder:
+//                                     (_, __, ___) => const Icon(
+//                                       Icons.broken_image,
+//                                       color: Colors.white,
+//                                     ),
+//                               ),
+//                             ),
+//                           ),
+//                 ),
+//                 const SizedBox(height: 10),
+//                 ("${item?.productName}").textWidget(
+//                   maxLine: 1,
+//                   overflow: TextOverflow.ellipsis,
+//                   fontWeight: FontWeight.w700,
+//                   fontSize: 14,
+//                   color: AppColors.colorWhite,
+//                 ),
+//
+//                 ("${item?.productCode}").textWidget(
+//                   maxLine: 1,
+//                   overflow: TextOverflow.ellipsis,
+//                   fontWeight: FontWeight.w700,
+//                   fontSize: 12,
+//                   color: AppColors.colorWhite,
+//                 ),
+//
+//               ],
+//             ),
+//           ),
+//           Positioned(
+//             top: 0,
+//             right: 0,
+//             child: SizedBox(
+//               width: 145,
+//               height: 145,
+//               child: CustomPaint(painter: GlowingArcPainter()),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
 
-  Widget _listItemForViewType({
-    required int index,
-    required ProductList? item,
-  }) {
+class _BottomAction extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _BottomAction({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return InkWell(
-      borderRadius: BorderRadius.circular(24),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder:
-                (context) => ProductDetailScreen(productId: item?.productId),
-          ),
-        );
-      },
-      child: Stack(
-        children: [
-          Container(
-            // height: 500,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
-            decoration: BoxDecoration(
-              color: AppColors.colorPrimary,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.white.withOpacity(0.08)),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.colorSecondary.withOpacity(0.25),
-                  offset: const Offset(0, 1.5),
-                ),
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.6),
-                  blurRadius: 30,
-                  offset: const Offset(0, 12),
-                ),
-              ],
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 18, color: AppColors.colorWhite),
+            const SizedBox(width: 8),
+            label.textWidget(
+              fontWeight: FontWeight.w800,
+              fontSize: 14,
+              color: AppColors.colorWhite,
             ),
-            child: Column(
-              // mainAxisSize: MainAxisSize.max, // Allow dynamic height
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 12),
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: (item?.imagePath ?? '').toNetWorkImage(
-                      height: 170,
-                      width: 170,
-                      fit: BoxFit.cover,
-                      borderRadius: 10,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                (item?.productName ?? 'N/A').textWidget(
-                  fontWeight: FontWeight.bold,
-                  fontFamily: AppConstants.fontFamilyPoppins,
-                  fontSize: 14,
-                  color: AppColors.colorLightGrey,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-          Positioned(
-            top: 0,
-            right: 0,
-            child: SizedBox(
-              width: 145,
-              height: 145,
-              child: CustomPaint(painter: GlowingArcPainter()),
-            ),
-          ),
-        ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SortTile extends StatelessWidget {
+  final String title;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _SortTile({
+    required this.title,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      onTap: onTap,
+      dense: true,
+      leading: Icon(
+        selected ? Icons.radio_button_checked : Icons.radio_button_off,
+        color: selected ? AppColors.colorSecondary : AppColors.colorWhite,
+      ),
+      title: title.textWidget(
+        color: selected ? AppColors.colorSecondary : AppColors.colorWhite,
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
       ),
     );
   }

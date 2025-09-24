@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sales_app_redesign/core/common/circle_loading_indicator_widget.dart';
 import 'package:sales_app_redesign/core/utils/app_colors.dart';
 import 'package:sales_app_redesign/core/utils/app_extension.dart';
+import 'package:sales_app_redesign/core/utils/app_utils.dart';
 
 class CommonButtonWidget extends StatelessWidget {
   const CommonButtonWidget({
@@ -48,19 +49,24 @@ class CommonButtonWidget extends StatelessWidget {
           ? const CircleLoadingIndicatorWidget(isDimBg: false)
           : Container(
         margin: EdgeInsets.symmetric(horizontal: horizontalMargin ?? 0,vertical: verticalMargin ?? 0),
-              decoration: BoxDecoration(
-                color: buttonBgColor,
-                gradient: buttonBgColor  == null ? LinearGradient(
-                  colors: [
-                    AppColors.gradient1,
-                    AppColors.gradient2,
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ) : null,
-                borderRadius: BorderRadius.circular(borderRadius ?? 12),
-                border: Border.all(color: Colors.transparent, width: 1.5),
+              decoration: AppUtils.commonGradientBoxDecoration(
+                borderRadius: borderRadius ?? 12,
+                // border: Border.all(color: Colors.transparent, width: 1.5)
               ),
+
+              // decoration: BoxDecoration(
+              //   color: buttonBgColor,
+              //   gradient: buttonBgColor  == null ? LinearGradient(
+              //     colors: [
+              //       AppColors.gradient1,
+              //       AppColors.gradient2,
+              //     ],
+              //     begin: Alignment.topCenter,
+              //     end: Alignment.bottomCenter,
+              //   ) : null,
+              //   borderRadius: BorderRadius.circular(borderRadius ?? 12),
+              //   border: Border.all(color: Colors.transparent, width: 1.5),
+              // ),
               padding: EdgeInsets.symmetric(
                   vertical: verticalPadding ?? 16, horizontal: horizontalPadding ?? 12),
               child: Center(

@@ -4,7 +4,7 @@ import 'package:sales_app_redesign/core/common_statefull_widget/frost_conatiner.
 import 'package:sales_app_redesign/core/utils/app_colors.dart';
 import 'package:sales_app_redesign/core/utils/app_constant.dart';
 import 'package:sales_app_redesign/core/utils/app_utils.dart';
-import 'package:sales_app_redesign/features/admin/category_ad/category_screen_ad.dart';
+import 'package:sales_app_redesign/features/admin/category_ad/presentation/category_screen_ad.dart';
 import 'package:sales_app_redesign/features/admin/home/presentation/home_screen_ad.dart';
 
 import '../../../core/common_statefull_widget/app_scaffold.dart';

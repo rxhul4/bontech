@@ -29,7 +29,7 @@ class Frost extends StatelessWidget {
 
   // ⬇️ Make the glass outline subtly blue
   static BoxBorder outlineBorder() =>
-      Border.all(color: AppColors.primary.withOpacity(.18), width: 1);
+      Border.all(color: AppColors.colorWhite.withOpacity(.10), width: 1);
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +45,7 @@ class Frost extends StatelessWidget {
       height: height,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(radius),
-        border: frame,
+        border: frame ??outlineBorder(),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(radius),
