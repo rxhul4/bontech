@@ -34,71 +34,62 @@ class SearchModel {
 }
 
 class Data {
-  List<Products>? products;
+  int? pageSize;
+  int? pageNo;
+  int? recordCount;
+  List<ListItem>? listItem;
 
-  Data({this.products});
+  Data({this.pageSize, this.pageNo, this.recordCount, this.listItem});
 
   Data.fromJson(Map<String, dynamic> json) {
-    if (json['products'] != null) {
-      products = <Products>[];
-      json['products'].forEach((v) {
-        products!.add(new Products.fromJson(v));
+    pageSize = json['pageSize'];
+    pageNo = json['pageNo'];
+    recordCount = json['recordCount'];
+    if (json['listItem'] != null) {
+      listItem = <ListItem>[];
+      json['listItem'].forEach((v) {
+        listItem!.add(new ListItem.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.products != null) {
-      data['products'] = this.products!.map((v) => v.toJson()).toList();
+    data['pageSize'] = this.pageSize;
+    data['pageNo'] = this.pageNo;
+    data['recordCount'] = this.recordCount;
+    if (this.listItem != null) {
+      data['listItem'] = this.listItem!.map((v) => v.toJson()).toList();
     }
     return data;
   }
 }
 
-class Products {
+class ListItem {
   String? productId;
   String? categoryId;
   String? categoryName;
   String? productName;
   String? productCode;
-  String? productDescription;
   String? imagePath;
-  List<String>? totViewIds;
-  bool? isFavourite;
-  String? createdOn;
-  List<ProductVariants>? productVariants;
 
-  Products(
+  ListItem(
       {this.productId,
         this.categoryId,
         this.categoryName,
         this.productName,
         this.productCode,
-        this.productDescription,
         this.imagePath,
-        this.totViewIds,
-        this.isFavourite,
-        this.createdOn,
-        this.productVariants});
+   });
 
-  Products.fromJson(Map<String, dynamic> json) {
+  ListItem.fromJson(Map<String, dynamic> json) {
     productId = json['product_id'];
     categoryId = json['category_id'];
     categoryName = json['category_name'];
     productName = json['product_name'];
     productCode = json['product_code'];
-    productDescription = json['product_description'];
     imagePath = json['image_path'];
-    totViewIds = json['tot_view_ids'].cast<String>();
-    isFavourite = json['is_favourite'];
-    createdOn = json['created_on'];
-    if (json['productVariants'] != null) {
-      productVariants = <ProductVariants>[];
-      json['productVariants'].forEach((v) {
-        productVariants!.add(new ProductVariants.fromJson(v));
-      });
-    }
+
   }
 
   Map<String, dynamic> toJson() {
@@ -108,15 +99,8 @@ class Products {
     data['category_name'] = this.categoryName;
     data['product_name'] = this.productName;
     data['product_code'] = this.productCode;
-    data['product_description'] = this.productDescription;
     data['image_path'] = this.imagePath;
-    data['tot_view_ids'] = this.totViewIds;
-    data['is_favourite'] = this.isFavourite;
-    data['created_on'] = this.createdOn;
-    if (this.productVariants != null) {
-      data['productVariants'] =
-          this.productVariants!.map((v) => v.toJson()).toList();
-    }
+
     return data;
   }
 }

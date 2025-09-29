@@ -9,6 +9,7 @@ import 'package:sales_app_redesign/core/utils/app_colors.dart';
 import 'package:sales_app_redesign/core/utils/app_constant.dart';
 import 'package:sales_app_redesign/core/utils/app_extension.dart';
 import 'package:sales_app_redesign/core/utils/app_utils.dart';
+import 'package:sales_app_redesign/features/admin/pending_order/provider/pending_order_provider.dart';
 import 'package:sales_app_redesign/features/admin/profile/presentation/profile_screen_ad.dart';
 import 'package:sales_app_redesign/features/genral/cart/presentation/cart_screen.dart';
 import 'package:sales_app_redesign/features/genral/product/provider/product_provider.dart';
@@ -293,20 +294,25 @@ class _AppBarWidgetState extends State<AppBarWidget> {
   }
 
   Widget _countView() {
-    return Visibility(
-      visible: (cartItemCount > 0),
-      child: Container(
-        height: 17,
-        width: 17,
-        decoration: BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-        child: Center(
-          child: '$cartItemCount'.textWidget(
-            color: AppColors.colorWhite,
-            fontWeight: FontWeight.bold,
-            fontSize: 9,
+    return Consumer2<ProductProvider,PendingOrderProvider>(
+      builder: (context, productProvider, pendingOrderProvider, child) {
+        return Visibility(
+          visible: (cartItemCount > 0),
+          child: Container(
+            height: 17,
+            width: 17,
+            decoration: BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+            child: Center(
+              child: '$cartItemCount'.textWidget(
+                color: AppColors.colorWhite,
+                fontWeight: FontWeight.bold,
+                fontSize: 9,
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
+
     );
   }
 }

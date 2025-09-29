@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/frost_conatiner.dart';
@@ -7,11 +9,11 @@ import 'package:sales_app_redesign/core/utils/app_constant.dart';
 import 'package:sales_app_redesign/core/utils/app_utils.dart';
 import 'package:sales_app_redesign/features/admin/category_ad/presentation/category_screen_ad.dart';
 import 'package:sales_app_redesign/features/genral/home/presentation/home_screen.dart';
+import 'package:sales_app_redesign/main.dart';
 
 import '../../../core/common_statefull_widget/app_scaffold.dart';
 import '../order/presentation/order_screen_ad.dart';
 
-int cartItemCount = 0;
 
 class DashboardScreenAD extends StatefulWidget {
   const DashboardScreenAD({super.key});
@@ -73,94 +75,6 @@ class _DashboardScreenADState extends State<DashboardScreenAD> {
     );
   }
 
-  Widget _buildNavBar() {
-    return AnimatedNotchBottomBar(
-      showShadow: true,
-      textOverflow: TextOverflow.visible,
-      showTopRadius: true,
-
-      // bottomBarHeight: 100,
-      circleMargin: 10,
-      kBottomRadius: 10,
-      // durationInMilliSeconds: 1000,
-      notchBottomBarController: _controller,
-      color: AppColors.colorWhite,
-      showLabel: true,
-      blurOpacity: 0.5,
-
-      showBlurBottomBar: false,
-      itemLabelStyle: TextStyle(
-        fontFamily: AppConstants.fontFamilyPoppins,
-        fontWeight: FontWeight.w800,
-        fontSize: 12,
-        color: AppColors.colorPrimary,
-      ),
-
-      notchGradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [AppColors.gradient1, AppColors.gradient2],
-      ),
-      // notchColor: AppColors.colorPrimary,
-      textAlign: TextAlign.center,
-      kIconSize: 20,
-      // Improved icon size for better visibility
-      bottomBarItems: [
-        BottomBarItem(
-          itemLabel: "Home",
-          inActiveItem: Icon(
-            Icons.home_outlined,
-            color: AppColors.colorPrimary,
-          ),
-          activeItem: Icon(Icons.home_rounded, color: AppColors.colorWhite),
-        ),
-        BottomBarItem(
-          itemLabel: "Products",
-          inActiveItem: Icon(
-            Icons.shopping_bag_outlined,
-            color: AppColors.colorPrimary,
-          ),
-          activeItem: Icon(Icons.shopping_bag, color: AppColors.colorWhite),
-        ),
-        BottomBarItem(
-          itemLabel: "Order",
-          inActiveItem: Icon(
-            Icons.note_outlined,
-            color: AppColors.colorPrimary,
-          ),
-          activeItem: Icon(Icons.note, color: AppColors.colorWhite),
-        ),
-        // BottomBarItem(
-        //   itemLabel: "Stock",
-        //   inActiveItem: Icon(
-        //     Icons.category_outlined,
-        //     color: AppColors.colorPrimary,
-        //   ),
-        //   activeItem: Icon(Icons.category, color: AppColors.colorWhite),
-        // ),
-        // BottomBarItem(
-        //   itemLabel: "User",
-        //   inActiveItem: Icon(
-        //     Icons.supervised_user_circle,
-        //     color: AppColors.colorPrimary,
-        //   ),
-        //   activeItem: Icon(Icons.supervised_user_circle, color: AppColors.colorWhite),
-        // ),
-        // BottomBarItem(
-        //   itemLabel: "Profile",
-        //   inActiveItem: Icon(
-        //     Icons.person_outline,
-        //     color: AppColors.colorPrimary,
-        //   ),
-        //   activeItem: Icon(Icons.person, color: AppColors.colorWhite),
-        // ),
-      ],
-      onTap: (index) {
-        _pageController.jumpToPage(index);
-        setState(() => pageIndex = index);
-      },
-    );
-  }
 
   static const List<NavigationDestination> _navDestinations = [
     NavigationDestination(
@@ -181,11 +95,14 @@ class _DashboardScreenADState extends State<DashboardScreenAD> {
   ];
 
   Widget NavBar() {
-    return Frost(
-      margin: EdgeInsets.only(left: 10, right: 10, bottom: 16),
-      child: SafeArea(
-        top: true,
+    if(Platform.isIOS){
+      return Frost(
+
+        padding: EdgeInsets.zero,
+        radius: 0,
+        margin: EdgeInsets.only(left: 0, right: 0, bottom: 0),
         child: NavigationBar(
+          // height: ,
           backgroundColor: Colors.transparent,
           destinations: _navDestinations,
           selectedIndex: pageIndex,
@@ -194,7 +111,27 @@ class _DashboardScreenADState extends State<DashboardScreenAD> {
             setState(() => pageIndex = index);
           },
         ),
-      ),
-    );
+      );
+    }else{
+      return Frost(
+
+        // padding: EdgeInsets.zero,zero
+        margin: EdgeInsets.only(left: 10  , right: 10, bottom: 20),
+        child: SafeArea(
+          top: true,
+          child: NavigationBar(
+            // height: ,
+            backgroundColor: Colors.transparent,
+            destinations: _navDestinations,
+            selectedIndex: pageIndex,
+            onDestinationSelected: (index) {
+              _pageController.jumpToPage(index);
+              setState(() => pageIndex = index);
+            },
+          ),
+        ),
+      );
+    }
+
   }
 }

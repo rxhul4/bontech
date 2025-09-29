@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -98,11 +100,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   ];
 
   Widget NavBar() {
-    return Frost(
-      margin: EdgeInsets.only(left: 10, right: 10, bottom: 16),
-      child: SafeArea(
-        top: true,
+    if(Platform.isIOS){
+      return Frost(
+
+        padding: EdgeInsets.zero,
+        radius: 0,
+        margin: EdgeInsets.only(left: 0, right: 0, bottom: 0),
         child: NavigationBar(
+          // height: ,
           backgroundColor: Colors.transparent,
           destinations: _navDestinations,
           selectedIndex: pageIndex,
@@ -111,8 +116,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
             setState(() => pageIndex = index);
           },
         ),
-      ),
-    );
+      );
+    }else{
+      return Frost(
+
+        // padding: EdgeInsets.zero,zero
+        margin: EdgeInsets.only(left: 10  , right: 10, bottom: 20),
+        child: SafeArea(
+          top: true,
+          child: NavigationBar(
+            // height: ,
+            backgroundColor: Colors.transparent,
+            destinations: _navDestinations,
+            selectedIndex: pageIndex,
+            onDestinationSelected: (index) {
+              _pageController.jumpToPage(index);
+              setState(() => pageIndex = index);
+            },
+          ),
+        ),
+      );
+    }
+
   }
 
 }

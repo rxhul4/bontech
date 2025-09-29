@@ -22,7 +22,9 @@ class ApiConstants{
 
   //homeScreen
   static String getHomeView = "$baseUrl/Mobile/Home/GetAll";
-  static String searchApi = "$baseUrl/Mobile/Home/Seach";
+  // static String searchApi = "$baseUrl/Mobile/Home/Seach";
+  static String searchApi = "$baseUrl/SuperAdmin/Product/GetAllPaging";
+
   static String getHomeViewById = "$baseUrl/Mobile/Home/GetById";
 
   //catagory

@@ -76,16 +76,9 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
             child: AppBarWidget(
               onBackPressed:
                   () => Navigator.pop(context, widget.isFromOrder == true),
-              onPressedSearch:
-                  () => showSearch(
-                    context: context,
-                    delegate: ProductSearchDelegate(
-                      categoryId:
-                          widget.isFromCategory == true
-                              ? widget.categoryId
-                              : null,
-                    ),
-                  ),
+              onPressedSearch:(){
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ProductSearchDelegate(categoryId: widget.categoryId,),));
+              },
               isSearchVisible: true,
               isCartVisible: true,
               isBackVisible: widget.isBackButtonAvailable,

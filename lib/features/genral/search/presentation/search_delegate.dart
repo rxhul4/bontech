@@ -1,212 +1,161 @@
-import 'package:flutter/cupertino.dart' show EdgeInsets;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sales_app_redesign/core/common/circle_loading_indicator_widget.dart';
+import 'package:sales_app_redesign/core/common/custom_text_form_field.dart';
+import 'package:sales_app_redesign/core/common_statefull_widget/app_scaffold.dart';
+import 'package:sales_app_redesign/core/common_statefull_widget/frost_conatiner.dart';
+import 'package:sales_app_redesign/core/common_statefull_widget/product_card.dart';
+import 'package:sales_app_redesign/core/constants/app_size_constants.dart';
 import 'package:sales_app_redesign/core/utils/app_colors.dart';
 import 'package:sales_app_redesign/core/utils/app_constant.dart';
-import 'package:sales_app_redesign/core/utils/app_extension.dart';
 import 'package:sales_app_redesign/core/utils/app_utils.dart';
-import 'package:sales_app_redesign/core/utils/glow_arch_class.dart';
-import 'package:sales_app_redesign/features/genral/product/presentation/produst_detail_screen.dart';
 import 'package:sales_app_redesign/features/genral/search/provider/search_provider.dart';
 
-import '../model/search_model.dart';
-
-class ProductSearchDelegate extends SearchDelegate {
+class ProductSearchDelegate extends StatefulWidget {
   String? categoryId;
-
-  ProductSearchDelegate({this.categoryId});
-
-  bool _hasSearched = false;
+  ProductSearchDelegate({super.key,this.categoryId});
 
   @override
-  ThemeData appBarTheme(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    return theme.copyWith(
-      appBarTheme: const AppBarTheme(
-        iconTheme: IconThemeData(color: AppColors.colorWhite),
-        backgroundColor: AppColors.colorPrimary,
-        elevation: 0,
-      ),
-      inputDecorationTheme: const InputDecorationTheme(
-        hintStyle: TextStyle(color: Colors.white60),
-        border: InputBorder.none,
-      ),
-      textTheme: theme.textTheme.copyWith(
-        titleLarge: TextStyle(
-          color: Colors.white,
-          fontSize: 18,
-          fontFamily: AppConstants.fontFamilyPoppins,
-        ),
-      ),
+  State<ProductSearchDelegate> createState() => _ProductSearchDelegateState();
+}
+
+class _ProductSearchDelegateState extends State<ProductSearchDelegate> {
+
+  late SearchProvider _searchProvider;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _searchProvider = Provider.of<SearchProvider>(context, listen: false);
+      _searchProvider.clearListAndSearchModel();
+    });
+
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<SearchProvider>(
+      builder: (context, search, child) {
+        return AppScaffold(
+          appBar: PreferredSize(
+            preferredSize: Size(double.infinity, appBarSize),
+            child: SafeArea(
+              child: Frost(
+                blur: 18,
+                opacity: .20,
+                radius: 16,
+                frame: Frost.outlineBorder(),
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                margin: EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                child: Row(
+                  children: [
+                    _backArrow(context),
+                    Expanded(
+                      child: TextField(
+                        autofocus: true,
+                        onSubmitted: (value) {
+                          print("API Call");
+                          if (search.searchController.text != "") {
+                            search.apiCallSearch(categoryId: widget.categoryId ?? null);
+                          } else {
+                            AppUtils.showSnackBarWithColor(
+                              context: context,
+                              message:
+                                  "Please Enter Product name or Product code to find product",
+                            );
+                          }
+                        },
+
+                        // textAlign: TextAlign.center,
+                        textAlignVertical: TextAlignVertical.center,
+                        controller: search.searchController,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: AppConstants.fontFamilyPoppins,
+                          fontSize: 14,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: 'Search Products',
+                          hintStyle: TextStyle(
+                            color: Colors.white54,
+                            fontFamily: AppConstants.fontFamilyPoppins,
+                            fontSize: 14,
+                          ),
+                          border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          contentPadding: EdgeInsets.zero,
+                          isDense: true,
+                          suffixIcon: GestureDetector(
+                            onTap: () {
+                              search
+                                  .clearListAndSearchModel(); // Or: search.searchController.clear();
+                            },
+                            child: Icon(Icons.close, color: Colors.white70),
+                          ),
+                        ),
+                        cursorColor: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          body: Padding(
+            padding: const EdgeInsets.all(12),
+            child:
+                search.isLoading == true
+                    ? CircleLoadingIndicatorWidget()
+                    : search.filteredProducts.isEmpty
+                    ? Center(
+                      child: Text(
+                        'No products found',
+                        style: TextStyle(
+                          color: Colors.white54,
+                          fontFamily: AppConstants.fontFamilyPoppins,
+                        ),
+                      ),
+                    )
+                    : GridView.builder(
+                      itemCount: search.filteredProducts.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                            childAspectRatio: 0.75,
+                          ),
+                      itemBuilder: (context, index) {
+                        final product = search.filteredProducts[index];
+                        return ProductCard(
+                          item: product,
+                          onTap: () {},
+                        ); // Replace with your actual card
+                      },
+                    ),
+          ),
+        );
+      },
     );
   }
 
-  @override
-  void showResults(BuildContext context) {
-    final productProvider = Provider.of<SearchProvider>(context, listen: false);
-    _hasSearched = true;
-    if(categoryId == null){
-      productProvider.apiCallSearch(search: query, categoryId:  null);
-    }
-    else{
-      productProvider.apiCallSearch(search: query, categoryId:  categoryId);
-    }
-    super.showResults(context);
-  }
-
-  @override
-  Widget buildLeading(BuildContext context) {
+  Widget _backArrow(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.pop(context),
-      child: Container(
-        width: 44,
-        height: 44,
-        alignment: Alignment.center,
-        margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-        decoration: AppUtils.commonGradientBoxDecoration(),
-        child: const Icon(
-          Icons.arrow_back_ios_new_rounded,
-          size: 18,
-          color: Colors.white,
+      onTap: () {
+        Navigator.pop(context);
+      },
+      child: Frost(
+        radius: 12,
+        padding: const EdgeInsets.all(8),
+        margin: EdgeInsets.only(right: 10),
+        child: Icon(
+          Icons.arrow_back_ios_new,
+          color: AppColors.colorWhite,
+          size: 20,
         ),
       ),
-    );
-  }
-
-  @override
-  List<Widget>? buildActions(BuildContext context) {
-    return [
-      IconButton(
-        icon: const Icon(Icons.clear),
-        onPressed: () {
-          query = '';
-          _hasSearched = false;
-          Provider.of<SearchProvider>(context, listen: false).clearSearchResults();
-        },
-      )
-    ];
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    return Container(
-      color: AppColors.colorPrimary,
-      child: Center(
-        child: Text(
-          'Search for products',
-          style: TextStyle(color: Colors.white60),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    final productProvider = Provider.of<SearchProvider>(context);
-
-    if (!_hasSearched) {
-      return Container(color: AppColors.colorPrimary,child: Center(child: AppUtils.noDataWidget()));
-    }
-
-    if (productProvider.isLoading) {
-      return Container(color: AppColors.colorPrimary,child: const CircleLoadingIndicatorWidget());
-    }
-
-    final items = productProvider.searchModel?.data?.products;
-
-    if (items == null || items.isEmpty) {
-      return Container(color: AppColors.colorPrimary,child: Center(child: AppUtils.noDataWidget()));
-    }
-
-    return _buildResultsList(context, items);
-  }
-
-  Widget _buildResultsList(BuildContext context, List<Products> items) {
-    return Container(
-       color: AppColors.colorPrimary,
-      child: GridView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: items.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 20,
-          mainAxisSpacing: 20,
-          mainAxisExtent: 270,
-        ),
-        itemBuilder: (context, index) {
-          final item = items[index];
-          return GestureDetector(
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ProductDetailScreen(productId: item.productId),
-                ),
-              );
-            },
-            child: _buildProductCard(item),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildProductCard(Products item) {
-    return Stack(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
-          decoration: BoxDecoration(
-            color: AppColors.colorPrimary,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.white.withOpacity(0.08)),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.colorSecondary.withOpacity(0.25),
-                offset: const Offset(0, 1.5),
-              ),
-              BoxShadow(
-                color: Colors.black.withOpacity(0.6),
-                blurRadius: 30,
-                offset: const Offset(0, 12),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 12),
-              Align(
-                alignment: Alignment.center,
-                child: (item.imagePath ?? '').toNetWorkImage(
-                  height: 170,
-                  width: 170,
-                  fit: BoxFit.cover,
-                  borderRadius: 10,
-                ),
-              ),
-              const SizedBox(height: 12),
-              (item.productName ?? 'N/A').textWidget(
-                fontWeight: FontWeight.bold,
-                fontFamily: AppConstants.fontFamilyPoppins,
-                fontSize: 14,
-                color: AppColors.colorLightGrey,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
-        Positioned(
-          top: 0,
-          right: 0,
-          child: SizedBox(
-            width: 145,
-            height: 145,
-            child: CustomPaint(painter: GlowingArcPainter()),
-          ),
-        ),
-      ],
     );
   }
 }

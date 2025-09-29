@@ -23,6 +23,7 @@ import 'package:sales_app_redesign/features/genral/home/provider/home_provider.d
 import 'package:sales_app_redesign/features/genral/product/presentation/product_listing_page.dart';
 import 'package:sales_app_redesign/features/genral/product/presentation/produst_detail_screen.dart';
 import 'package:sales_app_redesign/features/genral/search/presentation/search_delegate.dart';
+import 'package:sales_app_redesign/main.dart';
 
 import '../model/get_home_model.dart';
 
@@ -160,8 +161,8 @@ class _HomeScreenState extends State<HomeScreen> {
               isBackVisible: false,
               isCartVisible: true,
               isSearchVisible: true,
-              onPressedSearch: () {
-                showSearch(context: context, delegate: ProductSearchDelegate());
+              onPressedSearch: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ProductSearchDelegate(),));
               },
             ),
           ),

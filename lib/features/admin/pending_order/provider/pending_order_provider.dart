@@ -133,6 +133,8 @@ class PendingOrderProvider extends ChangeNotifier{
       // Save updated cart data
       final encodedCart = cartModel?.toJson();
       final cartStringUpdated = convertJsonToString(encodedCart);
+      updateCartItemCount();
+
       PreferenceHelper.setString(PreferenceHelper.CART_MODEL_LIST_AD, cartStringUpdated);
       AppUtils.showSnackBarWithColor(
         context: context,
@@ -142,8 +144,8 @@ class PendingOrderProvider extends ChangeNotifier{
       if (kDebugMode) {
         print('Updated Cart Data: $encodedCart');
       }
-      updateCartItemCount();
-
+      cartItemCount = cartModel?.productInfo?.length ?? 0;
+      notifyListeners();
 
       // updateCartItemCount(cart.listData?.length);
     } catch (e, stackTrace) {

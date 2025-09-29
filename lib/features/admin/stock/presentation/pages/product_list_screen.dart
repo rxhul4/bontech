@@ -62,13 +62,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
               onBackPressed: () {
                 Navigator.pop(context);
               },
-              onPressedSearch: () {
-                showSearch(
-                  context: context,
-                  delegate: ProductSearchDelegate(
-                    categoryId: widget.categoryId,
-                  ),
-                );
+              onPressedSearch: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ProductSearchDelegate(),));
               },
               isSearchVisible: true,
               isCartVisible: false,

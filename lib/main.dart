@@ -21,6 +21,8 @@ import 'package:sales_app_redesign/features/sales/sales_order/sales_order_provid
 
 import 'features/sales/dashboard/dashboard.dart';
 
+int cartItemCount = 0;
+
 List<SingleChildWidget> providers = [
   ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
   ChangeNotifierProvider<HomeProvider>(create: (_) => HomeProvider()),
