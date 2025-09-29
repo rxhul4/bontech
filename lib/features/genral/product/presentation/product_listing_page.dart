@@ -74,12 +74,11 @@ class _ProductListingScreenState extends State<ProductListingScreen> {
           appBar: PreferredSize(
             preferredSize: Size(double.infinity, appBarSize),
             child: AppBarWidget(
-              onBackPressed:
-                  () => Navigator.pop(context, widget.isFromOrder == true),
+              onBackPressed: () => Navigator.pop(context, widget.isFromOrder == true),
               onPressedSearch:(){
                 Navigator.push(context, MaterialPageRoute(builder: (context) => ProductSearchDelegate(categoryId: widget.categoryId,),));
               },
-              isSearchVisible: true,
+              isSearchVisible: widget.isFromCategory == true ? true : false,
               isCartVisible: true,
               isBackVisible: widget.isBackButtonAvailable,
               title: widget.categoryName,

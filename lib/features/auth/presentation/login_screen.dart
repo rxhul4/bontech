@@ -35,7 +35,7 @@ class _LogInScreenState extends State<LogInScreen> {
     print("yess");
     postMdl
         .apiCallLogin(
-          email: emailController.text,
+          email: emailController.text.toLowerCase(),
           password: passwordController.text,
         )
         .then((value) {
