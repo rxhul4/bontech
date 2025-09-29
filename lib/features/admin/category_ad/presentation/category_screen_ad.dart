@@ -14,16 +14,18 @@ import 'package:sales_app_redesign/core/utils/app_constant.dart';
 import 'package:sales_app_redesign/core/utils/app_extension.dart';
 import 'package:sales_app_redesign/core/utils/app_utils.dart';
 import 'package:sales_app_redesign/features/admin/category_ad/provider/category_provider_ad.dart';
-import 'package:sales_app_redesign/features/admin/home/model/product_card_model.dart';
+import 'package:sales_app_redesign/features/admin/stock/presentation/pages/product_list_screen.dart';
 import 'package:sales_app_redesign/features/auth/presentation/login_screen.dart';
 import 'package:sales_app_redesign/features/genral/change_password/presentation/chnage_password_screen.dart';
+import 'package:sales_app_redesign/features/genral/home/model/product_card_model.dart';
 import 'package:sales_app_redesign/features/genral/product/presentation/product_listing_page.dart';
 import 'package:sales_app_redesign/features/genral/product/provider/product_provider.dart';
 import 'package:sales_app_redesign/features/sales/category/model/all_category_model.dart';
 import 'package:sales_app_redesign/features/sales/category/provider/category_provider.dart';
 
 class CategoryScreenAd extends StatefulWidget {
-  const CategoryScreenAd({super.key});
+  bool? isFromStock;
+  CategoryScreenAd({super.key,this.isFromStock});
 
   @override
   State<CategoryScreenAd> createState() => _CategoryScreenAdState();
@@ -52,9 +54,11 @@ class _CategoryScreenAdState extends State<CategoryScreenAd> {
           appBar: PreferredSize(
             preferredSize: Size(double.infinity, appBarSize),
             child: AppBarWidget(
+              isBackVisible: widget.isFromStock ==true ? true :  false,
+              isCartVisible: widget.isFromStock ==true ? false : true,
               title: "Category",
               centerTitle: false,
-              isAdmin: true,
+              isAdmin: widget.isFromStock ==true ? false :  true,
             ),
           ),
 
@@ -93,22 +97,41 @@ class _CategoryScreenAdState extends State<CategoryScreenAd> {
               child: AppUtils.commonInkWell(
                 borderRadius: BorderRadius.circular(16),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (context) =>
-                          ProductListingScreen(
-                            isBackButtonAvailable: true,
-                            isFromCategory: true,
-                            isAdmin: false,
-                            categoryId:
-                            categoryProviderAd.categoryList[index].id,
-                            categoryName:
-                            categoryProviderAd.categoryList[index].name,
-                          ),
-                    ),
-                  );
+                  if(widget.isFromStock == true){
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) =>
+                            ProductListScreen(
+                              categoryId:
+                              categoryProviderAd.categoryList[index].id,
+                              categoryName:
+                              categoryProviderAd.categoryList[index].name,
+                            ),
+                      ),
+                    );
+                  }else{
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) =>
+                            ProductListingScreen(
+                              isBackButtonAvailable: true,
+                              isFromCategory: true,
+                              isAdmin: false,
+                              categoryId:
+                              categoryProviderAd.categoryList[index].id,
+                              categoryName:
+                              categoryProviderAd.categoryList[index].name,
+                            ),
+                      ),
+                    );
+                  }
+
                 },
                 child: AppUtils.commonContainer(
                   padding: EdgeInsets.symmetric(
@@ -215,7 +238,6 @@ class _CategoryScreenAdState extends State<CategoryScreenAd> {
     );
   }
 
-  final TextEditingController _searchCtrl = TextEditingController();
 
   _searchBar() {
     return Frost(
@@ -267,19 +289,4 @@ class _CategoryScreenAdState extends State<CategoryScreenAd> {
     );
   }
 
-  Widget _listItemForCategory({required int index, required ProductItem item}) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(24),
-      onTap: () {
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder:
-        //         (context) => ProductDetailScreen(productId: item?.productId),
-        //   ),
-        // );
-      },
-      child: ProductCard(item: item, onTap: () {}),
-    );
-  }
 }

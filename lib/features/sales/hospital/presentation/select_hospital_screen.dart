@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:sales_app_redesign/core/common/circle_loading_indicator_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_bar_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_scaffold.dart';
+import 'package:sales_app_redesign/core/common_statefull_widget/frost_conatiner.dart';
 import 'package:sales_app_redesign/core/constants/app_size_constants.dart';
 import 'package:sales_app_redesign/core/utils/app_colors.dart';
 import 'package:sales_app_redesign/core/utils/app_extension.dart';
@@ -38,7 +39,7 @@ class _SelectHospitalScreenState extends State<SelectHospitalScreen> {
     super.initState();
     _hospitalProvider = Provider.of<HospitalProvider>(context, listen: false);
     _cartProvider = Provider.of<CartProvider>(context, listen: false);
-    _hospitalProvider.apiCallGetAllHospital();
+    _hospitalProvider.apiCallGetAllHospital(isFromSelectionPage: true);
   }
 
   @override
@@ -72,7 +73,7 @@ class _SelectHospitalScreenState extends State<SelectHospitalScreen> {
                       ),
                     ).then((value) {
                       if (value == true) {
-                        hospitalProvider.apiCallGetAllHospital();
+                        hospitalProvider.apiCallGetAllHospital(isFromSelectionPage: true);
                       }
                     });
                   },
@@ -132,32 +133,32 @@ class _SelectHospitalScreenState extends State<SelectHospitalScreen> {
                                     contentPadding: AppUtils.edgeInsetsAll(
                                       allPadding: 0,
                                     ),
-                                    title: AppUtils.commonContainer(
+                                    title: Frost(
                                       margin: EdgeInsets.only(right: 10),
                                       width: double.infinity,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.colorPrimary,
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
-                                          color: Colors.white.withOpacity(0.08),
-                                        ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: AppColors.colorPrimary
-                                                .withOpacity(0.25),
-                                            blurRadius: 0,
-                                            spreadRadius: 0.0,
-                                            offset: const Offset(0, 1.5),
-                                          ),
-                                          BoxShadow(
-                                            color: Colors.black.withOpacity(
-                                              0.6,
-                                            ),
-                                            blurRadius: 30,
-                                            offset: const Offset(0, 12),
-                                          ),
-                                        ],
-                                      ),
+                                      // decoration: BoxDecoration(
+                                      //   color: AppColors.colorPrimary,
+                                      //   borderRadius: BorderRadius.circular(12),
+                                      //   border: Border.all(
+                                      //     color: Colors.white.withOpacity(0.08),
+                                      //   ),
+                                      //   boxShadow: [
+                                      //     BoxShadow(
+                                      //       color: AppColors.colorPrimary
+                                      //           .withOpacity(0.25),
+                                      //       blurRadius: 0,
+                                      //       spreadRadius: 0.0,
+                                      //       offset: const Offset(0, 1.5),
+                                      //     ),
+                                      //     BoxShadow(
+                                      //       color: Colors.black.withOpacity(
+                                      //         0.6,
+                                      //       ),
+                                      //       blurRadius: 30,
+                                      //       offset: const Offset(0, 12),
+                                      //     ),
+                                      //   ],
+                                      // ),
                                       child: Padding(
                                         padding: AppUtils.edgeInsetsAll(
                                           allPadding: 10,
@@ -230,13 +231,11 @@ class _SelectHospitalScreenState extends State<SelectHospitalScreen> {
                                     ),
                                     activeColor: AppColors.colorWhite,
 
-                                    value:
-                                        hospitalProvider
+                                    value: hospitalProvider
                                             .getAllHospitalModel
                                             ?.data?[index] ??
                                         GetAllHospitalData(),
-                                    groupValue:
-                                        hospitalProvider.selectedHospital,
+                                    groupValue: hospitalProvider.selectedHospital,
                                     onChanged: (value) {
                                       if (value != null) {
                                         hospitalProvider.onChangeHospital(

@@ -286,7 +286,7 @@ class AppUtils {
           letterSpacing: letterSpacing ?? AppConstants.two,
           fontWeight: fontWeight,
           height: height,
-          fontFamily: fontFamily ?? AppConstants.fontFamilyRoboto,
+          fontFamily: fontFamily ?? AppConstants.fontFamilyPoppins,
         ),
       ),
     );

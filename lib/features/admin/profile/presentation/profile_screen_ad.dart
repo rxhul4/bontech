@@ -11,8 +11,9 @@ import 'package:sales_app_redesign/core/storage/preference_helper.dart';
 import 'package:sales_app_redesign/core/utils/app_colors.dart';
 import 'package:sales_app_redesign/core/utils/app_extension.dart';
 import 'package:sales_app_redesign/core/utils/app_utils.dart';
+import 'package:sales_app_redesign/features/admin/category_ad/presentation/category_screen_ad.dart';
+import 'package:sales_app_redesign/features/admin/dashboard_ad/dashboard_ad.dart';
 import 'package:sales_app_redesign/features/admin/pending_order/presentation/pending_order_screen.dart';
-import 'package:sales_app_redesign/features/admin/stock/presentation/pages/catagory_listing_screen.dart';
 import 'package:sales_app_redesign/features/admin/user/presentation/salesman_screen_ad.dart';
 import 'package:sales_app_redesign/features/auth/presentation/login_screen.dart';
 import 'package:sales_app_redesign/features/genral/change_password/presentation/chnage_password_screen.dart';
@@ -96,7 +97,7 @@ class _ProfileScreenAdState extends State<ProfileScreenAd> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => CategoryListingScreen(),
+                              builder: (context) => CategoryScreenAd(isFromStock: true,),
                             ));
                       }),
 

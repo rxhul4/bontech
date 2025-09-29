@@ -1,18 +1,18 @@
-class AllCategoryModel {
+class CategoryModel {
   bool? isError;
   bool? isValidationFailed;
   String? errorCode;
   String? message;
   List<Data>? data;
 
-  AllCategoryModel(
+  CategoryModel(
       {this.isError,
         this.isValidationFailed,
         this.errorCode,
         this.message,
         this.data});
 
-  AllCategoryModel.fromJson(Map<String, dynamic> json) {
+  CategoryModel.fromJson(Map<String, dynamic> json) {
     isError = json['isError'];
     isValidationFailed = json['isValidationFailed'];
     errorCode = json['errorCode'];

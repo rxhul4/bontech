@@ -220,7 +220,7 @@ class HospitalProvider extends ChangeNotifier{
   }
 
   ///ApiCalls
-  apiCallGetAllHospital() async {
+  apiCallGetAllHospital({ bool? isFromSelectionPage}) async {
     var userId = PreferenceHelper.getString(PreferenceHelper.USER_ID);
     _isFetching = true;
     // notifyListeners();
@@ -229,7 +229,7 @@ class HospitalProvider extends ChangeNotifier{
       var response = await callGetMethod(endPoint);
       getAllHospitalModel = GetAllHospitalModel.fromJson(json.decode(response));
       if(getAllHospitalModel?.isError == false && getAllHospitalModel?.isValidationFailed == false){
-
+        onChangeHospital(getAllHospitalModel?.data?.first);
 
       }
       print('response ${getAllHospitalModel?.toJson()}');

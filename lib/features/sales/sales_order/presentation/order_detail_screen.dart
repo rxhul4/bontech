@@ -7,6 +7,7 @@ import 'package:sales_app_redesign/core/common/circle_loading_indicator_widget.d
 import 'package:sales_app_redesign/core/common/no_data_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_bar_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_scaffold.dart';
+import 'package:sales_app_redesign/core/common_statefull_widget/frost_conatiner.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/notes_dialog_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/update_quantity_dialog_widget.dart';
 import 'package:sales_app_redesign/core/constants/app_size_constants.dart';
@@ -205,152 +206,132 @@ class _SalesOrderOrderDetailsScreenState extends State<SalesOrderOrderDetailsScr
 
 
   Widget _listItemSalesOrderItem(slOd.SalesOrderProductList? item) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: AppColors.colorLightGrey,
-      ),
-      margin: EdgeInsets.symmetric(horizontal: 0, vertical: 8),
-      child: InkWell(
-        child: Container(
-          // margin: EdgeInsets.symmetric(vertical: 8),
-          decoration: BoxDecoration(
-            color: AppColors.colorPrimary,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.white.withOpacity(0.08)),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.colorSecondary.withOpacity(0.25),
-                blurRadius: 0,
-                spreadRadius: 0.0,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          width: double.infinity,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: '${item?.productName}'.textWidget(
-                      fontWeight: FontWeight.bold,
-                      fontFamily: AppConstants.fontFamilyPoppins,
-                      fontSize: fontSizeMedium,
-                      color: AppColors.colorLightGrey,
-                    ),
+    return InkWell(
+      child: Frost(
+        margin: EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        width: double.infinity,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: '${item?.productName}'.textWidget(
+                    fontWeight: FontWeight.bold,
+                    fontFamily: AppConstants.fontFamilyPoppins,
+                    fontSize: fontSizeMedium,
+                    color: AppColors.colorLightGrey,
                   ),
+                ),
 
-                  item?.deliveredQuantity?.toInt()  == 0 ?  SizedBox() : 'Delivered Qty :'.richTextView(
-                    textSpanList: [
-                      const WidgetSpan(child: SizedBox(width: 3)),
-                      TextSpan(
-                        text: '${item?.deliveredQuantity?.toInt()}',
-                        style: const TextStyle(
-                          color: AppColors.colorWhite,
-                          fontWeight: FontWeight.bold,
-                        ),
+                item?.deliveredQuantity?.toInt()  == 0 ?  SizedBox() : 'Delivered Qty :'.richTextView(
+                  textSpanList: [
+                    const WidgetSpan(child: SizedBox(width: 3)),
+                    TextSpan(
+                      text: '${item?.deliveredQuantity?.toInt()}',
+                      style: const TextStyle(
+                        color: AppColors.colorWhite,
+                        fontWeight: FontWeight.bold,
                       ),
-                    ],
-                  ),
-                ],
-              ),
-              5.toSizedBoxHeight,
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Row(
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            5.toSizedBoxHeight,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    2.toSizedBoxHeight,
+                    'Qty :'.richTextView(
+                      textSpanList: [
+                        const WidgetSpan(child: SizedBox(width: 3)),
+                        TextSpan(
+                          text: '${item?.quantity?.toInt()}',
+                          style: const TextStyle(
+                            color: AppColors.colorWhite,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            5.toSizedBoxHeight,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                if ((item?.productVariant?.isNotEmpty ?? false))
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      2.toSizedBoxHeight,
-                      'Qty :'.richTextView(
+                    children: item!.productVariant!.entries.map((entry) {
+                      final key = entry.key;
+                      final value = entry.value;
+
+                      return '$key : '.richTextView(
+                        fontFamily: AppConstants.fontFamilyPoppins,
+                        fontSize: fontSizeNormal,
+                        color: AppColors.colorLightGrey,
                         textSpanList: [
-                          const WidgetSpan(child: SizedBox(width: 3)),
+                          const WidgetSpan(child: SizedBox(width: 2)),
                           TextSpan(
-                            text: '${item?.quantity?.toInt()}',
-                            style: const TextStyle(
+                            text: value.name ?? 'N/A',
+                            style: TextStyle(
                               color: AppColors.colorWhite,
+                              fontSize: fontSizeSmall,
+                              fontFamily: AppConstants.fontFamilyPoppins,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
-                      ),
-                    ],
+                      );
+                    }).toList(),
                   ),
-                ],
-              ),
-              5.toSizedBoxHeight,
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  if ((item?.productVariant?.isNotEmpty ?? false))
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: item!.productVariant!.entries.map((entry) {
-                        final key = entry.key;
-                        final value = entry.value;
-
-                        return '$key : '.richTextView(
-                          fontFamily: AppConstants.fontFamilyPoppins,
-                          fontSize: fontSizeNormal,
-                          color: AppColors.colorLightGrey,
-                          textSpanList: [
-                            const WidgetSpan(child: SizedBox(width: 2)),
-                            TextSpan(
-                              text: value.name ?? 'N/A',
-                              style: TextStyle(
-                                color: AppColors.colorWhite,
-                                fontSize: fontSizeSmall,
-                                fontFamily: AppConstants.fontFamilyPoppins,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        );
-                      }).toList(),
+                    '${AppConstants.currencySymbol}${item?.price}'.textWidget(
+                      fontWeight: FontWeight.bold,
+                      fontFamily: AppConstants.fontFamilyRoboto,
+                      fontSize: fontSizeNormal,
+                      color: AppColors.colorLightGrey,
                     ),
-                      '${AppConstants.currencySymbol}${item?.price}'.textWidget(
-                        fontWeight: FontWeight.bold,
-                        fontFamily: AppConstants.fontFamilyRoboto,
-                        fontSize: fontSizeNormal,
-                        color: AppColors.colorLightGrey,
-                      ),
 
-                  // '${AppConstants.currencySymbol}${item?.price?.toStringAsFixed(2) ?? 0}'
-                  //     .textWidget(
-                  //   color: AppColors.colorWhite,
-                  //   fontSize: fontSizeNormal,
-                  //   fontWeight: FontWeight.bold,
-                  //   fontFamily: AppConstants.fontFamilyRoboto,
-                  // ),
-                ],
+                // '${AppConstants.currencySymbol}${item?.price?.toStringAsFixed(2) ?? 0}'
+                //     .textWidget(
+                //   color: AppColors.colorWhite,
+                //   fontSize: fontSizeNormal,
+                //   fontWeight: FontWeight.bold,
+                //   fontFamily: AppConstants.fontFamilyRoboto,
+                // ),
+              ],
 
-              ),
-              // Row(
-              //   children: [
-              //     Expanded(
-              //       child: (/*item?.material ??*/ 'N/A').textWidget(
-              //         fontWeight: FontWeight.w400,
-              //         fontFamily: AppConstants.fontFamilyRoboto,
-              //         fontSize: 13,
-              //         color: AppColors.colorWhite,
-              //       ),
-              //     ),
-              //     '${AppConstants.currencySymbol}${item?.price}'.textWidget(
-              //       fontWeight: FontWeight.bold,
-              //       fontFamily: AppConstants.fontFamilyRoboto,
-              //       fontSize: fontSizeNormal,
-              //       color: AppColors.colorLightGrey,
-              //     ),
-              //   ],
-              // ),
-            ],
-          ),
+            ),
+            // Row(
+            //   children: [
+            //     Expanded(
+            //       child: (/*item?.material ??*/ 'N/A').textWidget(
+            //         fontWeight: FontWeight.w400,
+            //         fontFamily: AppConstants.fontFamilyRoboto,
+            //         fontSize: 13,
+            //         color: AppColors.colorWhite,
+            //       ),
+            //     ),
+            //     '${AppConstants.currencySymbol}${item?.price}'.textWidget(
+            //       fontWeight: FontWeight.bold,
+            //       fontFamily: AppConstants.fontFamilyRoboto,
+            //       fontSize: fontSizeNormal,
+            //       color: AppColors.colorLightGrey,
+            //     ),
+            //   ],
+            // ),
+          ],
         ),
       ),
     );

@@ -12,27 +12,30 @@ import 'package:sales_app_redesign/core/common_statefull_widget/app_scaffold.dar
 import 'package:sales_app_redesign/core/common_statefull_widget/frost_conatiner.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/product_card.dart';
 import 'package:sales_app_redesign/core/constants/app_size_constants.dart';
+import 'package:sales_app_redesign/core/storage/preference_helper.dart';
 import 'package:sales_app_redesign/core/utils/app_colors.dart';
 import 'package:sales_app_redesign/core/utils/app_constant.dart';
 import 'package:sales_app_redesign/core/utils/app_extension.dart';
 import 'package:sales_app_redesign/core/utils/app_utils.dart';
 import 'package:sales_app_redesign/features/admin/category_ad/presentation/category_screen_ad.dart';
-import 'package:sales_app_redesign/features/admin/home/provider/home_providerAD.dart';
+import 'package:sales_app_redesign/features/admin/dashboard_ad/dashboard_ad.dart';
+import 'package:sales_app_redesign/features/genral/home/provider/home_provider.dart';
 import 'package:sales_app_redesign/features/genral/product/presentation/product_listing_page.dart';
 import 'package:sales_app_redesign/features/genral/product/presentation/produst_detail_screen.dart';
 import 'package:sales_app_redesign/features/genral/search/presentation/search_delegate.dart';
 
 import '../model/get_home_model.dart';
 
-class HomeScreenAd extends StatefulWidget {
-  const HomeScreenAd({super.key});
+class HomeScreen extends StatefulWidget {
+  bool? isAdmin;
+  HomeScreen({super.key,this.isAdmin});
 
   @override
-  State<HomeScreenAd> createState() => _HomeScreenAdState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenAdState extends State<HomeScreenAd> {
-  late HomeProviderAd _homeProviderAd;
+class _HomeScreenState extends State<HomeScreen> {
+  late HomeProvider _homeProviderAd;
 
   final _bannerCtrl = PageController(viewportFraction: 0.90);
   ValueNotifier<int> _bannerIndex = ValueNotifier(0);
@@ -41,7 +44,9 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _homeProviderAd = Provider.of<HomeProviderAd>(context, listen: false);
+    _homeProviderAd = Provider.of<HomeProvider>(context, listen: false);
+    cartItemCount = PreferenceHelper.getInt(PreferenceHelper.cartItem) ?? 0;
+
     _homeProviderAd.apiCallGetHomeView(context);
     _bannerCtrl.addListener(() {
       final page = _bannerCtrl.page ?? 0;
@@ -143,13 +148,13 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<HomeProviderAd>(
+    return Consumer<HomeProvider>(
       builder: (context, homeProvider, child) {
         return AppScaffold(
           appBar: PreferredSize(
             preferredSize: const Size(double.infinity, appBarSize),
             child: AppBarWidget(
-              isAdmin: true,
+              isAdmin: widget.isAdmin,
               centerTitle: false,
               title: "HOME",
               isBackVisible: false,
@@ -238,7 +243,7 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
     );
   }
 
-  Widget _categoryListWidget(HomeProviderAd homeProvider) {
+  Widget _categoryListWidget(HomeProvider homeProvider) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -291,7 +296,7 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
     );
   }
 
-  Widget _trendingProductList(HomeProviderAd homeProvider) {
+  Widget _trendingProductList(HomeProvider homeProvider) {
     return (homeProvider.trending.length ?? 0) <= 0
         ? AppUtils.commonSizedBox()
         : Column(
@@ -342,7 +347,7 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
         );
   }
 
-  Widget _bestsellerProductList(HomeProviderAd homeProvider) {
+  Widget _bestsellerProductList(HomeProvider homeProvider) {
     return (homeProvider.bestSeller.length ?? 0) <= 0
         ? AppUtils.commonSizedBox()
         : Column(
@@ -392,7 +397,7 @@ class _HomeScreenAdState extends State<HomeScreenAd> {
         );
   }
 
-  Widget _newArrivalProductList(HomeProviderAd homeProvider) {
+  Widget _newArrivalProductList(HomeProvider homeProvider) {
     return (homeProvider.newArrival.length ?? 0) <= 0
         ? AppUtils.commonSizedBox()
         : Column(

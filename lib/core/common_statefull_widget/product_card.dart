@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/frost_conatiner.dart';
 import 'package:sales_app_redesign/core/utils/app_colors.dart';
 import 'package:sales_app_redesign/core/utils/app_extension.dart';
-import 'package:sales_app_redesign/features/admin/home/model/product_card_model.dart';
+import 'package:sales_app_redesign/features/genral/home/model/product_card_model.dart';
 
 class ProductCard extends StatelessWidget {
   final ProductItem item;

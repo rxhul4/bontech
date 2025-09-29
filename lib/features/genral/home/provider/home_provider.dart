@@ -5,11 +5,11 @@ import 'package:sales_app_redesign/core/constants/api_constants.dart';
 import 'package:sales_app_redesign/core/network/network_repository.dart';
 import 'package:sales_app_redesign/core/storage/preference_helper.dart';
 import 'package:sales_app_redesign/core/utils/app_utils.dart';
-import 'package:sales_app_redesign/features/admin/home/model/get_home_model.dart';
+import 'package:sales_app_redesign/features/genral/home/model/get_home_model.dart';
 
 import '../model/product_card_model.dart';
 
-class HomeProviderAd extends ChangeNotifier {
+class HomeProvider extends ChangeNotifier {
   bool _isFetching = false;
   bool _isLoading = false;
   bool _isUploading = false;

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:sales_app_redesign/core/common/circle_loading_indicator_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_bar_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_scaffold.dart';
+import 'package:sales_app_redesign/core/common_statefull_widget/frost_conatiner.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/update_quantity_dialog_widget.dart';
 import 'package:sales_app_redesign/core/constants/app_size_constants.dart';
 import 'package:sales_app_redesign/core/storage/preference_helper.dart';
@@ -83,42 +84,34 @@ class _PendingOrderSummaryScreenState extends State<PendingOrderSummaryScreen> {
       ) {
     if (item == null) return const SizedBox();
 
-    return Container(
+    return Frost(
       margin: const EdgeInsets.symmetric(vertical: 8),
-      decoration: BoxDecoration(
-        color: AppColors.colorPrimary,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.colorPrimary.withOpacity(0.25),
-            offset: const Offset(0, 1.5),
-          ),
-          BoxShadow(
-            color: Colors.black.withOpacity(0.6),
-            blurRadius: 30,
-            offset: const Offset(0, 12),
-          ),
-        ],
-      ),
+      // decoration: BoxDecoration(
+      //   color: AppColors.colorPrimary,
+      //   borderRadius: BorderRadius.circular(12),
+      //   border: Border.all(color: Colors.white.withOpacity(0.08)),
+      //   boxShadow: [
+      //     BoxShadow(
+      //       color: AppColors.colorPrimary.withOpacity(0.25),
+      //       offset: const Offset(0, 1.5),
+      //     ),
+      //     BoxShadow(
+      //       color: Colors.black.withOpacity(0.6),
+      //       blurRadius: 30,
+      //       offset: const Offset(0, 12),
+      //     ),
+      //   ],
+      // ),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Image
-            Container(
-              height: 100,
-              width: 90,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: AppColors.colorLightGrey.withOpacity(0.15),
-              ),
-              child: (item.imagePath ?? '').toNetWorkImage(
-                height: 90,
-                width: 75,
-                fit: BoxFit.cover,
-              ),
+            (item.imagePath ?? '').toNetWorkImage(
+              height: 90,
+              width: 80,
+              fit: BoxFit.cover,
             ),
             const SizedBox(width: 10),
 
@@ -219,17 +212,15 @@ class _PendingOrderSummaryScreenState extends State<PendingOrderSummaryScreen> {
         InkWell(
           onTap: () {
             provider.qtyEditController.text = '$qty';
-            showAlertDialog(
-              context: context,
-              title: "Update Quantity",
-              isTitleCenter: true,
-              widget: UpdateQuantityDialogWidget(
+
+            showDialog(context: context, builder: (context) {
+              return UpdateQuantityDialogWidget(
                 qtyTextEditingController: provider.qtyEditController,
                 positiveCallBack: (val) {
                   provider.updateProductListQty(int.parse(val), item);
                 },
-              ),
-            );
+              );
+            },);
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),

@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:sales_app_redesign/core/constants/api_constants.dart';
 import 'package:sales_app_redesign/core/network/network_repository.dart';
 import 'package:sales_app_redesign/core/storage/preference_helper.dart';
+import 'package:sales_app_redesign/features/genral/home/model/product_card_model.dart';
 import 'package:sales_app_redesign/features/sales/category/model/all_category_model.dart';
 
 class CategoryProvider extends ChangeNotifier{
@@ -20,32 +21,27 @@ class CategoryProvider extends ChangeNotifier{
 
   bool get isAdding => _isAdding;
 
-  AllCategoryModel? allCategoryModel;
+  CategoryModel? categoryModel;
+
+  final TextEditingController searchCtrl = TextEditingController();
+  List<ProductItem> categoryList = [];
 
 
-   apiCallGetAllCategoryForDistributor() async {
-    String? userId = PreferenceHelper.getString(PreferenceHelper.USER_ID);
-
-    print("kkkkkkkkkk1");
-
-    _isFetching = true;
-    // notifyListeners();
-    try {
-      Map<String,dynamic> body = {
-        "distributor_id": userId,
-        "appOs": ""
-      };
-      String endPoint = ApiConstants.getDistributorAssignedCategory;
-      var response = await callPostMethod(endPoint,body);
-      allCategoryModel = AllCategoryModel.fromJson(json.decode(response));
-      print('yooooooooooo $response');
-    } catch (e) {
-      print('catch at get Category $e');
-    }
-    _isFetching = false;
-    notifyListeners();
-    // return allCategoryModel;
+  resetCategoryList(){
+    categoryList.clear();
   }
+
+  onSearch(String value) {
+    print("value$value");
+
+    categoryList
+        .where((element) =>
+        element.name.toLowerCase().contains(value.toLowerCase()))
+        .toList();
+
+    notifyListeners();
+  }
+
 
   apiCallGetAllCategoryForSalesMan() async {
     String? userId = PreferenceHelper.getString(PreferenceHelper.USER_ID);
@@ -65,7 +61,12 @@ class CategoryProvider extends ChangeNotifier{
       };
       String endPoint = ApiConstants.getAssignedCategory;
       var response = await callPostMethod(endPoint,body);
-      allCategoryModel = AllCategoryModel.fromJson(json.decode(response));
+      categoryModel = CategoryModel.fromJson(json.decode(response));
+      if(categoryModel?.isError == false && categoryModel?.isValidationFailed == false){
+        categoryModel?.data?.forEach((product) {
+          categoryList.add(ProductItem(id: product.categoryId ?? "", name: product.categoryName ?? "", code: product.createdOn ?? "", imageUrl: product.categoryImage ?? ""));
+        },);
+      }
       print('yooooooooooo $response');
     } catch (e) {
       print('catch at get Category $e');

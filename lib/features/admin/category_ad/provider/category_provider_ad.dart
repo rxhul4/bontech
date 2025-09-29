@@ -5,7 +5,7 @@ import 'package:sales_app_redesign/core/constants/api_constants.dart';
 import 'package:sales_app_redesign/core/network/network_repository.dart';
 import 'package:sales_app_redesign/core/storage/preference_helper.dart';
 import 'package:sales_app_redesign/features/admin/category_ad/model/category_model_ad.dart';
-import 'package:sales_app_redesign/features/admin/home/model/product_card_model.dart';
+import 'package:sales_app_redesign/features/genral/home/model/product_card_model.dart';
 import 'package:sales_app_redesign/features/sales/category/model/all_category_model.dart';
 
 class CategoryProviderAD extends ChangeNotifier{

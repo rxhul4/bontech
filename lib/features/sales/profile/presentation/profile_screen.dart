@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:sales_app_redesign/core/common/circle_loading_indicator_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_bar_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_scaffold.dart';
+import 'package:sales_app_redesign/core/common_statefull_widget/frost_conatiner.dart';
 import 'package:sales_app_redesign/core/constants/app_size_constants.dart';
 import 'package:sales_app_redesign/core/storage/preference_helper.dart';
 import 'package:sales_app_redesign/core/utils/app_colors.dart';
@@ -126,9 +127,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             PreferenceHelper.setInt(PreferenceHelper.cartItem,0);
                             PreferenceHelper.remove(PreferenceHelper.CART_MODEL_LIST);
                             // PreferenceHelper.setBool(PreferenceHelper.IS_LOGIN, false);
-                            setState(() {
-                              cartItemCount = 0;
-                            });
+                            // setState(() {
+                            //   cartItemCount = 0;
+                            // });
                             Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(builder: (context) => LogInScreen()),
@@ -156,20 +157,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+
   Widget commonRow(
       {String? text, IconData? preIcon, required VoidCallback onTap}) {
     return Column(
       children: [
         AppUtils.commonInkWell(
+          borderRadius: BorderRadius.circular(16),
           onTap: onTap,
-          child: AppUtils.commonContainer(
+          child: Frost(
+
             child: Padding(
               padding: AppUtils.edgeInsetsOnly(left: 20, right: 20,top: 10,bottom: 10),
               child: Row(
                 children: [
                   AppUtils.commonContainer(
                       padding: AppUtils.edgeInsetsAll(allPadding: 8),
-                      decoration: AppUtils.commonGradientBoxDecoration(borderRadius: 8),
+                      decoration: AppUtils.commonGradientBoxDecoration(borderRadius: 12),
                       child: Center(
                           child: Icon(preIcon,
                               color: AppColors.colorWhite, size: 22))),
@@ -189,6 +193,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ],
     );
   }
+
+  // Widget commonRow(
+  //     {String? text, IconData? preIcon, required VoidCallback onTap}) {
+  //   return Column(
+  //     children: [
+  //       AppUtils.commonInkWell(
+  //         onTap: onTap,
+  //         child: AppUtils.commonContainer(
+  //           child: Padding(
+  //             padding: AppUtils.edgeInsetsOnly(left: 20, right: 20,top: 10,bottom: 10),
+  //             child: Row(
+  //               children: [
+  //                 AppUtils.commonContainer(
+  //                     padding: AppUtils.edgeInsetsAll(allPadding: 8),
+  //                     decoration: AppUtils.commonGradientBoxDecoration(borderRadius: 8),
+  //                     child: Center(
+  //                         child: Icon(preIcon,
+  //                             color: AppColors.colorWhite, size: 22))),
+  //                 AppUtils.commonSizedBox(width: 20),
+  //                 Expanded(
+  //                     child: (text ?? "").textWidget(
+  //                       fontWeight: FontWeight.bold,
+  //                       fontSize: 14,
+  //
+  //                     )),
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //       ),
+  //       AppUtils.commonSizedBox(height: 20),
+  //     ],
+  //   );
+  // }
 
   Widget userImageWidget() {
     return AppUtils.commonContainer(

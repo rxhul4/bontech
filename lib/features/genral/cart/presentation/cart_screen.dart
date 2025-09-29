@@ -331,11 +331,8 @@ class _CartScreenState extends State<CartScreen> {
             onTap: () {
               _productProvider.qtyEditController.text =
                   '${item?.productQty ?? 1}';
-              showAlertDialog(
-                context: context,
-                title: "Update Quantity",
-                isTitleCenter: true,
-                widget: UpdateQuantityDialogWidget(
+              showDialog(context: context, builder: (context) {
+                return UpdateQuantityDialogWidget(
                   qtyTextEditingController: _productProvider.qtyEditController,
                   positiveCallBack: (val) {
                     _productProvider.updateProductQtyFromCartListingScreen(
@@ -346,8 +343,9 @@ class _CartScreenState extends State<CartScreen> {
                           : PreferenceHelper.CART_MODEL_LIST,
                     );
                   },
-                ),
-              );
+                );
+              },);
+
             },
             child: Container(
               padding: const EdgeInsets.symmetric(
@@ -434,10 +432,9 @@ class _CartScreenState extends State<CartScreen> {
             widget.isAdmin == true ?  GestureDetector(
               onTap: () {
 
-                showAlertDialog(
-                  title: "Distributor Note",
-                  isTitleCenter: true,
-                  widget: DeliveryNotesDialogWidget(
+                showDialog(
+                  context: context, builder: (context) {
+                  return DeliveryNotesDialogWidget(
                     notesController: _cartProvider.notesController,
                     positiveCallBack: (val) {
                       _cartProvider.apiCallAddOrderAD(
@@ -449,9 +446,28 @@ class _CartScreenState extends State<CartScreen> {
                         },
                       );
                     },
-                  ),
-                  context: context,
-                );
+                  );
+                },);
+
+                // showAlertDialog(
+                //   title: "Distributor Note",
+                //   isTitleCenter: true,
+                //
+                //   widget: DeliveryNotesDialogWidget(
+                //     notesController: _cartProvider.notesController,
+                //     positiveCallBack: (val) {
+                //       _cartProvider.apiCallAddOrderAD(
+                //         productProvider.cartModel?.productInfo,
+                //             () {
+                //           _cartProvider.notesController.clear();
+                //           productProvider.clearList();
+                //           // PreferenceHelper.remove(PreferenceHelper.remove(key))
+                //         },
+                //       );
+                //     },
+                //   ),
+                //   context: context,
+                // );
 
               },
               child: Container(
@@ -510,7 +526,9 @@ class _CartScreenState extends State<CartScreen> {
                     ),
                   ),
                 ).then((value) {
+                  
                   productProvider.clearList();
+                  productProvider.getCartList(PreferenceHelper.CART_MODEL_LIST);
                 });
               },
               child: Container(

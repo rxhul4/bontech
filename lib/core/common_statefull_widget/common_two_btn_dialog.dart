@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:sales_app_redesign/core/common/common_button_widget.dart';
+import 'package:sales_app_redesign/core/common_statefull_widget/frost_conatiner.dart';
 import 'package:sales_app_redesign/core/utils/app_colors.dart';
 import 'package:sales_app_redesign/core/utils/app_extension.dart';
 import 'package:sales_app_redesign/core/utils/app_utils.dart';
@@ -35,12 +36,14 @@ class _CommonDialogState extends State<CommonTwoBtnDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: AppColors.colorPrimary,
+      contentPadding: EdgeInsets.zero,
+      backgroundColor: AppColors.colorTransparent,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(
         Radius.circular(12.0),
       )),
-      content: SizedBox(
+      content: Frost(
+        padding: EdgeInsets.symmetric(horizontal: 20,vertical: 20),
         width: MediaQuery.sizeOf(context).width * 0.85,
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -65,7 +68,7 @@ class _CommonDialogState extends State<CommonTwoBtnDialog> {
               children: [
                 Expanded(
                     child: CommonButtonWidget(
-                      buttonTextColor: AppColors.colorMainBlack,
+                      buttonTextColor: AppColors.colorWhite,
                   buttonText: widget.dialogBtnTextLeft ?? "Cancel",
                    onPressed: () {
                     if (widget.dialogBtnLeftFnc != null) {

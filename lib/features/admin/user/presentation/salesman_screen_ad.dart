@@ -7,6 +7,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 import 'package:sales_app_redesign/core/common/circle_loading_indicator_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_scaffold.dart';
+import 'package:sales_app_redesign/core/common_statefull_widget/frost_conatiner.dart';
 import 'package:sales_app_redesign/core/constants/app_size_constants.dart';
 import 'package:sales_app_redesign/core/utils/app_colors.dart';
 import 'package:sales_app_redesign/core/utils/app_constant.dart';
@@ -88,11 +89,11 @@ class _SalesManScreenAdState extends State<SalesManScreenAd> {
                                   // apiCallCallbackFnc(postMdl);
                                 });
                               },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  color: AppColors.colorLightGrey,
-                                ),
+                              child: Frost(
+                                // decoration: BoxDecoration(
+                                //   borderRadius: BorderRadius.circular(12),
+                                //   color: AppColors.colorLightGrey,
+                                // ),
                                 child: Slidable(
                                   key: UniqueKey(),
                                   endActionPane: ActionPane(
@@ -138,40 +139,19 @@ class _SalesManScreenAdState extends State<SalesManScreenAd> {
                                           );
                                         },
                                         borderRadius: BorderRadius.circular(12),
-                                        backgroundColor:
-                                            AppColors.colorLightGrey,
+                                        backgroundColor: AppColors.colorTransparent,
                                         foregroundColor: AppColors.colorPrimary,
                                         child: Icon(
                                           Icons.delete,
                                           size: 26,
-                                          color: AppColors.colorPrimary,
+                                          color: AppColors.colorWhite,
                                         ),
                                       ),
                                     ],
                                   ),
-                                  child: AppUtils.commonContainer(
+                                  child: Frost(
                                     width: double.infinity,
-                                    decoration: BoxDecoration(
-                                      color: AppColors.colorPrimary,
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
-                                        color: Colors.white.withOpacity(0.08),
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: AppColors.colorPrimary
-                                              .withOpacity(0.25),
-                                          blurRadius: 0,
-                                          spreadRadius: 0.0,
-                                          offset: const Offset(0, 1.5),
-                                        ),
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.6),
-                                          blurRadius: 30,
-                                          offset: const Offset(0, 12),
-                                        ),
-                                      ],
-                                    ),
+
                                     child: Padding(
                                       padding: AppUtils.edgeInsetsAll(
                                         allPadding: 8,
@@ -179,7 +159,8 @@ class _SalesManScreenAdState extends State<SalesManScreenAd> {
                                       child: Row(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
-                                        // mainAxisAlignment: MainAxisAlignment.center,
+                                        // mainAxisAlignment: MainAxisAlignment
+                                        // .center,
                                         children: [
                                           Container(
                                             height: 100,

@@ -1,14 +1,17 @@
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/frost_conatiner.dart';
+import 'package:sales_app_redesign/core/storage/preference_helper.dart';
 import 'package:sales_app_redesign/core/utils/app_colors.dart';
 import 'package:sales_app_redesign/core/utils/app_constant.dart';
 import 'package:sales_app_redesign/core/utils/app_utils.dart';
 import 'package:sales_app_redesign/features/admin/category_ad/presentation/category_screen_ad.dart';
-import 'package:sales_app_redesign/features/admin/home/presentation/home_screen_ad.dart';
+import 'package:sales_app_redesign/features/genral/home/presentation/home_screen.dart';
 
 import '../../../core/common_statefull_widget/app_scaffold.dart';
 import '../order/presentation/order_screen_ad.dart';
+
+int cartItemCount = 0;
 
 class DashboardScreenAD extends StatefulWidget {
   const DashboardScreenAD({super.key});
@@ -24,9 +27,9 @@ class _DashboardScreenADState extends State<DashboardScreenAD> {
   final PageController _pageController = PageController(initialPage: 0);
 
   final _pages = [
-    const HomeScreenAd(),
+     HomeScreen(isAdmin: true,),
     CategoryScreenAd(),
-    const OrderScreenAd(),
+     OrderScreenAd(),
     // const StockScreenAd(),
   ];
 
@@ -34,6 +37,8 @@ class _DashboardScreenADState extends State<DashboardScreenAD> {
 
   @override
   void initState() {
+    cartItemCount = PreferenceHelper.getInt(PreferenceHelper.cartItem) ?? 0;
+
     super.initState();
   }
 

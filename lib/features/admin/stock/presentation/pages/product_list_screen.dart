@@ -247,20 +247,20 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 
   showBulkQtyUpdateDialog() {
-    showAlertDialog(
+    showDialog(
+      builder: (context) {
+        return UpdateQuantityDialogWidget(
+          hintText: "Enter Bulk Qty",
+          qtyTextEditingController: _stockProvider.bulkThresholdQtyTextEditingController,
+          positiveCallBack: (val) async{
+            //apiCallUpdateQtyAndRefreshList
+            await _stockProvider.apiCallUpdateBulkQtyByCategoryId(categoryId: widget.categoryId);
+
+
+          },
+        );
+      },
       context: context,
-      title: "Update Quantity",
-      isTitleCenter: true,
-      widget: UpdateQuantityDialogWidget(
-        hintText: "Enter Bulk Qty",
-        qtyTextEditingController: _stockProvider.bulkThresholdQtyTextEditingController,
-        positiveCallBack: (val) async{
-          //apiCallUpdateQtyAndRefreshList
-          await _stockProvider.apiCallUpdateBulkQtyByCategoryId(categoryId: widget.categoryId);
-
-
-        },
-      ),
     );
   }
 

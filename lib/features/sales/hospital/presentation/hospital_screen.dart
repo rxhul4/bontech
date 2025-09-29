@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:sales_app_redesign/core/common/circle_loading_indicator_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_bar_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_scaffold.dart';
+import 'package:sales_app_redesign/core/common_statefull_widget/common_two_btn_dialog.dart';
+import 'package:sales_app_redesign/core/common_statefull_widget/frost_conatiner.dart';
 import 'package:sales_app_redesign/core/constants/app_size_constants.dart';
 import 'package:sales_app_redesign/core/utils/app_colors.dart';
 import 'package:sales_app_redesign/core/utils/app_extension.dart';
@@ -158,115 +160,120 @@ class _HospitalScreenState extends State<HospitalScreen> {
                                   }
                             });
                           },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color: AppColors.colorLightGrey,
-                            ),
-                            child: Slidable(
-                              key: UniqueKey(),
-                              endActionPane: ActionPane(
-                                extentRatio: 0.20,
-                                dragDismissible: false,
-                                // openThreshold: 0.1,
-                                // closeThreshold: 0.1,
-                                motion: const ScrollMotion(),
-                                dismissible: DismissiblePane(
-                                  dismissalDuration: const Duration(
-                                    milliseconds: 1000,
-                                  ),
-                                  dismissThreshold: 0.1,
-                                  onDismissed: () {},
+                          child: Slidable(
+                            key: UniqueKey(),
+                            endActionPane: ActionPane(
+                              extentRatio: 0.20,
+                              dragDismissible: false,
+                              // openThreshold: 0.1,
+                              // closeThreshold: 0.1,
+                              motion: const ScrollMotion(),
+                              dismissible: DismissiblePane(
+                                dismissalDuration: const Duration(
+                                  milliseconds: 1000,
                                 ),
-                                children: [
-                                  CustomSlidableAction(
-                                    onPressed: (context) async {
-                                      hospitalProvider.apiCallDeleteHospital(
-                                        hospitalId:
+                                dismissThreshold: 0.1,
+                                onDismissed: () {},
+                              ),
+                              children: [
+                                CustomSlidableAction(
+                                  onPressed: (context) async {
+                                    showDialog(context: context, builder:(context) {
+                                      return CommonTwoBtnDialog(
+                                        dialogTitle: "Remove",
+                                        dialogMessage: "Are you sure do you want to Remove this Hospital!",
+                                        dialogBtnTextRight: "Delete",
+
+                                        dialogBtnRightFnc: () {
+                                          hospitalProvider.apiCallDeleteHospital(
+                                            hospitalId:
                                             hospitalProvider
                                                 .getAllHospitalModel
                                                 ?.data?[index]
                                                 .hospitalId,
+                                          );
+                                        },
                                       );
-                                    },
-                                    borderRadius: BorderRadius.only(
-                                      topRight: Radius.circular(12),
-                                      bottomRight: Radius.circular(12),
-                                    ),
-                                    // backgroundColor: AppColors.colorLightGrey,
-                                    foregroundColor: AppColors.colorLightGrey,
-                                    child: Icon(
-                                      Icons.delete,
-                                      size: 26,
-                                      color: AppColors.colorPrimary,
-                                    ),
-                                    // label: 'Delete',
+                                    });
+
+                                  },
+                                  borderRadius: BorderRadius.only(
+                                    topRight: Radius.circular(12),
+                                    bottomRight: Radius.circular(12),
                                   ),
-                                ],
-                              ),
-                              child: AppUtils.commonContainer(
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: AppColors.colorPrimary,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: Colors.white.withOpacity(0.08),
+                                  backgroundColor: AppColors.colorTransparent,
+                                  foregroundColor: AppColors.colorLightGrey,
+                                  child: Icon(
+                                    Icons.delete,
+                                    size: 26,
+                                    color: AppColors.colorWhite,
                                   ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: AppColors.colorPrimary.withOpacity(
-                                        0.25,
+                                  // label: 'Delete',
+                                ),
+                              ],
+                            ),
+                            child: Frost(
+                              width: double.infinity,
+                              // decoration: BoxDecoration(
+                              //   color: AppColors.colorPrimary,
+                              //   borderRadius: BorderRadius.circular(12),
+                              //   border: Border.all(
+                              //     color: Colors.white.withOpacity(0.08),
+                              //   ),
+                              //   boxShadow: [
+                              //     BoxShadow(
+                              //       color: AppColors.colorPrimary.withOpacity(
+                              //         0.25,
+                              //       ),
+                              //       blurRadius: 0,
+                              //       spreadRadius: 0.0,
+                              //       offset: const Offset(0, 1.5),
+                              //     ),
+                              //     BoxShadow(
+                              //       color: Colors.black.withOpacity(0.6),
+                              //       blurRadius: 30,
+                              //       offset: const Offset(0, 12),
+                              //     ),
+                              //   ],
+                              // ),
+                              child: Padding(
+                                padding: AppUtils.edgeInsetsAll(
+                                  allPadding: 10,
+                                ),
+                                child: Row(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      // Wraps the entire Column to allow flexible space
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          "${hospitalProvider.getAllHospitalModel?.data?[index].hospitalName ?? "Hospital Name"}"
+                                              .textWidget(
+                                                color: AppColors.colorWhite,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                          AppUtils.commonSizedBox(height: 5),
+                                          "${hospitalProvider.getAllHospitalModel?.data?[index].hospitalAddress ?? "Hospital Name"}"
+                                              .textWidget(
+                                                color: AppColors.colorWhite,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                          AppUtils.commonSizedBox(height: 5),
+                                          "+ 91${hospitalProvider.getAllHospitalModel?.data?[index].hospitalPhoneNo ?? "Hospital Name"}"
+                                              .textWidget(
+                                                color: AppColors.colorWhite,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                        ],
                                       ),
-                                      blurRadius: 0,
-                                      spreadRadius: 0.0,
-                                      offset: const Offset(0, 1.5),
-                                    ),
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.6),
-                                      blurRadius: 30,
-                                      offset: const Offset(0, 12),
                                     ),
                                   ],
-                                ),
-                                child: Padding(
-                                  padding: AppUtils.edgeInsetsAll(
-                                    allPadding: 10,
-                                  ),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        // Wraps the entire Column to allow flexible space
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            "${hospitalProvider.getAllHospitalModel?.data?[index].hospitalName ?? "Hospital Name"}"
-                                                .textWidget(
-                                                  color: AppColors.colorWhite,
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                            AppUtils.commonSizedBox(height: 5),
-                                            "${hospitalProvider.getAllHospitalModel?.data?[index].hospitalAddress ?? "Hospital Name"}"
-                                                .textWidget(
-                                                  color: AppColors.colorWhite,
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                            AppUtils.commonSizedBox(height: 5),
-                                            "+ 91${hospitalProvider.getAllHospitalModel?.data?[index].hospitalPhoneNo ?? "Hospital Name"}"
-                                                .textWidget(
-                                                  color: AppColors.colorWhite,
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
                                 ),
                               ),
                             ),
