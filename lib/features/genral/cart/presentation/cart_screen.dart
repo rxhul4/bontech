@@ -516,7 +516,6 @@ class _CartScreenState extends State<CartScreen> {
               ),
             ) :  GestureDetector(
               onTap: () {
-
                 Navigator.push(
                   context,
                   MaterialPageRoute(

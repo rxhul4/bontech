@@ -100,18 +100,6 @@ class _ProfileScreenAdState extends State<ProfileScreenAd> {
                               builder: (context) => CategoryScreenAd(isFromStock: true,),
                             ));
                       }),
-
-
-                  commonRow(
-                      preIcon: Icons.pending_actions,
-                      text: "Pending Order Summary",
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PendingOrderSummaryScreen(),
-                            ));
-                      }),
                   commonRow(
                       preIcon: Icons.supervised_user_circle,
                       text: "Salesmen",

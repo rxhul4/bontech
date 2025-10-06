@@ -38,6 +38,8 @@ class PendingOrderProvider extends ChangeNotifier{
   int totalQty = 0;
 
 
+  List<ProductData1> localPendingOrderList = [];
+
   //models
   PendingOrderResponse? pendingOrderResponse;
   CartModel? cartModel;
@@ -46,6 +48,7 @@ class PendingOrderProvider extends ChangeNotifier{
 
   //apiCall
   apiCallGetMyPendingOrders() async {
+    localPendingOrderList.clear();
     _isFetching = true;
 
     var userId = PreferenceHelper.getString(PreferenceHelper.USER_ID);
@@ -59,8 +62,10 @@ class PendingOrderProvider extends ChangeNotifier{
         json.decode(response),
       );
       if(pendingOrderResponse?.isError == false && pendingOrderResponse?.isValidationFailed == false){
-        pendingOrderResponse?.pendingProductData.forEach((product) {
-          updateProductListQty(product.pendingQuantity, product);
+        pendingOrderResponse?.pendingProductData.forEach((product) async {
+
+          await addProductToLocalList(product);
+
         },);
       }
       print("reponse : $response");
@@ -71,20 +76,38 @@ class PendingOrderProvider extends ChangeNotifier{
     notifyListeners();
   }
 
+
+  removeProductFromLocalList(index){
+    localPendingOrderList.removeAt(index);
+    notifyListeners();
+
+  }
+
+  Future addProductToLocalList(ProductData1 product)async{
+     localPendingOrderList.add(product);
+    for (var localProductData in localPendingOrderList) {
+      updateProductListQty(localProductData.pendingQuantity, localProductData);
+      print("productQTy${localProductData.pendingQuantity}");
+    }
+
+
+  }
+
   updateProductListQty(int qty, ProductData1 productData){
     productData.pendingQuantity = qty;
     notifyListeners();
   }
 
-  void addToCartData({required BuildContext context,ProductData1? productData}) {
+  void addToCartData({
+    required BuildContext context,
+    List<ProductData1>? productData,
+  }) {
     try {
       // Retrieve existing cart data from preferences
-      final String cartString = PreferenceHelper.getString(PreferenceHelper.CART_MODEL_LIST_AD) ?? '';
+      final String cartString =
+          PreferenceHelper.getString(PreferenceHelper.CART_MODEL_LIST_AD) ?? '';
 
-      // Map<String, dynamic> jsonMap = jsonDecode(cartString);
-
-      cartModel =
-      (cartString != null && cartString.isNotEmpty)
+      cartModel = (cartString.isNotEmpty)
           ? CartModel.fromJson(jsonDecode(cartString))
           : CartModel();
 
@@ -94,66 +117,68 @@ class PendingOrderProvider extends ChangeNotifier{
         );
       }
 
-      if (productData == null) {
+      if (productData == null || productData.isEmpty) {
         print("Product data not found.");
         return;
       }
 
-      print("skuId: ${productData.productVariantId}");
+      // Loop over all products to add/update
+      for (final data in productData) {
+        print("skuId: ${data.productVariantId}");
 
-      // Prepare the product variant to be added
-      final Product productVariant = Product(
-        productVariantId: productData.productVariantId,
-        productId: productData.productId,
-        productName: productData.productName,
-        productCategoryName: productData.categoryName,
-        productQty: productData.pendingQuantity ?? 0,
-        productVariant: productData.productVariant,
-        price: productData.productPrice,
-        image: productData.imagePath,
-      );
+        final Product productVariant = Product(
+          productVariantId: data.productVariantId,
+          productId: data.productId,
+          productName: data.productName,
+          productCategoryName: data.categoryName,
+          productQty: data.pendingQuantity ?? 0,
+          productVariant: data.productVariant,
+          price: data.productPrice,
+          image: data.imagePath,
+        );
 
-      // Add or update product in cart
-      cartModel?.productInfo ??= [];
-      final int existingIndex =
-          cartModel?.productInfo?.indexWhere(
-                (item) => item.productVariantId == productVariant.productVariantId,
-          ) ??
-              0;
+        cartModel?.productInfo ??= [];
 
-      if (existingIndex >= 0) {
-        final existingItem = cartModel?.productInfo?[existingIndex];
-        final int currentQty = existingItem?.productQty ?? 1;
-        final int addedQty = productVariant.productQty ?? 1;
-        existingItem?.productQty = (currentQty + addedQty);
-      } else {
-        cartModel?.productInfo?.add(productVariant);
+        final int existingIndex = cartModel!.productInfo!
+            .indexWhere((item) => item.productVariantId == productVariant.productVariantId);
+
+        if (existingIndex != -1) {
+          // Already exists → update qty
+          final existingItem = cartModel!.productInfo![existingIndex];
+          final int currentQty = existingItem.productQty ?? 0;
+          final int addedQty = productVariant.productQty ?? 0;
+          existingItem.productQty = currentQty + addedQty;
+        } else {
+          // Not found → add new
+          cartModel!.productInfo!.add(productVariant);
+        }
       }
 
       // Save updated cart data
       final encodedCart = cartModel?.toJson();
       final cartStringUpdated = convertJsonToString(encodedCart);
-      updateCartItemCount();
+      PreferenceHelper.setString(
+          PreferenceHelper.CART_MODEL_LIST_AD, cartStringUpdated);
 
-      PreferenceHelper.setString(PreferenceHelper.CART_MODEL_LIST_AD, cartStringUpdated);
+      updateCartItemCount();
+      cartItemCount = cartModel?.productInfo?.length ?? 0;
+      notifyListeners();
+
       AppUtils.showSnackBarWithColor(
         context: context,
-        message: "Your Product has Added to Cart",
+        message: "Your products have been added to Cart",
       );
 
       if (kDebugMode) {
         print('Updated Cart Data: $encodedCart');
       }
-      cartItemCount = cartModel?.productInfo?.length ?? 0;
-      notifyListeners();
-
-      // updateCartItemCount(cart.listData?.length);
     } catch (e, stackTrace) {
       if (kDebugMode) {
         print("Error in addToCartData: $e\n$stackTrace");
       }
     }
   }
+
 
 
   Future<void> updateCartItemCount() async {

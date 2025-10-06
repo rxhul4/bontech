@@ -19,6 +19,7 @@ import 'package:sales_app_redesign/core/utils/common_function.dart';
 import 'package:sales_app_redesign/features/genral/product/model/get_product_by_productId_model.dart';
 import 'package:sales_app_redesign/features/genral/product/presentation/product_preview_screen.dart';
 import 'package:sales_app_redesign/features/genral/product/provider/product_provider.dart';
+import 'package:sales_app_redesign/features/genral/search/presentation/search_delegate.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   String? productId;
@@ -60,6 +61,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   title: "Product Detail",
                   isCartVisible: true,
                   isFavVisible: false,
+                  isSearchVisible: true,
+                  onPressedSearch: (){
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ProductSearchDelegate(),));
+                  },
+
                 ),
               ),
               body: ListView(

@@ -10,6 +10,7 @@ import 'package:sales_app_redesign/core/utils/app_utils.dart';
 import 'package:sales_app_redesign/features/admin/order/model/get_distributor_order_model.dart';
 import 'package:sales_app_redesign/features/admin/order/presentation/order_list_screen.dart';
 import 'package:sales_app_redesign/features/admin/order/provider/order_provider_ad.dart';
+import 'package:sales_app_redesign/features/admin/pending_order/presentation/pending_order_screen.dart';
 
 import '../../../../core/constants/app_size_constants.dart' show appBarSize;
 
@@ -92,6 +93,36 @@ class _OrderScreenAdState extends State<OrderScreenAd> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         'Sales Order'.textWidget(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            color: AppColors.colorWhite
+                        )
+                      ],
+                    )
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PendingOrderSummaryScreen(),
+                      ));
+                },
+                child: AppUtils.commonContainer(
+                    margin: EdgeInsets.symmetric(horizontal: 16,vertical: 10),
+                    height: 60,
+                    width: double.infinity,
+                    // padding: EdgeInsets.all(20),
+                    decoration: AppUtils.commonGradientBoxDecoration(
+                      borderRadius: 8,
+
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        'Pending Order Summary'.textWidget(
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
                             color: AppColors.colorWhite

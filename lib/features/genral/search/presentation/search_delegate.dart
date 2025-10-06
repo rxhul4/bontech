@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sales_app_redesign/core/common/circle_loading_indicator_widget.dart';
@@ -9,9 +11,11 @@ import 'package:sales_app_redesign/core/constants/app_size_constants.dart';
 import 'package:sales_app_redesign/core/utils/app_colors.dart';
 import 'package:sales_app_redesign/core/utils/app_constant.dart';
 import 'package:sales_app_redesign/core/utils/app_utils.dart';
+import 'package:sales_app_redesign/features/genral/product/presentation/produst_detail_screen.dart';
 import 'package:sales_app_redesign/features/genral/search/provider/search_provider.dart';
 
 class ProductSearchDelegate extends StatefulWidget {
+
   String? categoryId;
   ProductSearchDelegate({super.key,this.categoryId});
 
@@ -39,7 +43,7 @@ class _ProductSearchDelegateState extends State<ProductSearchDelegate> {
       builder: (context, search, child) {
         return AppScaffold(
           appBar: PreferredSize(
-            preferredSize: Size(double.infinity, appBarSize),
+            preferredSize: Size(double.infinity, 80),
             child: SafeArea(
               child: Frost(
                 blur: 18,
@@ -47,7 +51,7 @@ class _ProductSearchDelegateState extends State<ProductSearchDelegate> {
                 radius: 16,
                 frame: Frost.outlineBorder(),
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                margin: EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                margin: EdgeInsets.symmetric(horizontal: 12, vertical: Platform.isAndroid ? 10 : 0),
                 child: Row(
                   children: [
                     _backArrow(context),
@@ -131,7 +135,9 @@ class _ProductSearchDelegateState extends State<ProductSearchDelegate> {
                         final product = search.filteredProducts[index];
                         return ProductCard(
                           item: product,
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => ProductDetailScreen(productId: product.id,),));
+                          },
                         ); // Replace with your actual card
                       },
                     ),
