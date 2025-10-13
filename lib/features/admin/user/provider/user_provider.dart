@@ -84,46 +84,55 @@ class UserProvider extends ChangeNotifier {
   }
 
   ///ImageFnc
-  Future getImage() async {
+  Future<void> getImage() async {
+    final ImagePicker picker = ImagePicker();
+
     if (Platform.isIOS) {
-      var status1 = await Permission.photos.request();
-      if (status1.isDenied || status1.isPermanentlyDenied) {
-        print(status1.isPermanentlyDenied);
-        print(status1.isDenied);
-        openAppSettings();
-      } else {
-        print(status1.isPermanentlyDenied);
-        print(status1.isDenied);
-        imageFull = await ImagePicker.platform.getImageFromSource(
-          source: ImageSource.gallery,
-        );
+      // ✅ Correct permission for iOS
+
+      // status = await Permission.storage.request();
+
+      var status = await Permission.storage.status;
+
+      print("Status$status");
+
+      if (status.isDenied) {
+        status = await Permission.storage.request();
+      }
+
+
+      if (status.isGranted || status.isLimited) {
+        imageFull = await picker.pickImage(source: ImageSource.gallery);
         if (imageFull?.path != null) {
-          final bytes = await imageFull.readAsBytes();
-          // setState(() {
-          _image = File(imageFull?.path ?? '');
+          final bytes = await imageFull!.readAsBytes();
+          _image = File(imageFull!.path);
           image64 = "data:image/png;base64," + base64Encode(bytes);
           notifyListeners();
-          // });
         }
+      } else if (status.isPermanentlyDenied) {
+        print("permenent");
+        // Permission permanently denied — go to settings
+        await openAppSettings();
       }
     } else {
+      // ✅ Android side remains unchanged
       var status = await Permission.storage.request();
       var statusNew = await Permission.photos.request();
+
       if (status.isGranted || statusNew.isGranted) {
-        imageFull = await ImagePicker.platform.getImageFromSource(
-          source: ImageSource.gallery,
-        );
-        final bytes = await imageFull.readAsBytes();
+        imageFull = await picker.pickImage(source: ImageSource.gallery);
         if (imageFull?.path != null) {
-          _image = File(imageFull?.path ?? '');
+          final bytes = await imageFull!.readAsBytes();
+          _image = File(imageFull!.path);
           image64 = "data:image/png;base64," + base64Encode(bytes);
           notifyListeners();
         }
       } else {
-        openAppSettings();
+        await openAppSettings();
       }
     }
   }
+
 
   deleteImage() {
     _image = null;
