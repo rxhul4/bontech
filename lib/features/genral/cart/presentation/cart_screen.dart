@@ -120,83 +120,26 @@ class _CartScreenState extends State<CartScreen> {
               )
                   : Column(
                 children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-
-                          /// 🛒 PRODUCT LIST
-                          if (productProvider.cartModel?.productInfo != null &&
-                              productProvider.cartModel!.productInfo!
-                                  .isNotEmpty)
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    "Products",
-                                    style: Theme
-                                        .of(context)
-                                        .textTheme
-                                        .titleMedium,
-                                  ),
-                                ),
-                                ListView.builder(
-                                  physics: NeverScrollableScrollPhysics(),
-                                  shrinkWrap: true,
-                                  itemCount: productProvider
-                                      .cartModel?.productInfo?.length ??
-                                      0,
-                                  itemBuilder: (context, index) {
-                                    return _listItem(
-                                      index,
-                                      productProvider.cartModel!
-                                          .productInfo![index],
-                                      productProvider,
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-
-                          /// 🧰 INSTRUMENT LIST
-                          // if (productProvider.cartModel?.instrumentInfo != null &&
-                          //     productProvider.cartModel!.instrumentInfo!.isNotEmpty)
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  "Instruments",
-                                  style: Theme
-                                      .of(context)
-                                      .textTheme
-                                      .titleMedium,
-                                ),
-                              ),
-                              ListView.builder(
-                                physics: NeverScrollableScrollPhysics(),
-                                shrinkWrap: true,
-                                itemCount: productProvider.cartModel
-                                    ?.instruments?.length ?? 0,
-                                itemBuilder: (context, index) {
-                                  print("data");
-                                  return _instrumentListItem(
-                                    index,
-                                    productProvider.cartModel!
-                                        .instruments![index],
-                                    productProvider,
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ],
+                  if (productProvider.cartModel?.productInfo != null &&
+                      productProvider.cartModel!.productInfo!
+                          .isNotEmpty)
+                    Expanded(
+                      child: ListView.builder(
+                        // physics: NeverScrollableScrollPhysics(),
+                        // shrinkWrap: true,
+                        itemCount: productProvider
+                            .cartModel?.productInfo?.length ??
+                            0,
+                        itemBuilder: (context, index) {
+                          return _listItem(
+                            index,
+                            productProvider.cartModel!
+                                .productInfo![index],
+                            productProvider,
+                          );
+                        },
                       ),
                     ),
-                  ),
 
                   /// 💰 SUBTOTAL OR FOOTER
                   _subTotalView(productProvider),
@@ -213,10 +156,10 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _instrumentListItem(int index, InstrumentModel? item,
+  Widget _instrumentListItem(int index, InstrumentModel? instruments,
       ProductProvider productProvider) {
-    Uint8List images = base64Decode(item?.images.first
-        .split(',')
+    Uint8List images = base64Decode(instruments?.images?.first
+        ?.split(',')
         .last ?? "");
     return Frost(
       // decoration: BoxDecoration(
@@ -301,33 +244,24 @@ class _CartScreenState extends State<CartScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      child: (item?.name ?? '').textWidget(
+                      child: (instruments?.description ?? '').textWidget(
                         fontSize: fontSizeNormal,
                         fontWeight: FontWeight.bold,
                         color: AppColors.colorWhite,
                       ),
                     ),
                     5.toSizedBoxWidth,
-
-                    '${AppConstants.currencySymbol}${item?.price ?? 0}'
-                        .textWidget(
-                      color: AppColors.colorWhite,
-                      fontSize: fontSizeNormal,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: AppConstants.fontFamilyRoboto,
-                    ),
                   ],
                 ),
 
                 5.toSizedBoxHeight,
 
-                /// 🔽 Product Variant ListView
-                Expanded(
-                  child: (item?.quantity ?? '').textWidget(
-                    fontSize: fontSizeNormal,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.colorWhite,
-                  ),
+                // /// 🔽 Product Variant ListView
+                ("Size : ${instruments?.size ?? ""}").textWidget(
+                  fontSize: fontSizeNormal,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.colorWhite,
+                ),
 
                   // Row(
                   //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -368,8 +302,7 @@ class _CartScreenState extends State<CartScreen> {
                   // ),
 
                   /// 🔽 Quantity stepper or actions
-                  // _productItemCountView(index, item),
-                ),
+                  _instrumentItemCountView(index, instruments),
                   ],
                 ),
               ),
@@ -625,6 +558,93 @@ class _CartScreenState extends State<CartScreen> {
       ),
     );
   }
+  Widget _instrumentItemCountView(int index, InstrumentModel? item) {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          InkWell(
+            onTap: () {
+              if ((item?.quantity ?? 1) > 1) {
+                _productProvider.updateInstrumentQtyFromCartListingScreen(
+                  index,
+                  (item?.quantity ?? 1) - 1,
+                  PreferenceHelper.CART_MODEL_LIST_AD
+                );
+              }
+            },
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(width: 1.3, color: AppColors.colorWhite),
+              ),
+              child: const Icon(
+                Icons.remove,
+                size: 16,
+                color: AppColors.colorWhite,
+              ),
+            ),
+          ),
+          // 12.toSizedBoxWidth,
+          InkWell(
+            onTap: () {
+              _productProvider.qtyEditController.text =
+              '${item?.quantity ?? 1}';
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return UpdateQuantityDialogWidget(
+                    qtyTextEditingController:
+                    _productProvider.qtyEditController,
+                    positiveCallBack: (val) {
+                      _productProvider.updateInstrumentQtyFromCartListingScreen(
+                        index,
+                        int.parse(val),
+                        PreferenceHelper.CART_MODEL_LIST_AD
+                      );
+                    },
+                  );
+                },
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 10.0,
+              ),
+              child: ('${item?.quantity ?? 1}').textWidget(
+                fontSize: fontSizeMedium,
+                fontWeight: FontWeight.bold,
+                textAlign: TextAlign.center,
+                color: AppColors.colorWhite,
+              ),
+            ),
+          ),
+          // 12.toSizedBoxWidth,
+          InkWell(
+            onTap: () {
+              _productProvider.updateInstrumentQtyFromCartListingScreen(
+                index,
+                (item?.quantity ?? 1) + 1,
+                  PreferenceHelper.CART_MODEL_LIST_AD
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: AppUtils.commonGradientBoxDecoration(borderRadius: 8),
+              child: const Icon(
+                Icons.add,
+                size: 16,
+                color: AppColors.colorWhite,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _subTotalView(ProductProvider productProvider) {
     return Visibility(
@@ -678,7 +698,7 @@ class _CartScreenState extends State<CartScreen> {
                   dialogBtnRightFnc: () {
                     Navigator.pop(context);
                     Navigator.push(context, MaterialPageRoute(
-                      builder: (context) => AddInstrumentsScreen(),)).then((
+                      builder: (context) => AddInstrumentsScreen(productInfo: productProvider.cartModel?.productInfo,),)).then((
                         value) {
                       if (widget.isAdmin == true) {
                         _productProvider.getCartList(PreferenceHelper.CART_MODEL_LIST_AD);
@@ -689,7 +709,7 @@ class _CartScreenState extends State<CartScreen> {
                   },);
 
                 // showDialog(
-
+                //
                 //   context: context, builder: (context) {
                 //   return DeliveryNotesDialogWidget(
                 //     notesController: _cartProvider.notesController,

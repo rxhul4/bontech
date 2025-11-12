@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sales_app_redesign/core/common/custom_text_form_field.dart';
+import 'package:sales_app_redesign/features/genral/instruments/model/intrument_model.dart';
 
 class InstrumentForm extends StatefulWidget {
   // Now only accepts a normal Key which we will use as GlobalKey<InstrumentFormState>
@@ -46,7 +47,9 @@ class InstrumentFormState extends State<InstrumentForm> {
 
   /// Validate that at least one image is selected
   bool validateImages() {
-    if (_images.where((img) => img != null).isEmpty) {
+    if (_images
+        .where((img) => img != null)
+        .isEmpty) {
       setState(() {
         _imageError = "At least one image is required";
       });
@@ -66,14 +69,12 @@ class InstrumentFormState extends State<InstrumentForm> {
   }
 
   /// Collect form data (public method)
-  Map<String, dynamic> getFormData() {
-    return {
-      "description": _description.text.trim(),
-      "code": _codeController.text.trim(),
-      "quantity": _quantityController.text.trim(),
-      "size": _sizeController.text.trim(),
-      "images": _base64Images.where((e) => e != null).toList(),
-    };
+  InstrumentModel getFormData() {
+    return InstrumentModel(description: _description.text.trim(),
+        code: _codeController.text.trim(),
+        quantity: int.parse(_quantityController.text.trim()),
+        size: _sizeController.text.trim(),
+        images: _base64Images.where((e) => e != null).toList());
   }
 
   @override
@@ -103,14 +104,16 @@ class InstrumentFormState extends State<InstrumentForm> {
                     borderRadius: BorderRadius.circular(8),
                     child: Image.file(image, fit: BoxFit.cover),
                   )
-                      : const Icon(Icons.add_a_photo, size: 30, color: Colors.grey),
+                      : const Icon(
+                      Icons.add_a_photo, size: 30, color: Colors.grey),
                 ),
               );
             }),
           ),
           if (_imageError != null) ...[
             const SizedBox(height: 6),
-            Text(_imageError!, style: const TextStyle(color: Colors.red, fontSize: 12)),
+            Text(_imageError!,
+                style: const TextStyle(color: Colors.red, fontSize: 12)),
           ],
           const SizedBox(height: 20),
 
@@ -118,28 +121,40 @@ class InstrumentFormState extends State<InstrumentForm> {
           CustomTextFormField(
             controller: _codeController,
             hintText: "Instrument Code",
-            validator: (value) => value == null || value.isEmpty ? "Enter code" : null,
+            validator: (value) =>
+            value == null || value.isEmpty
+                ? "Enter code"
+                : null,
           ),
           const SizedBox(height: 12),
           CustomTextFormField(
             controller: _quantityController,
             hintText: "Quantity",
             inputType: TextInputType.number,
-            validator: (value) => value == null || value.isEmpty ? "Enter quantity" : null,
+            validator: (value) =>
+            value == null || value.isEmpty
+                ? "Enter quantity"
+                : null,
           ),
           const SizedBox(height: 12),
           CustomTextFormField(
             controller: _sizeController,
             hintText: "Size",
             inputType: TextInputType.text,
-            validator: (value) => value == null || value.isEmpty ? "Enter Size" : null,
+            validator: (value) =>
+            value == null || value.isEmpty
+                ? "Enter Size"
+                : null,
           ),
           const SizedBox(height: 12),
           CustomTextFormField(
             controller: _description,
             hintText: "Instrument Description",
             maxLines: 3,
-            validator: (value) => value == null || value.isEmpty ? "Enter Description" : null,
+            validator: (value) =>
+            value == null || value.isEmpty
+                ? "Enter Description"
+                : null,
           ),
           const SizedBox(height: 20),
           const Divider(),

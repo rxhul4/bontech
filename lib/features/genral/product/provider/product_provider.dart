@@ -238,24 +238,29 @@ class ProductProvider with ChangeNotifier {
     }
   }
 
-  List<Product> getCartList(String cartKey) {
+  CartModel? getCartList(String cartKey) {
     try {
       final String cartString = PreferenceHelper.getString(cartKey) ?? '';
 
+      print("cartString$cartString");
+
+
+
       if (cartString.isEmpty) {
-        return [];
+        return CartModel();
       }
 
       final Map<String, dynamic> cartJson = jsonDecode(cartString);
       cartModel = CartModel.fromJson(cartJson);
       calculateSubtotal();
+      print("Cart${cartModel?.instruments?.length}");
 
-      return cartModel?.productInfo ?? [];
+      return cartModel;
     } catch (e, stackTrace) {
       if (kDebugMode) {
         print("Error in getCartList: $e\n$stackTrace");
       }
-      return [];
+      return CartModel();
     }
   }
 
@@ -316,6 +321,18 @@ class ProductProvider with ChangeNotifier {
     calculateSubtotal();
     getCartItemCount();
     calculateSubtotal();
+    notifyListeners();
+  }
+
+  updateInstrumentQtyFromCartListingScreen(
+      int index,
+      int qty,
+      String cartkey,
+      ) async {
+    cartModel?.instruments?[index].quantity = qty;
+    final encodedCart = cartModel?.toJson();
+    final cartStringUpdated = convertJsonToString(encodedCart);
+    PreferenceHelper.setString(cartkey, cartStringUpdated);
     notifyListeners();
   }
 

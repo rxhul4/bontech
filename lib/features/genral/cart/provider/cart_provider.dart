@@ -26,6 +26,7 @@ class CartProvider extends ChangeNotifier {
   bool get isAdding => _isAdding;
 
   List<Map<String, dynamic>> orderDatas = [];
+  List<Map<String, dynamic>> instrumentsReq = [];
 
   //textEditingController
   TextEditingController notesController = TextEditingController();
@@ -50,18 +51,39 @@ class CartProvider extends ChangeNotifier {
     return orderDatas;
   }
 
+  //prepareCheckOutReq
+  List<Map<String, dynamic>> prepareInstrumentsCheckOutReq(List<InstrumentModel> instruments) {
+    instrumentsReq.clear();
+    if (instruments.isEmpty) {
+      return [];
+    }
+    for (var data in instruments) {
+      instrumentsReq.add({
+        "itemCode": data.code,
+        "itemDescription": data.description,
+        "size": data.size,
+        "quantity": data.quantity,
+        "imageUrls": data.images
+      });
+    }
+    return instrumentsReq;
+  }
+
+
   //apiCallCheckOut
-  apiCallAddOrderAD(List<Product>? productList,Function()? callback) async {
+  apiCallAddOrderAD(List<Product>? productList,List<InstrumentModel>? instrumentList,Function()? callback) async {
     var userid = PreferenceHelper.getString(PreferenceHelper.USER_ID);
     _isLoading = true;
     // notifyListeners();
 
     try {
       prepareCheckOutReq(productList ?? []);
+      prepareInstrumentsCheckOutReq(instrumentList ?? []);
       Map<String, dynamic> body = {
         "userId": userid,
         "delivery_note": notesController.text,
         "orderDatas": orderDatas,
+        "instruments" :instrumentsReq,
         "appOs": "mobile",
       };
       if (kDebugMode) {

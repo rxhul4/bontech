@@ -111,6 +111,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
                     RegExp(widget.inputFormatterRegex ?? ''))
               ],
         validator: widget.validator,
+
         style: TextStyle(
           fontFamily: AppConstants.fontFamilyPoppins,
           fontSize: 14,
@@ -157,7 +158,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
           ),
           errorStyle: TextStyle(
             fontFamily: AppConstants.fontFamilyPoppins,
-            fontSize: 14,
+            fontSize: 12,
             color: Colors.red,
             height: 1.2,
             fontWeight: FontWeight.normal,

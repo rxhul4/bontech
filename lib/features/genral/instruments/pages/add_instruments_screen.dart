@@ -1,14 +1,27 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_bar_widget.dart';
 import 'package:sales_app_redesign/core/common_statefull_widget/app_scaffold.dart';
 import 'package:sales_app_redesign/core/constants/app_size_constants.dart';
 import 'package:sales_app_redesign/core/storage/preference_helper.dart';
+import 'package:sales_app_redesign/core/utils/app_colors.dart';
+import 'package:sales_app_redesign/core/utils/app_extension.dart';
+import 'package:sales_app_redesign/core/utils/app_utils.dart';
+import 'package:sales_app_redesign/features/genral/cart/model/cart_model.dart';
+import 'package:sales_app_redesign/features/genral/cart/provider/cart_provider.dart';
+import 'package:sales_app_redesign/features/genral/instruments/model/intrument_model.dart';
 import 'package:sales_app_redesign/features/genral/instruments/pages/widgets/instrument_form.dart';
+import 'package:sales_app_redesign/features/genral/product/model/get_product_by_productId_model.dart';
+
+import '../../../../core/utils/common_function.dart' show convertJsonToString;
 
 class AddInstrumentsScreen extends StatefulWidget {
-  const AddInstrumentsScreen({super.key});
+  List<Product>? productInfo;
+
+  AddInstrumentsScreen({super.key, this.productInfo});
 
   @override
   State<AddInstrumentsScreen> createState() => _AddInstrumentsScreenState();
@@ -17,7 +30,13 @@ class AddInstrumentsScreen extends StatefulWidget {
 class _AddInstrumentsScreenState extends State<AddInstrumentsScreen> {
   // Now we store keys targeted at the InstrumentFormState
   List<int> formList = [0];
-  List<GlobalKey<InstrumentFormState>> formKeys = [GlobalKey<InstrumentFormState>()];
+  List<GlobalKey<InstrumentFormState>> formKeys = [
+    GlobalKey<InstrumentFormState>(),
+  ];
+
+  CartModel? cartModel;
+  InstrumentModel? instrumentModel;
+  late CartProvider _cartProvider;
 
   /// Add a new instrument form dynamically
   void _addInstrumentForm() {
@@ -27,15 +46,9 @@ class _AddInstrumentsScreenState extends State<AddInstrumentsScreen> {
     });
   }
 
-   _saveInstrumentsLocally(List<Map<String, dynamic>> instruments) async {
-    PreferenceHelper.setString('instruments', jsonEncode(instruments));
-    debugPrint("💾 Instruments saved locally: $instruments");
-  }
-
-  /// Validate all forms and collect data
   void _submitForms() async {
     bool allValid = true;
-    List<Map<String, dynamic>> instruments = [];
+    List<InstrumentModel> instrumentsToAdd = [];
 
     for (int i = 0; i < formKeys.length; i++) {
       final formState = formKeys[i].currentState;
@@ -45,30 +58,51 @@ class _AddInstrumentsScreenState extends State<AddInstrumentsScreen> {
         continue;
       }
 
-      // Use dynamic call to access custom methods from InstrumentFormState
+      // Validate each instrument form
       final isValid = (formState as dynamic).validateForm();
 
       if (isValid) {
-        final data = (formState as dynamic).getFormData();
-        instruments.add(data);
+        // Collect form data
+        InstrumentModel data = (formState as dynamic).getFormData();
+
+        instrumentsToAdd.add(data);
       } else {
         allValid = false;
       }
     }
 
     if (allValid) {
-      await _saveInstrumentsLocally(instruments);
+      // await addToCartData(instrumentsToAdd);
+
+      //api call
+      _cartProvider.apiCallAddOrderAD(widget.productInfo, instrumentsToAdd, () {
+        Navigator.pop(context);
+      });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("✅ All forms valid! Data saved locally.")),
+        const SnackBar(
+          content: Text("✅ All forms valid! Instruments added to cart."),
+        ),
       );
 
-      debugPrint("📦 Final Instruments Data: $instruments");
-      Navigator.pop(context);
+      debugPrint("📦 Final Instruments Data: $instrumentsToAdd");
+      // Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("❌ Please fix the errors before submitting.")),
+        const SnackBar(
+          content: Text("❌ Please fix the errors before submitting."),
+        ),
       );
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _cartProvider = Provider.of<CartProvider>(context, listen: false);
+    if (kDebugMode) {
+      print("Length of ProductData${widget.productInfo?.length}");
     }
   }
 
@@ -95,17 +129,19 @@ class _AddInstrumentsScreenState extends State<AddInstrumentsScreen> {
                   // Add button
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: ElevatedButton.icon(
-                      onPressed: _addInstrumentForm,
-                      icon: const Icon(Icons.add),
-                      label: const Text(
-                        "Add Instrument",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 48),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                    child: GestureDetector(
+                      onTap: _addInstrumentForm,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        decoration: AppUtils.commonGradientBoxDecoration(),
+                        child: "Add Instrument".textWidget(
+                          color: AppColors.colorWhite,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                          textAlign: TextAlign.center,
                         ),
                       ),
                     ),
@@ -114,9 +150,7 @@ class _AddInstrumentsScreenState extends State<AddInstrumentsScreen> {
                   // Each form — pass the GlobalKey<InstrumentFormState> as the widget key
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12.0),
-                    child: InstrumentForm(
-                      key: formKeys[index],
-                    ),
+                    child: InstrumentForm(key: formKeys[index]),
                   );
                 }
               },
@@ -128,18 +162,17 @@ class _AddInstrumentsScreenState extends State<AddInstrumentsScreen> {
             left: 16,
             right: 16,
             bottom: 16,
-            child: ElevatedButton(
-              onPressed: _submitForms,
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 55),
-                backgroundColor: Colors.blue,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+            child: GestureDetector(
+              onTap: _submitForms,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: AppUtils.commonGradientBoxDecoration(),
+                child: "Confirm Order".textWidget(
+                  color: AppColors.colorWhite,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                  textAlign: TextAlign.center,
                 ),
-              ),
-              child: const Text(
-                "Submit",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
               ),
             ),
           ),

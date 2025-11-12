@@ -1,63 +1,49 @@
 import 'dart:convert';
 
-class ListOfInstruments {
-  List<InstrumentModel> productInfo;
-
-  ListOfInstruments({required this.productInfo});
-
-  factory ListOfInstruments.fromJson(Map<String, dynamic> json) {
-    return ListOfInstruments(
-      productInfo: (json['productInfo'] as List<dynamic>?)
-          ?.map((e) => InstrumentModel.fromJson(e))
-          .toList() ??
-          [],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'productInfo': productInfo.map((e) => e.toJson()).toList(),
-    };
-  }
-}
-
 class InstrumentModel {
-  final String name;
-  final String code;
-  final String quantity;
-  final String price;
-  final List<String> images; // base64 images
+   String?  description;
+   String?  code;
+  int? quantity;
+   String?  size;
+   List<String?>? images; // base64 images
 
   InstrumentModel({
-    required this.name,
+    required this.description,
     required this.code,
     required this.quantity,
-    required this.price,
+    required this.size,
     required this.images,
   });
 
   Map<String, dynamic> toMap() {
     return {
-      'name': name,
+      'description': description,
       'code': code,
       'quantity': quantity,
-      'price': price,
+      'size': size,
       'images': images,
     };
   }
 
   factory InstrumentModel.fromMap(Map<String, dynamic> map) {
     return InstrumentModel(
-      name: map['name'] ?? '',
+      description: map['description'] ?? '',
       code: map['code'] ?? '',
       quantity: map['quantity'] ?? '',
-      price: map['price'] ?? '',
+      size: map['size'] ?? '',
       images: List<String>.from(map['images'] ?? []),
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory InstrumentModel.fromJson(String source) =>
-      InstrumentModel.fromMap(json.decode(source));
+  factory InstrumentModel.fromJson(dynamic source) {
+    if (source is String) {
+      return InstrumentModel.fromMap(json.decode(source));
+    } else if (source is Map<String, dynamic>) {
+      return InstrumentModel.fromMap(source);
+    } else {
+      throw Exception('Invalid source type for InstrumentModel');
+    }
+  }
 }
