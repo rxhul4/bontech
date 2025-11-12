@@ -62,6 +62,7 @@ class Data {
   num? quantity;
   num? amount;
   List<DealerOrderDetails>? dealerOrderDetails;
+  List<DealerOrderInstruments>? dealerOrderInstruments;
 
   Data(
       {this.dealerOrderId,
@@ -89,7 +90,9 @@ class Data {
         this.productSkuId,
         this.quantity,
         this.amount,
-        this.dealerOrderDetails});
+        this.dealerOrderDetails,
+        this.dealerOrderInstruments
+      });
 
   Data.fromJson(Map<String, dynamic> json) {
     dealerOrderId = json['dealer_order_id'];
@@ -121,6 +124,13 @@ class Data {
       dealerOrderDetails = <DealerOrderDetails>[];
       json['dealerOrderDetails'].forEach((v) {
         dealerOrderDetails!.add(new DealerOrderDetails.fromJson(v));
+      });
+    }
+
+    if (json['dealerOrderInstruments'] != null) {
+      dealerOrderInstruments = <DealerOrderInstruments>[];
+      json['dealerOrderInstruments'].forEach((v) {
+        dealerOrderInstruments!.add(new DealerOrderInstruments.fromJson(v));
       });
     }
   }
@@ -155,6 +165,10 @@ class Data {
     if (this.dealerOrderDetails != null) {
       data['dealerOrderDetails'] =
           this.dealerOrderDetails!.map((v) => v.toJson()).toList();
+    }
+    if (this.dealerOrderInstruments != null) {
+      data['dealerOrderInstruments'] =
+          this.dealerOrderInstruments!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -234,3 +248,41 @@ class DealerOrderDetails {
     return data;
   }
 }
+
+class DealerOrderInstruments {
+  String? instrumentId;
+  String? itemCode;
+  String? itemDescription;
+  String? size;
+  int? quantity;
+  List<String>? images;
+
+  DealerOrderInstruments(
+      {this.instrumentId,
+        this.itemCode,
+        this.itemDescription,
+        this.size,
+        this.quantity,
+        this.images});
+
+  DealerOrderInstruments.fromJson(Map<String, dynamic> json) {
+    instrumentId = json['instrument_id'];
+    itemCode = json['item_code'];
+    itemDescription = json['item_description'];
+    size = json['size'];
+    quantity = json['quantity'];
+    images = json['images'].cast<String>();
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['instrument_id'] = this.instrumentId;
+    data['item_code'] = this.itemCode;
+    data['item_description'] = this.itemDescription;
+    data['size'] = this.size;
+    data['quantity'] = this.quantity;
+    data['images'] = this.images;
+    return data;
+  }
+}
+

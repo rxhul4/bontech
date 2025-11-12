@@ -162,6 +162,20 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                         // _orderProviderAd.salesOrderProductList,
                                       ),
 
+                                  'Instruments List'.textWidget(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: fontSizeExtraLarge,
+                                    color: AppColors.colorWhite,
+                                  ),
+                                  5.toSizedBoxHeight,
+                                  widget.isAdmin == true
+                                      ? _instrumentList(
+                                    orderDetails
+                                        .getDistributorOrderByIdModel
+                                        ?.data,
+                                  )
+                                      : SizedBox(),
+
                                   widget.isAdmin == true
                                       ? Column(
                                         crossAxisAlignment:
@@ -295,6 +309,22 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
           },
         );
   }
+
+
+  Widget _instrumentList(od.Data? orderData) {
+    return (orderData?.dealerOrderInstruments ?? []).isEmpty
+        ? const Padding(padding: EdgeInsets.all(10.0), child: NoDataWidget())
+        : ListView.builder(
+      itemCount: (orderData?.dealerOrderInstruments ?? []).length,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemBuilder: (context, index) {
+        od.DealerOrderInstruments? item = orderData?.dealerOrderInstruments?[index];
+        return _listOfInstruments(item);
+      },
+    );
+  }
+
 
   Widget _salesOrderInfoView(slOd.Data? orderData) {
     return IntrinsicHeight(
@@ -965,6 +995,143 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 // ),
               ],
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _listOfInstruments(od.DealerOrderInstruments? item) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      child: Frost(
+        margin: EdgeInsets.symmetric(vertical: 8),
+        // decoration: BoxDecoration(
+        //   color: AppColors.colorPrimary,
+        //   borderRadius: BorderRadius.circular(12),
+        //   border: Border.all(color: Colors.white.withOpacity(0.08)),
+        //   boxShadow: [
+        //     BoxShadow(
+        //       color: AppColors.colorSecondary.withOpacity(0.25),
+        //       blurRadius: 0,
+        //       spreadRadius: 0.0,
+        //       offset: const Offset(0, 2),
+        //     ),
+        //   ],
+        // ),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        width: double.infinity,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+
+                Expanded(
+                  flex: 3,
+                  child: '${item?.itemDescription}'.textWidget(
+                    fontWeight: FontWeight.bold,
+                    fontFamily: AppConstants.fontFamilyPoppins,
+                    fontSize: fontSizeMedium,
+                    color: AppColors.colorLightGrey,
+
+                  ),
+
+                ),
+                // item?.deliveredQuantity?.toInt() == 0
+                //     ? SizedBox()
+                //     : 'Delivered Qty :'.richTextView(
+                //   textSpanList: [
+                //     const WidgetSpan(child: SizedBox(width: 3)),
+                //     TextSpan(
+                //       text: '${item?.deliveredQuantity?.toInt()}',
+                //       style: const TextStyle(
+                //         color: AppColors.colorWhite,
+                //         fontWeight: FontWeight.bold,
+                //       ),
+                //     ),
+                //   ],
+                // ),
+              ],
+            ),
+            5.toSizedBoxHeight,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    2.toSizedBoxHeight,
+                    'Qty :'.richTextView(
+                      textSpanList: [
+                        const WidgetSpan(child: SizedBox(width: 3)),
+                        TextSpan(
+                          text: '${item?.quantity?.toInt()}',
+                          style: const TextStyle(
+                            color: AppColors.colorWhite,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            5.toSizedBoxHeight,
+            "Item Code: ${item?.itemCode}".textWidget(
+              fontFamily: AppConstants.fontFamilyPoppins,
+              fontSize: fontSizeNormal,
+              color: AppColors.colorLightGrey,
+            ),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //   crossAxisAlignment: CrossAxisAlignment.end,
+            //   children: [
+            //     if ((item?.productVariant?.isNotEmpty ?? false))
+            //       Column(
+            //         crossAxisAlignment: CrossAxisAlignment.start,
+            //         children:
+            //         item!.productVariant!.entries.map((entry) {
+            //           final key = entry.key;
+            //           final value = entry.value;
+            //
+            //           return '$key : '.richTextView(
+            //             fontFamily: AppConstants.fontFamilyPoppins,
+            //             fontSize: fontSizeNormal,
+            //             color: AppColors.colorLightGrey,
+            //             textSpanList: [
+            //               const WidgetSpan(child: SizedBox(width: 2)),
+            //               TextSpan(
+            //                 text: value.name ?? 'N/A',
+            //                 style: TextStyle(
+            //                   color: AppColors.colorWhite,
+            //                   fontSize: fontSizeSmall,
+            //                   fontFamily: AppConstants.fontFamilyPoppins,
+            //                   fontWeight: FontWeight.bold,
+            //                 ),
+            //               ),
+            //             ],
+            //           );
+            //         }).toList(),
+            //       ),
+            //     '${AppConstants.currencySymbol}${item?.price}'.textWidget(
+            //       fontWeight: FontWeight.bold,
+            //       fontFamily: AppConstants.fontFamilyRoboto,
+            //       fontSize: fontSizeNormal,
+            //       color: AppColors.colorLightGrey,
+            //     ),
+            //
+            //     // '${AppConstants.currencySymbol}${item?.price?.toStringAsFixed(2) ?? 0}'
+            //     //     .textWidget(
+            //     //   color: AppColors.colorWhite,
+            //     //   fontSize: fontSizeNormal,
+            //     //   fontWeight: FontWeight.bold,
+            //     //   fontFamily: AppConstants.fontFamilyRoboto,
+            //     // ),
+            //   ],
+            // ),
           ],
         ),
       ),
