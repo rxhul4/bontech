@@ -259,6 +259,8 @@ class ProductProvider with ChangeNotifier {
     }
   }
 
+
+
   Future<void> removeProductFromCartListingScreen(
     int index,
     String cartKey,
@@ -284,6 +286,7 @@ class ProductProvider with ChangeNotifier {
 
   clearList() {
     cartModel?.productInfo?.clear();
+    cartModel?.instruments?.clear();
     cartTotal = 0;
     totalQty = 0;
     cartModel = CartModel();

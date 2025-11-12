@@ -7,6 +7,7 @@ import 'package:sales_app_redesign/core/network/network_repository.dart';
 import 'package:sales_app_redesign/core/storage/preference_helper.dart';
 import 'package:sales_app_redesign/features/genral/cart/model/dealer_order_model.dart';
 import 'package:sales_app_redesign/features/genral/cart/model/sales_order_model.dart';
+import 'package:sales_app_redesign/features/genral/instruments/model/intrument_model.dart';
 import 'package:sales_app_redesign/features/genral/product/model/get_product_by_productId_model.dart';
 import 'package:sales_app_redesign/features/genral/product/model/get_product_by_productid.dart';
 
@@ -118,4 +119,6 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
     // return addSalesOrderModel;
   }
+
+
 }

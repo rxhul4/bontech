@@ -30,7 +30,7 @@ class AppUtils {
   // static Future<void> launchToBrowser(Uri url) async {
   //   if (!await launchUrl(
   //     url,
-  //     mode: LaunchMode.externalApplication,
+  //     model: LaunchMode.externalApplication,
   //   )) {
   //     throw Exception('Could not launch $url');
   //   }

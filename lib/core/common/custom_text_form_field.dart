@@ -48,7 +48,7 @@ class CustomTextFormField extends StatefulWidget {
     this.maxLines = 1,
     this.maxLength = 256,
     this.fillColor,
-    this.textColor = Colors.black87,
+    this.textColor = Colors.white,
     this.borderColor = AppColors.colorSecondary,
     this.cursorColor = AppColors.colorSecondary,
     this.hintColor = Colors.grey,

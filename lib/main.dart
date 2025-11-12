@@ -63,7 +63,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      // title: 'Flutter Demo',
       theme: ThemeData(
         bottomSheetTheme: BottomSheetThemeData(
           backgroundColor: AppColors.colorTransparent
@@ -107,7 +107,7 @@ class MyApp extends StatelessWidget {
           backgroundColor: AppColors.colorTransparent,
         ),
         scaffoldBackgroundColor: AppColors.bgDark,
-        useMaterial3: false,
+        useMaterial3: true,
       ),
       home: SplashScreen(),
       debugShowCheckedModeBanner: false,
