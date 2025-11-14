@@ -81,71 +81,68 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                 ),
               ),
-              body: (
-                  (productProvider.cartModel?.productInfo == null ||
-                      productProvider.cartModel!.productInfo!.isEmpty)
-              )
-                  ? Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  AppUtils.emptyCartWidget(),
-                  10.toSizedBoxHeight,
-                  CommonButtonWidget(
-                    buttonText: "Continue Shopping",
-                    onPressed: () {
-                      if (widget.isAdmin == true) {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DashboardScreenAD(),
+              body:
+                  ((productProvider.cartModel?.productInfo == null ||
+                          productProvider.cartModel!.productInfo!.isEmpty))
+                      ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          AppUtils.emptyCartWidget(),
+                          10.toSizedBoxHeight,
+                          CommonButtonWidget(
+                            buttonText: "Continue Shopping",
+                            onPressed: () {
+                              if (widget.isAdmin == true) {
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => DashboardScreenAD(),
+                                  ),
+                                  (route) => false,
+                                );
+                              } else {
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => DashboardScreen(),
+                                  ),
+                                  (route) => true,
+                                );
+                              }
+                            },
+                            verticalPadding: 10,
+                            fontSize: fontSizeSmall,
+                            horizontalMargin: 120,
                           ),
-                              (route) => false,
-                        );
-                      } else {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DashboardScreen(),
-                          ),
-                              (route) => true,
-                        );
-                      }
-                    },
-                    verticalPadding: 10,
-                    fontSize: fontSizeSmall,
-                    horizontalMargin: 120,
-                  ),
-                ],
-              )
-                  : Column(
-                children: [
-                  if (productProvider.cartModel?.productInfo != null &&
-                      productProvider.cartModel!.productInfo!
-                          .isNotEmpty)
-                    Expanded(
-                      child: ListView.builder(
-                        // physics: NeverScrollableScrollPhysics(),
-                        // shrinkWrap: true,
-                        itemCount: productProvider
-                            .cartModel?.productInfo?.length ??
-                            0,
-                        itemBuilder: (context, index) {
-                          return _listItem(
-                            index,
-                            productProvider.cartModel!
-                                .productInfo![index],
-                            productProvider,
-                          );
-                        },
+                        ],
+                      )
+                      : Column(
+                    children: [
+                      Expanded(
+                        // ✅ Changed from fixed height to Expanded
+                        child: ListView.builder(
+                          itemCount:
+                          productProvider
+                              .cartModel
+                              ?.productInfo
+                              ?.length,
+                          shrinkWrap: true,
+                          padding: EdgeInsets.zero,
+                          itemBuilder: (context, index) {
+                            return _listItem(
+                              index,
+                              productProvider
+                                  .cartModel
+                                  ?.productInfo?[index],
+                              productProvider,
+                            );
+                          },
+                        ),
                       ),
-                    ),
-
-                  /// 💰 SUBTOTAL OR FOOTER
-                  _subTotalView(productProvider),
-                ],
-              ),
-
+                      _subTotalView(productProvider),
+                    ],
+                  ),
             ),
             _cartProvider.isLoading == true
                 ? CircleLoadingIndicatorWidget()
@@ -153,163 +150,6 @@ class _CartScreenState extends State<CartScreen> {
           ],
         );
       },
-    );
-  }
-
-  Widget _instrumentListItem(int index, InstrumentModel? instruments,
-      ProductProvider productProvider) {
-    Uint8List images = base64Decode(instruments?.images?.first
-        ?.split(',')
-        .last ?? "");
-    return Frost(
-      // decoration: BoxDecoration(
-      //   borderRadius: BorderRadius.circular(12),
-      //   color: AppColors.colorLightGrey,
-      // ),
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      child: Slidable(
-        key: UniqueKey(),
-        endActionPane: ActionPane(
-          extentRatio: 0.20,
-          dragDismissible: false,
-          motion: const ScrollMotion(),
-          dismissible: DismissiblePane(
-            dismissalDuration: const Duration(milliseconds: 1000),
-            dismissThreshold: 0.1,
-            onDismissed: () {},
-          ),
-          children: [
-            CustomSlidableAction(
-              padding: EdgeInsets.only(top: 0, bottom: 0),
-              onPressed: (context) {
-                AppUtils.showCustomTwoBtnDialog(
-                  ctx: context,
-                  dialogBtnTextRight: "Yes",
-                  dialogBtnTextLeft: "No",
-                  dialogMessage:
-                  "Are you sure you want to remove this product from cart?",
-                  dialogTitle: "Alert",
-                  dialogBtnRightFnc: () {
-                    if (widget.isAdmin == true) {
-                      productProvider.removeProductFromCartListingScreen(
-                        index,
-                        PreferenceHelper.CART_MODEL_LIST_AD,
-                      );
-                    } else {
-                      productProvider.removeProductFromCartListingScreen(
-                        index,
-                        PreferenceHelper.CART_MODEL_LIST,
-                      );
-                    }
-                  },
-                );
-              },
-              borderRadius: BorderRadius.only(
-                topRight: Radius.circular(12),
-                bottomRight: Radius.circular(12),
-              ),
-              foregroundColor: AppColors.colorWhite,
-              backgroundColor: Colors.transparent,
-              child: Icon(Icons.delete, size: 26, color: AppColors.colorWhite),
-            ),
-          ],
-        ),
-        child: Frost(
-          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Image section
-              Image.memory(
-                images,
-                fit: BoxFit.cover,
-                width: 80,
-                height: 80,
-                errorBuilder: (context, error, stackTrace) {
-                  return const Text('Error loading image');
-                },
-              ),
-
-              AppUtils.commonSizedBox(width: 10),
-
-              // Product info
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                  // Name + Price
-                  Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: (instruments?.description ?? '').textWidget(
-                        fontSize: fontSizeNormal,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.colorWhite,
-                      ),
-                    ),
-                    5.toSizedBoxWidth,
-                  ],
-                ),
-
-                5.toSizedBoxHeight,
-
-                // /// 🔽 Product Variant ListView
-                ("Size : ${instruments?.size ?? ""}").textWidget(
-                  fontSize: fontSizeNormal,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.colorWhite,
-                ),
-
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //   crossAxisAlignment: CrossAxisAlignment.end,
-                  //   children: [
-                  //     if ((item?.productVariant?.isNotEmpty ?? false))
-                  //       Column(
-                  //         crossAxisAlignment: CrossAxisAlignment.start,
-                  //         children:
-                  //         item!.productVariant!.entries.map((entry) {
-                  //           final key = entry.key;
-                  //           final value = entry.value;
-                  //
-                  //           return '$key: '.richTextView(
-                  //             fontFamily: AppConstants.fontFamilyPoppins,
-                  //             fontSize: fontSizeNormal,
-                  //             color: AppColors.colorLightGrey,
-                  //             textSpanList: [
-                  //               const WidgetSpan(
-                  //                 child: SizedBox(width: 2),
-                  //               ),
-                  //               TextSpan(
-                  //                 text: value.name ?? 'N/A',
-                  //                 style: TextStyle(
-                  //                   color: AppColors.colorWhite,
-                  //                   fontSize: fontSizeSmall,
-                  //                   fontFamily:
-                  //                   AppConstants.fontFamilyPoppins,
-                  //                   fontWeight: FontWeight.bold,
-                  //                 ),
-                  //               ),
-                  //             ],
-                  //           );
-                  //         }).toList(),
-                  //       ),
-                  //     _productItemCountView(index, item),
-                  //   ],
-                  // ),
-
-                  /// 🔽 Quantity stepper or actions
-                  _instrumentItemCountView(index, instruments),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 
@@ -340,7 +180,7 @@ class _CartScreenState extends State<CartScreen> {
                   dialogBtnTextRight: "Yes",
                   dialogBtnTextLeft: "No",
                   dialogMessage:
-                  "Are you sure you want to remove this product from cart?",
+                      "Are you sure you want to remove this product from cart?",
                   dialogTitle: "Alert",
                   dialogBtnRightFnc: () {
                     if (widget.isAdmin == true) {
@@ -400,14 +240,13 @@ class _CartScreenState extends State<CartScreen> {
                         ),
                         5.toSizedBoxWidth,
 
-                        '${AppConstants.currencySymbol}${item?.price
-                            ?.toStringAsFixed(2) ?? 0}'
+                        '${AppConstants.currencySymbol}${item?.price?.toStringAsFixed(2) ?? 0}'
                             .textWidget(
-                          color: AppColors.colorWhite,
-                          fontSize: fontSizeNormal,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: AppConstants.fontFamilyRoboto,
-                        ),
+                              color: AppColors.colorWhite,
+                              fontSize: fontSizeNormal,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: AppConstants.fontFamilyRoboto,
+                            ),
                       ],
                     ),
 
@@ -422,31 +261,31 @@ class _CartScreenState extends State<CartScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children:
-                            item!.productVariant!.entries.map((entry) {
-                              final key = entry.key;
-                              final value = entry.value;
+                                item!.productVariant!.entries.map((entry) {
+                                  final key = entry.key;
+                                  final value = entry.value;
 
-                              return '$key: '.richTextView(
-                                fontFamily: AppConstants.fontFamilyPoppins,
-                                fontSize: fontSizeNormal,
-                                color: AppColors.colorLightGrey,
-                                textSpanList: [
-                                  const WidgetSpan(
-                                    child: SizedBox(width: 2),
-                                  ),
-                                  TextSpan(
-                                    text: value.name ?? 'N/A',
-                                    style: TextStyle(
-                                      color: AppColors.colorWhite,
-                                      fontSize: fontSizeSmall,
-                                      fontFamily:
-                                      AppConstants.fontFamilyPoppins,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              );
-                            }).toList(),
+                                  return '$key: '.richTextView(
+                                    fontFamily: AppConstants.fontFamilyPoppins,
+                                    fontSize: fontSizeNormal,
+                                    color: AppColors.colorLightGrey,
+                                    textSpanList: [
+                                      const WidgetSpan(
+                                        child: SizedBox(width: 2),
+                                      ),
+                                      TextSpan(
+                                        text: value.name ?? 'N/A',
+                                        style: TextStyle(
+                                          color: AppColors.colorWhite,
+                                          fontSize: fontSizeSmall,
+                                          fontFamily:
+                                              AppConstants.fontFamilyPoppins,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }).toList(),
                           ),
                         _productItemCountView(index, item),
                       ],
@@ -463,7 +302,6 @@ class _CartScreenState extends State<CartScreen> {
       ),
     );
   }
-
 
   Widget _productItemCountView(int index, Product? item) {
     return Align(
@@ -500,13 +338,13 @@ class _CartScreenState extends State<CartScreen> {
           InkWell(
             onTap: () {
               _productProvider.qtyEditController.text =
-              '${item?.productQty ?? 1}';
+                  '${item?.productQty ?? 1}';
               showDialog(
                 context: context,
                 builder: (context) {
                   return UpdateQuantityDialogWidget(
                     qtyTextEditingController:
-                    _productProvider.qtyEditController,
+                        _productProvider.qtyEditController,
                     positiveCallBack: (val) {
                       _productProvider.updateProductQtyFromCartListingScreen(
                         index,
@@ -558,100 +396,13 @@ class _CartScreenState extends State<CartScreen> {
       ),
     );
   }
-  Widget _instrumentItemCountView(int index, InstrumentModel? item) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          InkWell(
-            onTap: () {
-              if ((item?.quantity ?? 1) > 1) {
-                _productProvider.updateInstrumentQtyFromCartListingScreen(
-                  index,
-                  (item?.quantity ?? 1) - 1,
-                  PreferenceHelper.CART_MODEL_LIST_AD
-                );
-              }
-            },
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(width: 1.3, color: AppColors.colorWhite),
-              ),
-              child: const Icon(
-                Icons.remove,
-                size: 16,
-                color: AppColors.colorWhite,
-              ),
-            ),
-          ),
-          // 12.toSizedBoxWidth,
-          InkWell(
-            onTap: () {
-              _productProvider.qtyEditController.text =
-              '${item?.quantity ?? 1}';
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return UpdateQuantityDialogWidget(
-                    qtyTextEditingController:
-                    _productProvider.qtyEditController,
-                    positiveCallBack: (val) {
-                      _productProvider.updateInstrumentQtyFromCartListingScreen(
-                        index,
-                        int.parse(val),
-                        PreferenceHelper.CART_MODEL_LIST_AD
-                      );
-                    },
-                  );
-                },
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 10.0,
-              ),
-              child: ('${item?.quantity ?? 1}').textWidget(
-                fontSize: fontSizeMedium,
-                fontWeight: FontWeight.bold,
-                textAlign: TextAlign.center,
-                color: AppColors.colorWhite,
-              ),
-            ),
-          ),
-          // 12.toSizedBoxWidth,
-          InkWell(
-            onTap: () {
-              _productProvider.updateInstrumentQtyFromCartListingScreen(
-                index,
-                (item?.quantity ?? 1) + 1,
-                  PreferenceHelper.CART_MODEL_LIST_AD
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: AppUtils.commonGradientBoxDecoration(borderRadius: 8),
-              child: const Icon(
-                Icons.add,
-                size: 16,
-                color: AppColors.colorWhite,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _subTotalView(ProductProvider productProvider) {
     return Visibility(
       visible:
-      ((productProvider.cartModel?.productInfo != null) ||
-          productProvider.cartModel?.productInfo != [] ||
-          productProvider.cartModel?.productInfo?.length != 0),
+          ((productProvider.cartModel?.productInfo != null) ||
+              productProvider.cartModel?.productInfo != [] ||
+              productProvider.cartModel?.productInfo?.length != 0),
       child: Frost(
         blur: 16,
         opacity: .22,
@@ -677,189 +428,230 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                   '${AppConstants.currencySymbol}${productProvider.cartTotal}'
                       .textWidget(
-                    color: AppColors.colorWhite,
-                    fontSize: fontSizeMedium,
-                    fontWeight: FontWeight.w800,
-                  ),
+                        color: AppColors.colorWhite,
+                        fontSize: fontSizeMedium,
+                        fontWeight: FontWeight.w800,
+                      ),
                 ],
               ),
             ),
             const Spacer(),
             widget.isAdmin == true
                 ? GestureDetector(
-              onTap: () {
-                AppUtils.showCustomTwoBtnDialog(
-                  ctx: context,
-                  rightPop: false,
-                  dialogBtnTextLeft: "No",
-                  dialogBtnTextRight: "Yes",
-                  dialogTitle: "instruments",
-                  dialogMessage: "Do you want to add instruments?",
-                  dialogBtnRightFnc: () {
-                    Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(
-                      builder: (context) => AddInstrumentsScreen(productInfo: productProvider.cartModel?.productInfo,),)).then((
-                        value) {
-                      if (widget.isAdmin == true) {
-                        _productProvider.getCartList(PreferenceHelper.CART_MODEL_LIST_AD);
-                      } else {
-                        _productProvider.getCartList(PreferenceHelper.CART_MODEL_LIST);
+                  onTap: () {
+                    AppUtils.showCustomTwoBtnDialog(
+                      ctx: context,
+                      rightPop: false,
+                      leftPop: false,
+                      dialogBtnTextLeft: "No",
+                      dialogBtnTextRight: "Yes",
+                      dialogTitle: "instruments",
+                      dialogMessage: "Do you want to add instruments?",
+                      dialogBtnRightFnc: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => AddInstrumentsScreen(
+                                  productInfo:
+                                      productProvider.cartModel?.productInfo,
+                                ),
+                          ),
+                        ).then((value) {
+                          print("value$value");
+                          if(value == true){
+                            productProvider.clearList();
+                            productProvider.getCartList(
+                              PreferenceHelper.CART_MODEL_LIST_AD,
+                            );
+                          }
+
+
+                        });
+                      },
+                      dialogBtnLeftFnc: (){
+                        Navigator.pop(context);
+                        showModalBottomSheet(
+                          isDismissible: false,
+                          useSafeArea: true,
+                          isScrollControlled: true, // <-- This is the key fix
+
+                          context: context, builder: (context) {
+                          return Padding(
+                            padding: EdgeInsets.only(
+                              bottom: MediaQuery.of(context).viewInsets.bottom,
+                            ),
+                            child: DeliveryNotesDialogWidget(
+                              notesController: _cartProvider.notesController,
+                              positiveCallBack: (val) {
+                                _cartProvider.apiCallAddOrderAD(
+                                  productList:  productProvider.cartModel?.productInfo,
+                                      callback: () {
+                                        _cartProvider.notesController.clear();
+                                        productProvider.clearList();
+                                      },
+                                  instrumentList: []
+                                );
+                              },
+                            ),
+                          );
+                        },);
+
                       }
-                    },);
-                  },);
+                    );
 
-                // showDialog(
-                //
-                //   context: context, builder: (context) {
-                //   return DeliveryNotesDialogWidget(
-                //     notesController: _cartProvider.notesController,
-                //     positiveCallBack: (val) {
-                //       _cartProvider.apiCallAddOrderAD(
-                //         productProvider.cartModel?.productInfo,
-                //             () {
-                //           _cartProvider.notesController.clear();
-                //           productProvider.clearList();
-                //           // PreferenceHelper.remove(PreferenceHelper.remove(key))
-                //         },
-                //       );
-                //     },
-                //   );
-                // },);
+                    // showDialog(
+                    //
+                    //   context: context, builder: (context) {
+                    //   return DeliveryNotesDialogWidget(
+                    //     notesController: _cartProvider.notesController,
+                    //     positiveCallBack: (val) {
+                    //       _cartProvider.apiCallAddOrderAD(
+                    //         productProvider.cartModel?.productInfo,
+                    //             () {
+                    //           _cartProvider.notesController.clear();
+                    //           productProvider.clearList();
+                    //           // PreferenceHelper.remove(PreferenceHelper.remove(key))
+                    //         },
+                    //       );
+                    //     },
+                    //   );
+                    // },);
 
-                // showAlertDialog(
-                //   title: "Distributor Note",
-                //   isTitleCenter: true,
-                //
-                //   widget: DeliveryNotesDialogWidget(
-                //     notesController: _cartProvider.notesController,
-                //     positiveCallBack: (val) {
-                //       _cartProvider.apiCallAddOrderAD(
-                //         productProvider.cartModel?.productInfo,
-                //             () {
-                //           _cartProvider.notesController.clear();
-                //           productProvider.clearList();
-                //           // PreferenceHelper.remove(PreferenceHelper.remove(key))
-                //         },
-                //       );
-                //     },
-                //   ),
-                //   context: context,
-                // );
-              },
-              child: Container(
-                height: 48,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: AppUtils.commonGradientBoxDecoration(
-                  borderRadius: 16,
-                ),
-                // decoration: BoxDecoration(
-                //   gradient: const LinearGradient(
-                //     colors: [Color(0xFF5C9DFF), Color(0xFF3E7BFA)],
-                //   ),
-                //   borderRadius: BorderRadius.circular(16),
-                //   boxShadow: [
-                //     BoxShadow(
-                //       color: Colors.black.withOpacity(.25),
-                //       blurRadius: 10,
-                //       offset: const Offset(0, 6),
-                //     ),
-                //   ],
-                // ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 26,
-                      height: 26,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.check_rounded,
-                        size: 18,
-                        color: AppColors.primary,
-                      ),
+                    // showAlertDialog(
+                    //   title: "Distributor Note",
+                    //   isTitleCenter: true,
+                    //
+                    //   widget: DeliveryNotesDialogWidget(
+                    //     notesController: _cartProvider.notesController,
+                    //     positiveCallBack: (val) {
+                    //       _cartProvider.apiCallAddOrderAD(
+                    //         productProvider.cartModel?.productInfo,
+                    //             () {
+                    //           _cartProvider.notesController.clear();
+                    //           productProvider.clearList();
+                    //           // PreferenceHelper.remove(PreferenceHelper.remove(key))
+                    //         },
+                    //       );
+                    //     },
+                    //   ),
+                    //   context: context,
+                    // );
+                  },
+                  child: Container(
+                    height: 48,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: AppUtils.commonGradientBoxDecoration(
+                      borderRadius: 16,
                     ),
-                    const SizedBox(width: 10),
-                    "Confirm Order".textWidget(
-                      color: AppColors.colorWhite,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      latterSpacing: 0,
-                    ),
-                  ],
-                ),
-              ),
-            )
-                : GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder:
-                        (context) =>
-                        SelectHospitalScreen(
-                          cartModel: productProvider.cartModel,
+                    // decoration: BoxDecoration(
+                    //   gradient: const LinearGradient(
+                    //     colors: [Color(0xFF5C9DFF), Color(0xFF3E7BFA)],
+                    //   ),
+                    //   borderRadius: BorderRadius.circular(16),
+                    //   boxShadow: [
+                    //     BoxShadow(
+                    //       color: Colors.black.withOpacity(.25),
+                    //       blurRadius: 10,
+                    //       offset: const Offset(0, 6),
+                    //     ),
+                    //   ],
+                    // ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 26,
+                          height: 26,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.check_rounded,
+                            size: 18,
+                            color: AppColors.primary,
+                          ),
                         ),
+                        const SizedBox(width: 10),
+                        "Confirm Order".textWidget(
+                          color: AppColors.colorWhite,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          latterSpacing: 0,
+                        ),
+                      ],
+                    ),
                   ),
-                ).then((value) {
-                  productProvider.clearList();
-                  productProvider.getCartList(
-                    PreferenceHelper.CART_MODEL_LIST,
-                  );
-                });
-              },
-              child: Container(
-                height: 48,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: AppUtils.commonGradientBoxDecoration(
-                  borderRadius: 16,
-                ),
-                // decoration: BoxDecoration(
-                //   gradient: const LinearGradient(
-                //     colors: [Color(0xFF5C9DFF), Color(0xFF3E7BFA)],
-                //   ),
-                //   borderRadius: BorderRadius.circular(16),
-                //   boxShadow: [
-                //     BoxShadow(
-                //       color: Colors.black.withOpacity(.25),
-                //       blurRadius: 10,
-                //       offset: const Offset(0, 6),
-                //     ),
-                //   ],
-                // ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 26,
-                      height: 26,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
+                )
+                : GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => SelectHospitalScreen(
+                              cartModel: productProvider.cartModel,
+                            ),
                       ),
-                      child: const Icon(
-                        Icons.check_rounded,
-                        size: 18,
-                        color: AppColors.primary,
-                      ),
+                    ).then((value) {
+                      productProvider.clearList();
+                      productProvider.getCartList(
+                        PreferenceHelper.CART_MODEL_LIST,
+                      );
+                    });
+                  },
+                  child: Container(
+                    height: 48,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: AppUtils.commonGradientBoxDecoration(
+                      borderRadius: 16,
                     ),
-                    const SizedBox(width: 10),
-                    "Select Hospital".textWidget(
-                      color: AppColors.colorWhite,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      latterSpacing: 0,
+                    // decoration: BoxDecoration(
+                    //   gradient: const LinearGradient(
+                    //     colors: [Color(0xFF5C9DFF), Color(0xFF3E7BFA)],
+                    //   ),
+                    //   borderRadius: BorderRadius.circular(16),
+                    //   boxShadow: [
+                    //     BoxShadow(
+                    //       color: Colors.black.withOpacity(.25),
+                    //       blurRadius: 10,
+                    //       offset: const Offset(0, 6),
+                    //     ),
+                    //   ],
+                    // ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 26,
+                          height: 26,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.check_rounded,
+                            size: 18,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        "Select Hospital".textWidget(
+                          color: AppColors.colorWhite,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          latterSpacing: 0,
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
           ],
         ),
       ),

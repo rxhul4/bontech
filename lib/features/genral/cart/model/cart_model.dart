@@ -3,9 +3,8 @@ import 'package:sales_app_redesign/features/genral/product/model/get_product_by_
 
 class CartModel {
   List<Product>? productInfo;
-  List<InstrumentModel>? instruments;
 
-  CartModel({this.productInfo, this.instruments});
+  CartModel({this.productInfo});
 
   CartModel.fromJson(Map<String, dynamic> json) {
     if (json['listData'] != null) {
@@ -15,12 +14,7 @@ class CartModel {
       });
     }
 
-    if (json['instruments'] != null) {
-      instruments = <InstrumentModel>[];
-      json['instruments'].forEach((v) {
-        instruments!.add(InstrumentModel.fromJson(v));
-      });
-    }
+
   }
 
   Map<String, dynamic> toJson() {
@@ -30,9 +24,6 @@ class CartModel {
       data['listData'] = productInfo!.map((v) => v.toJson()).toList();
     }
 
-    if (instruments != null) {
-      data['instruments'] = instruments!.map((v) => v.toJson()).toList();
-    }
 
     return data;
   }

@@ -168,9 +168,9 @@ class ProductProvider with ChangeNotifier {
       // Map<String, dynamic> jsonMap = jsonDecode(cartString);
 
       cartModel =
-          (cartString != null && cartString.isNotEmpty)
-              ? CartModel.fromJson(jsonDecode(cartString))
-              : CartModel();
+      (cartString != null && cartString.isNotEmpty)
+          ? CartModel.fromJson(jsonDecode(cartString))
+          : CartModel();
 
       if (kDebugMode) {
         print(
@@ -201,9 +201,9 @@ class ProductProvider with ChangeNotifier {
       cartModel?.productInfo ??= [];
       final int existingIndex =
           cartModel?.productInfo?.indexWhere(
-            (item) => item.productVariantId == productVariant.productVariantId,
+                (item) => item.productVariantId == productVariant.productVariantId,
           ) ??
-          0;
+              0;
 
       if (existingIndex >= 0) {
         final existingItem = cartModel?.productInfo?[existingIndex];
@@ -238,31 +238,30 @@ class ProductProvider with ChangeNotifier {
     }
   }
 
-  CartModel? getCartList(String cartKey) {
+  List<Product> getCartList(String cartKey) {
     try {
       final String cartString = PreferenceHelper.getString(cartKey) ?? '';
 
-      print("cartString$cartString");
-
-
-
       if (cartString.isEmpty) {
-        return CartModel();
+        return [];
       }
 
       final Map<String, dynamic> cartJson = jsonDecode(cartString);
       cartModel = CartModel.fromJson(cartJson);
       calculateSubtotal();
-      print("Cart${cartModel?.instruments?.length}");
+      // notifyListeners();
 
-      return cartModel;
+      return cartModel?.productInfo ?? [];
+
+
     } catch (e, stackTrace) {
       if (kDebugMode) {
         print("Error in getCartList: $e\n$stackTrace");
       }
-      return CartModel();
+      return [];
     }
   }
+
 
 
 
@@ -291,7 +290,6 @@ class ProductProvider with ChangeNotifier {
 
   clearList() {
     cartModel?.productInfo?.clear();
-    cartModel?.instruments?.clear();
     cartTotal = 0;
     totalQty = 0;
     cartModel = CartModel();
@@ -323,18 +321,18 @@ class ProductProvider with ChangeNotifier {
     calculateSubtotal();
     notifyListeners();
   }
-
-  updateInstrumentQtyFromCartListingScreen(
-      int index,
-      int qty,
-      String cartkey,
-      ) async {
-    cartModel?.instruments?[index].quantity = qty;
-    final encodedCart = cartModel?.toJson();
-    final cartStringUpdated = convertJsonToString(encodedCart);
-    PreferenceHelper.setString(cartkey, cartStringUpdated);
-    notifyListeners();
-  }
+  //
+  // updateInstrumentQtyFromCartListingScreen(
+  //     int index,
+  //     int qty,
+  //     String cartkey,
+  //     ) async {
+  //   cartModel?.instruments?[index].quantity = qty;
+  //   final encodedCart = cartModel?.toJson();
+  //   final cartStringUpdated = convertJsonToString(encodedCart);
+  //   PreferenceHelper.setString(cartkey, cartStringUpdated);
+  //   notifyListeners();
+  // }
 
   void calculateSubtotal() {
     cartTotal = 0;

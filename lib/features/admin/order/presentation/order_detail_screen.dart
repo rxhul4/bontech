@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:action_slider/action_slider.dart';
@@ -320,7 +321,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
       physics: const NeverScrollableScrollPhysics(),
       itemBuilder: (context, index) {
         od.DealerOrderInstruments? item = orderData?.dealerOrderInstruments?[index];
-        return _listOfInstruments(item);
+        return _listOfInstruments(item,context);
       },
     );
   }
@@ -1001,24 +1002,15 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     );
   }
 
-  Widget _listOfInstruments(od.DealerOrderInstruments? item) {
+  Widget _listOfInstruments(od.DealerOrderInstruments? item, BuildContext context) {
+    final List<String> base64Images = (item?.images ?? [])
+        .where((img) => img.isNotEmpty)
+        .toList();
+
     return InkWell(
       borderRadius: BorderRadius.circular(16),
       child: Frost(
-        margin: EdgeInsets.symmetric(vertical: 8),
-        // decoration: BoxDecoration(
-        //   color: AppColors.colorPrimary,
-        //   borderRadius: BorderRadius.circular(12),
-        //   border: Border.all(color: Colors.white.withOpacity(0.08)),
-        //   boxShadow: [
-        //     BoxShadow(
-        //       color: AppColors.colorSecondary.withOpacity(0.25),
-        //       blurRadius: 0,
-        //       spreadRadius: 0.0,
-        //       offset: const Offset(0, 2),
-        //     ),
-        //   ],
-        // ),
+        margin: const EdgeInsets.symmetric(vertical: 8),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         width: double.infinity,
         child: Column(
@@ -1027,114 +1019,145 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
-                Expanded(
-                  flex: 3,
-                  child: '${item?.itemDescription}'.textWidget(
-                    fontWeight: FontWeight.bold,
-                    fontFamily: AppConstants.fontFamilyPoppins,
-                    fontSize: fontSizeMedium,
-                    color: AppColors.colorLightGrey,
-
+                if (base64Images.isNotEmpty)
+                  InkWell(
+                    onTap: () {
+                      _showImageViewer(context, base64Images);
+                    },
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.memory(
+                        base64Decode(base64Images.first.split(',').last),
+                        height: 80,
+                        width: 80 ,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
+                const SizedBox(width: 12),
 
-                ),
-                // item?.deliveredQuantity?.toInt() == 0
-                //     ? SizedBox()
-                //     : 'Delivered Qty :'.richTextView(
-                //   textSpanList: [
-                //     const WidgetSpan(child: SizedBox(width: 3)),
-                //     TextSpan(
-                //       text: '${item?.deliveredQuantity?.toInt()}',
-                //       style: const TextStyle(
-                //         color: AppColors.colorWhite,
-                //         fontWeight: FontWeight.bold,
-                //       ),
-                //     ),
-                //   ],
-                // ),
-              ],
-            ),
-            5.toSizedBoxHeight,
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Row(
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    2.toSizedBoxHeight,
-                    'Qty :'.richTextView(
-                      textSpanList: [
-                        const WidgetSpan(child: SizedBox(width: 3)),
-                        TextSpan(
-                          text: '${item?.quantity?.toInt()}',
-                          style: const TextStyle(
-                            color: AppColors.colorWhite,
-                            fontWeight: FontWeight.bold,
+                    (item?.itemDescription ?? 'N/A').textWidget(
+                      fontWeight: FontWeight.bold,
+                      fontFamily: AppConstants.fontFamilyPoppins,
+                      fontSize: fontSizeMedium,
+                      color: AppColors.colorLightGrey,
+                    ),
+                    5.toSizedBoxHeight,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        'Qty :'.richTextView(
+                          textSpanList: [
+                            const WidgetSpan(child: SizedBox(width: 3)),
+                            TextSpan(
+                              text: '${item?.quantity?.toInt() ?? 0}',
+                              style: const TextStyle(
+                                color: AppColors.colorWhite,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    5.toSizedBoxHeight,
+                    "Item Code: ${item?.itemCode ?? 'N/A'}".textWidget(
+                      fontFamily: AppConstants.fontFamilyPoppins,
+                      fontSize: fontSizeNormal,
+                      color: AppColors.colorLightGrey,
+                    ),
+                  ],
+                ),
+
+              ],
+            ),
+
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 🔹 Full-screen image viewer with blur & dots
+  void _showImageViewer(BuildContext context, List<String> images) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black54,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            int currentIndex = 0;
+            final pageController = PageController();
+
+            return BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Scaffold(
+                  backgroundColor: Colors.black.withOpacity(0.7),
+                  body: SafeArea(
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        PageView.builder(
+                          controller: pageController,
+                          itemCount: images.length,
+                          onPageChanged: (index) {
+                            setState(() => currentIndex = index);
+                          },
+                          itemBuilder: (context, index) {
+                            return InteractiveViewer(
+                              child: Center(
+                                child: Image.memory(
+                                  base64Decode(images[index].split(',').last),
+                                  fit: BoxFit.contain,
+                                  height: 150,
+                                  width: 150 ,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        Positioned(
+                          bottom: 20,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: List.generate(
+                              images.length,
+                                  (index) => Container(
+                                margin: const EdgeInsets.symmetric(horizontal: 4),
+                                width: currentIndex == index ? 10 : 6,
+                                height: currentIndex == index ? 10 : 6,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: currentIndex == index
+                                      ? Colors.white
+                                      : Colors.grey,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          top: 10,
+                          right: 10,
+                          child: IconButton(
+                            icon: const Icon(Icons.close, color: Colors.white),
+                            onPressed: () => Navigator.pop(context),
                           ),
                         ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
-              ],
-            ),
-            5.toSizedBoxHeight,
-            "Item Code: ${item?.itemCode}".textWidget(
-              fontFamily: AppConstants.fontFamilyPoppins,
-              fontSize: fontSizeNormal,
-              color: AppColors.colorLightGrey,
-            ),
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //   crossAxisAlignment: CrossAxisAlignment.end,
-            //   children: [
-            //     if ((item?.productVariant?.isNotEmpty ?? false))
-            //       Column(
-            //         crossAxisAlignment: CrossAxisAlignment.start,
-            //         children:
-            //         item!.productVariant!.entries.map((entry) {
-            //           final key = entry.key;
-            //           final value = entry.value;
-            //
-            //           return '$key : '.richTextView(
-            //             fontFamily: AppConstants.fontFamilyPoppins,
-            //             fontSize: fontSizeNormal,
-            //             color: AppColors.colorLightGrey,
-            //             textSpanList: [
-            //               const WidgetSpan(child: SizedBox(width: 2)),
-            //               TextSpan(
-            //                 text: value.name ?? 'N/A',
-            //                 style: TextStyle(
-            //                   color: AppColors.colorWhite,
-            //                   fontSize: fontSizeSmall,
-            //                   fontFamily: AppConstants.fontFamilyPoppins,
-            //                   fontWeight: FontWeight.bold,
-            //                 ),
-            //               ),
-            //             ],
-            //           );
-            //         }).toList(),
-            //       ),
-            //     '${AppConstants.currencySymbol}${item?.price}'.textWidget(
-            //       fontWeight: FontWeight.bold,
-            //       fontFamily: AppConstants.fontFamilyRoboto,
-            //       fontSize: fontSizeNormal,
-            //       color: AppColors.colorLightGrey,
-            //     ),
-            //
-            //     // '${AppConstants.currencySymbol}${item?.price?.toStringAsFixed(2) ?? 0}'
-            //     //     .textWidget(
-            //     //   color: AppColors.colorWhite,
-            //     //   fontSize: fontSizeNormal,
-            //     //   fontWeight: FontWeight.bold,
-            //     //   fontFamily: AppConstants.fontFamilyRoboto,
-            //     // ),
-            //   ],
-            // ),
-          ],
-        ),
-      ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 

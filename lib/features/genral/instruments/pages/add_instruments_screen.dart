@@ -36,7 +36,7 @@ class _AddInstrumentsScreenState extends State<AddInstrumentsScreen> {
 
   CartModel? cartModel;
   InstrumentModel? instrumentModel;
-  late CartProvider _cartProvider;
+  late CartProvider _instrumentProvider;
 
   /// Add a new instrument form dynamically
   void _addInstrumentForm() {
@@ -75,14 +75,16 @@ class _AddInstrumentsScreenState extends State<AddInstrumentsScreen> {
       // await addToCartData(instrumentsToAdd);
 
       //api call
-      _cartProvider.apiCallAddOrderAD(widget.productInfo, instrumentsToAdd, () {
-        Navigator.pop(context);
-      });
+      _instrumentProvider.apiCallAddOrderAD(
+        productList: widget.productInfo,
+        instrumentList: instrumentsToAdd,
+        callback: () {
+          Navigator.pop(context, true);
+        },
+      );
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("✅ All forms valid! Instruments added to cart."),
-        ),
+        const SnackBar(content: Text("✅ All forms valid! Submitting...")),
       );
 
       debugPrint("📦 Final Instruments Data: $instrumentsToAdd");
@@ -100,7 +102,7 @@ class _AddInstrumentsScreenState extends State<AddInstrumentsScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _cartProvider = Provider.of<CartProvider>(context, listen: false);
+    _instrumentProvider = Provider.of<CartProvider>(context, listen: false);
     if (kDebugMode) {
       print("Length of ProductData${widget.productInfo?.length}");
     }

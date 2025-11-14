@@ -52,7 +52,9 @@ class CartProvider extends ChangeNotifier {
   }
 
   //prepareCheckOutReq
-  List<Map<String, dynamic>> prepareInstrumentsCheckOutReq(List<InstrumentModel> instruments) {
+  List<Map<String, dynamic>> prepareInstrumentsCheckOutReq(
+    List<InstrumentModel> instruments,
+  ) {
     instrumentsReq.clear();
     if (instruments.isEmpty) {
       return [];
@@ -63,15 +65,18 @@ class CartProvider extends ChangeNotifier {
         "itemDescription": data.description,
         "size": data.size,
         "quantity": data.quantity,
-        "imageUrls": data.images
+        "imageUrls": data.images,
       });
     }
     return instrumentsReq;
   }
 
-
   //apiCallCheckOut
-  apiCallAddOrderAD(List<Product>? productList,List<InstrumentModel>? instrumentList,Function()? callback) async {
+  apiCallAddOrderAD({
+    List<Product>? productList,
+    List<InstrumentModel>? instrumentList,
+    Function()? callback,
+  }) async {
     var userid = PreferenceHelper.getString(PreferenceHelper.USER_ID);
     _isLoading = true;
     // notifyListeners();
@@ -83,7 +88,7 @@ class CartProvider extends ChangeNotifier {
         "userId": userid,
         "delivery_note": notesController.text,
         "orderDatas": orderDatas,
-        "instruments" :instrumentsReq,
+        "instruments": instrumentsReq,
         "appOs": "mobile",
       };
       if (kDebugMode) {
@@ -95,11 +100,10 @@ class CartProvider extends ChangeNotifier {
       addOrderModelAd = AddOrderModelAd.fromJson(json.decode(response));
       if (addOrderModelAd?.isError == false &&
           addOrderModelAd?.isValidationFailed == false) {
-        if(callback != null){
+        PreferenceHelper.remove(PreferenceHelper.CART_MODEL_LIST_AD);
+        if (callback != null) {
           callback();
         }
-        PreferenceHelper.remove(PreferenceHelper.CART_MODEL_LIST_AD);
-
       }
       print("response : ${response}");
     } catch (e) {
@@ -110,27 +114,31 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  apiCallAddOrder(
-      {String? userId,List<Product>? productList,String? hospitalId,Function()? callback}) async {
+  apiCallAddOrder({
+    String? userId,
+    List<Product>? productList,
+    String? hospitalId,
+    Function()? callback,
+  }) async {
     var userid = PreferenceHelper.getString(PreferenceHelper.USER_ID);
     _isLoading = true;
     try {
       prepareCheckOutReq(productList ?? []);
-    Map<String, dynamic> body ={
-      "userId":userid,
-      "hospitalId" : hospitalId,
-      "orderDatas" : orderDatas
-    };
-    print("body $body");
+      Map<String, dynamic> body = {
+        "userId": userid,
+        "hospitalId": hospitalId,
+        "orderDatas": orderDatas,
+      };
+      print("body $body");
       String endPoint = ApiConstants.addSalesOrder;
       var response = await callPostMethod(endPoint, body);
       salesOrderModel = SalesOrderModel.fromJson(json.decode(response));
-      if(salesOrderModel?.isError ==false && salesOrderModel?.isValidationFailed ==false){
-        if(callback != null){
+      if (salesOrderModel?.isError == false &&
+          salesOrderModel?.isValidationFailed == false) {
+        if (callback != null) {
           callback();
         }
         PreferenceHelper.remove(PreferenceHelper.CART_MODEL_LIST);
-
       }
       print("response : ${response}");
     } catch (e) {
@@ -141,6 +149,4 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
     // return addSalesOrderModel;
   }
-
-
 }
