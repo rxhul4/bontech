@@ -10,20 +10,24 @@ Future callPostMethod(String url, Map<String, dynamic> params) async {
   String? userName = PreferenceHelper.getString(PreferenceHelper.USER_NAME);
   String? token = PreferenceHelper.getString(PreferenceHelper.JWT_TOKEN);
 
-  Map<String,String> commonHeader = {
+  Map<String, String> commonHeader = {
     'Content-Type': 'application/json',
     'accept': '*/*',
     'current-User': userName ?? "",
-    'time-zone': DateTime.now().timeZoneOffset.inMinutes.toString(),
-    "token" : token ?? "",
-    "app-os" : "mobile"
+    'time-zone': DateTime
+        .now()
+        .timeZoneOffset
+        .inMinutes
+        .toString(),
+    "token": token ?? "",
+    "app-os": "mobile"
   };
   printWrapped("params--${jsonEncode(params)}");
   printWrapped("header--${jsonEncode(commonHeader)}");
   printWrapped("baseUrl--$url");
   return await http
       .post(Uri.parse(url),
-          body: utf8.encode(json.encode(params)), headers: commonHeader)
+      body: utf8.encode(json.encode(params)), headers: commonHeader)
       .then((http.Response response) {
     return response.body;
   });
@@ -33,13 +37,17 @@ Future callGetMethod(String url) async {
   String? userName = PreferenceHelper.getString(PreferenceHelper.USER_NAME);
   String? token = PreferenceHelper.getString(PreferenceHelper.JWT_TOKEN);
 
-  Map<String,String> commonHeader = {
+  Map<String, String> commonHeader = {
     // 'Content-Type': 'application/json',
     'accept': 'application/json',
     'current-User': userName ?? "",
-    'time-zone': DateTime.now().timeZoneOffset.inMinutes.toString(),
-    "token" : token ?? "",
-    "app-os" : "mobile"
+    'time-zone': DateTime
+        .now()
+        .timeZoneOffset
+        .inMinutes
+        .toString(),
+    "token": token ?? "",
+    "app-os": "mobile"
   };
   printWrapped("header--${jsonEncode(commonHeader)}");
   printWrapped("baseUrl--$url");
@@ -55,13 +63,17 @@ Future callDeleteMethod(String url) async {
   String? userName = PreferenceHelper.getString(PreferenceHelper.USER_NAME);
   String? token = PreferenceHelper.getString(PreferenceHelper.JWT_TOKEN);
 
-  Map<String,String> commonHeader = {
+  Map<String, String> commonHeader = {
     // 'Content-Type': 'application/json',
     'accept': 'application/json',
     'current-User': userName ?? "",
-    'time-zone': DateTime.now().timeZoneOffset.inMinutes.toString(),
-    "token" : token ?? "",
-    "app-os" : "mobile"
+    'time-zone': DateTime
+        .now()
+        .timeZoneOffset
+        .inMinutes
+        .toString(),
+    "token": token ?? "",
+    "app-os": "mobile"
   };
   printWrapped("baseUrl--" + url);
   return await http
